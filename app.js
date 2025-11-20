@@ -1,5 +1,7 @@
 import { css, html, LitElement } from "lit";
-import "./stories/index.js"; // ensure stories register
+import "./components/fablr-button.js";
+import "./components/fablr-card.js";
+import "./components/fablr-input.js";
 import "./components/fablr-link.js";
 
 class FablrApp extends LitElement {
@@ -62,17 +64,32 @@ class FablrApp extends LitElement {
     .control input[type="text"] {
       padding: 6px 8px;
     }
+    .control textarea {
+      padding: 6px 8px;
+      font-family: var(--font-stack);
+      font-size: var(--font-body);
+      resize: vertical;
+    }
+    .control input:disabled,
+    .control textarea:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   `;
 
   static properties = {
     stories: { type: Array },
     selected: { type: Object },
     currentArgs: { type: Object },
+    currentSlots: { type: Object },
+    lockedArgs: { type: Object },
   };
 
   constructor() {
     super();
     this.stories = window.__FABLR_STORIES__ || [];
+    this.currentSlots = {};
+    this.lockedArgs = {};
     this._initializeFromURL();
     this._setupPopStateListener();
   }
@@ -162,6 +179,7 @@ class FablrApp extends LitElement {
     const firstName = Object.keys(firstGroup.stories)[0];
     this.selected = { groupIndex: 0, name: firstName };
     this.currentArgs = { ...(firstGroup.meta?.args || {}) };
+    this.currentSlots = { ...(firstGroup.meta?.slots || {}) };
     this._updateURL(false); // Update URL without pushing to history
   }
 
@@ -215,13 +233,38 @@ class FablrApp extends LitElement {
   selectStory(groupIndex, name) {
     this.selected = { groupIndex, name };
     const group = this.stories[groupIndex];
-    this.currentArgs = { ...(group.meta?.args || {}) };
+    const story = group.stories[name];
+    const baseArgs = { ...(group.meta?.args || {}) };
+
+    // If story is an object with args function, compute the args
+    if (typeof story === "object" && story.args) {
+      this.currentArgs = story.args(baseArgs);
+    } else {
+      this.currentArgs = baseArgs;
+    }
+
+    this.currentSlots = { ...(group.meta?.slots || {}) };
+
+    // Merge meta-level and story-level locked args
+    this.lockedArgs = {
+      ...(group.meta?.lockedArgs || {}),
+      ...(typeof story === "object" ? story.lockedArgs || {} : {}),
+    };
+
     this._updateURL(true);
   }
 
   onArgChange(key, value) {
     this.currentArgs = { ...this.currentArgs, [key]: value };
     this._updateURL(true);
+  }
+
+  onSlotChange(key, value) {
+    this.currentSlots = { ...this.currentSlots, [key]: value };
+  }
+
+  unlockArg(key) {
+    this.lockedArgs = { ...this.lockedArgs, [key]: false };
   }
 
   renderControlsSidebar() {
@@ -231,8 +274,10 @@ class FablrApp extends LitElement {
       </div>`;
     const group = this.stories[this.selected.groupIndex];
     const argDefs = group.meta?.args || {};
-    const keys = Object.keys(argDefs);
-    if (!keys.length)
+    const slotDefs = group.meta?.slots || {};
+    const argKeys = Object.keys(argDefs);
+    const slotKeys = Object.keys(slotDefs);
+    if (!argKeys.length && !slotKeys.length)
       return html`<div id="controls-sidebar">
         <p>No controls available</p>
       </div>`;
@@ -240,15 +285,24 @@ class FablrApp extends LitElement {
       <div id="controls-sidebar">
         <h3>Controls</h3>
         <div class="controls">
-          ${keys.map((k) => {
+          ${argKeys.map((k) => {
             const val = this.currentArgs[k];
+            const isLocked = this.lockedArgs[k] === true;
             if (typeof argDefs[k] === "boolean" || typeof val === "boolean") {
               return html`
                 <div class="control">
                   <label
-                    >${k}<input
+                    >${k}${isLocked
+                      ? html` <button
+                          @click=${() => this.unlockArg(k)}
+                          style="font-size: 0.8em; margin-left: 4px;"
+                        >
+                          🔓
+                        </button>`
+                      : ""}<input
                       type="checkbox"
                       .checked=${!!val}
+                      ?disabled=${isLocked}
                       @change=${(e) => this.onArgChange(k, e.target.checked)}
                   /></label>
                 </div>
@@ -257,11 +311,33 @@ class FablrApp extends LitElement {
             return html`
               <div class="control">
                 <label
-                  >${k}<input
+                  >${k}${isLocked
+                    ? html` <button
+                        @click=${() => this.unlockArg(k)}
+                        style="font-size: 0.8em; margin-left: 4px;"
+                      >
+                        🔓
+                      </button>`
+                    : ""}<input
                     type="text"
                     .value=${val ?? ""}
+                    ?disabled=${isLocked}
                     @input=${(e) => this.onArgChange(k, e.target.value)}
                 /></label>
+              </div>
+            `;
+          })}
+          ${slotKeys.map((k) => {
+            const val = this.currentSlots[k] ?? slotDefs[k];
+            return html`
+              <div class="control">
+                <label
+                  >${k}<textarea
+                    .value=${val}
+                    @input=${(e) => this.onSlotChange(k, e.target.value)}
+                    rows="3"
+                  ></textarea>
+                </label>
               </div>
             `;
           })}
@@ -326,15 +402,24 @@ class FablrApp extends LitElement {
     if (!this.selected) {
       return html`<div id="preview">
         <h1>Welcome to Fablr</h1>
-        <p>No stories found — add stories in the stories/ folder.</p>
+        <p>
+          No stories found — add components with stories in the components/
+          folder.
+        </p>
       </div>`;
     }
     const group = this.stories[this.selected.groupIndex];
-    const storyFn = group.stories[this.selected.name];
+    const story = group.stories[this.selected.name];
+
+    // Support both function and object format
+    const storyFn = typeof story === "function" ? story : story.render;
+
     return html`
       <div id="preview">
         <h3>${group.meta.title} — ${this.selected.name}</h3>
-        <div class="story-area">${storyFn(this.currentArgs)}</div>
+        <div class="story-area">
+          ${storyFn(this.currentArgs, this.currentSlots)}
+        </div>
       </div>
     `;
   }

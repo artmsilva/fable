@@ -4,6 +4,8 @@
   "description": "A simple component story explorer built with Lit",
   "type": "module",
   "scripts": {
+    "dev": "node --experimental-strip-types server.ts",
+    "start": "node --experimental-strip-types server.ts",
     "lint": "npx @biomejs/biome lint .",
     "lint:fix": "npx @biomejs/biome lint --write .",
     "format": "npx @biomejs/biome format --write .",
@@ -17,5 +19,8 @@
     "components"
   ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^24.10.1"
+  }
 }
