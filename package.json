@@ -6,10 +6,6 @@
   "scripts": {
     "dev": "node --experimental-strip-types server.ts",
     "start": "node --experimental-strip-types server.ts",
-    "lint": "npx @biomejs/biome lint .",
-    "lint:fix": "npx @biomejs/biome lint --write .",
-    "format": "npx @biomejs/biome format --write .",
-    "check": "npx @biomejs/biome check .",
     "check:fix": "npx @biomejs/biome check --write ."
   },
   "keywords": [

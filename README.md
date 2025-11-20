@@ -128,20 +128,8 @@ The live reload feature:
 This project uses [Biome](https://biomejs.dev/) for fast linting and formatting (no node_modules install required with npx):
 
 ```bash
-# Check for issues (lint + format)
-npm run check
-
 # Auto-fix all issues
 npm run check:fix
-
-# Lint only
-npm run lint
-
-# Lint and auto-fix
-npm run lint:fix
-
-# Format only
-npm run format
 ```
 
 All commands use `npx @biomejs/biome` so no local installation is needed.
