@@ -9,6 +9,11 @@ class FablrBadge extends LitElement {
       reflect: true,
       enum: ["alpha", "beta", "stable", "deprecated", "info"],
     },
+    size: {
+      type: String,
+      reflect: true,
+      enum: ["default", "condensed"],
+    },
     tooltip: { type: String },
   };
 
@@ -27,6 +32,12 @@ class FablrBadge extends LitElement {
       position: relative;
       font-family: var(--font-stack);
       display: inline-block;
+    }
+    :host([size="condensed"]) .badge {
+      padding: 2px 6px;
+      font-size: 0.625rem;
+      border-radius: 8px;
+      letter-spacing: 0.3px;
     }
     :host([variant="alpha"]) .badge {
       background: #ff4444;
@@ -50,13 +61,13 @@ class FablrBadge extends LitElement {
     }
     .badge::after {
       content: attr(data-tooltip);
-      position: absolute;
-      top: calc(100% + 8px);
-      left: 0;
-      background: rgba(0, 0, 0, 0.9);
-      color: white;
+      position: fixed;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
       padding: 6px 10px;
       border-radius: 4px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       font-size: 0.75rem;
       font-weight: normal;
       text-transform: none;
@@ -65,19 +76,11 @@ class FablrBadge extends LitElement {
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.2s;
-      z-index: 1000;
+      z-index: 10000;
+      margin-left: 8px;
     }
-    .badge::before {
-      content: "";
-      position: absolute;
-      top: calc(100% + 2px);
-      left: 12px;
-      border: 6px solid transparent;
-      border-bottom-color: rgba(0, 0, 0, 0.9);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s;
-      z-index: 1000;
+    .badge:hover::after {
+      opacity: 1;
     }
     .badge:hover::after,
     .badge:hover::before {
@@ -88,6 +91,7 @@ class FablrBadge extends LitElement {
   constructor() {
     super();
     this.variant = "info";
+    this.size = "default";
     this.tooltip = "";
   }
 
@@ -107,7 +111,14 @@ const meta = {
   component: "fablr-badge",
   args: {
     variant: "stable",
+    size: "default",
     tooltip: "This is a tooltip",
+  },
+  argTypes: {
+    size: {
+      control: "select",
+      options: ["default", "condensed"],
+    },
   },
   slots: {
     default: "Badge",
@@ -123,7 +134,10 @@ const stories = {
     }),
     lockedArgs: { variant: true },
     render: (args, slots) =>
-      html`<fablr-badge variant=${args.variant} tooltip=${args.tooltip}
+      html`<fablr-badge
+        variant=${args.variant}
+        size=${args.size}
+        tooltip=${args.tooltip}
         >${slots?.default ?? "alpha"}</fablr-badge
       >`,
   },
@@ -135,7 +149,10 @@ const stories = {
     }),
     lockedArgs: { variant: true },
     render: (args, slots) =>
-      html`<fablr-badge variant=${args.variant} tooltip=${args.tooltip}
+      html`<fablr-badge
+        variant=${args.variant}
+        size=${args.size}
+        tooltip=${args.tooltip}
         >${slots?.default ?? "beta"}</fablr-badge
       >`,
   },
@@ -147,7 +164,10 @@ const stories = {
     }),
     lockedArgs: { variant: true },
     render: (args, slots) =>
-      html`<fablr-badge variant=${args.variant} tooltip=${args.tooltip}
+      html`<fablr-badge
+        variant=${args.variant}
+        size=${args.size}
+        tooltip=${args.tooltip}
         >${slots?.default ?? "stable"}</fablr-badge
       >`,
   },
@@ -159,7 +179,10 @@ const stories = {
     }),
     lockedArgs: { variant: true },
     render: (args, slots) =>
-      html`<fablr-badge variant=${args.variant} tooltip=${args.tooltip}
+      html`<fablr-badge
+        variant=${args.variant}
+        size=${args.size}
+        tooltip=${args.tooltip}
         >${slots?.default ?? "deprecated"}</fablr-badge
       >`,
   },
@@ -171,9 +194,31 @@ const stories = {
     }),
     lockedArgs: { variant: true },
     render: (args, slots) =>
-      html`<fablr-badge variant=${args.variant} tooltip=${args.tooltip}
+      html`<fablr-badge
+        variant=${args.variant}
+        size=${args.size}
+        tooltip=${args.tooltip}
         >${slots?.default ?? "info"}</fablr-badge
       >`,
+  },
+  Condensed: {
+    args: (baseArgs) => ({
+      ...baseArgs,
+      size: "condensed",
+    }),
+    lockedArgs: { size: true },
+    render: (args, slots) =>
+      html`
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <fablr-badge variant="alpha" size="condensed">alpha</fablr-badge>
+          <fablr-badge variant="beta" size="condensed">beta</fablr-badge>
+          <fablr-badge variant="stable" size="condensed">stable</fablr-badge>
+          <fablr-badge variant="deprecated" size="condensed"
+            >deprecated</fablr-badge
+          >
+          <fablr-badge variant="info" size="condensed">info</fablr-badge>
+        </div>
+      `,
   },
 };
 
