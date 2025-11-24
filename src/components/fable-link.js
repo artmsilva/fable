@@ -5,7 +5,18 @@ class FableLink extends LitElement {
   static status = "stable";
 
   static properties = {
+    // Story identification
+    story: { type: String }, // "component-slug/story-slug"
+    groupIndex: { type: Number },
+    storyName: { type: String },
+
+    // Optional args object to include in URL
+    args: { type: Object },
+
+    // Simple href fallback
     href: { type: String },
+
+    // Active state
     active: { type: Boolean, reflect: true },
   };
 
@@ -45,34 +56,40 @@ class FableLink extends LitElement {
 
   constructor() {
     super();
+    this.story = "";
+    this.groupIndex = null;
+    this.storyName = "";
+    this.args = {};
     this.href = "";
     this.active = false;
   }
 
-  _handleClick(e) {
-    e.preventDefault();
+  _buildHref() {
+    // If explicit href provided, use it
+    if (this.href) return this.href;
 
-    if (this.href) {
-      // Dispatch custom navigation event that the router can listen to
-      this.dispatchEvent(
-        new CustomEvent("navigate", {
-          detail: { href: this.href },
-          bubbles: true,
-          composed: true,
-        })
-      );
+    // If story string provided (e.g., "button/primary")
+    if (this.story) {
+      const params = new URLSearchParams();
+      params.set("story", this.story);
 
-      // Also update browser history directly
-      window.history.pushState({}, "", this.href);
+      // Add args if provided
+      if (this.args && typeof this.args === "object") {
+        Object.entries(this.args).forEach(([key, value]) => {
+          params.set(key, String(value));
+        });
+      }
 
-      // Dispatch popstate to trigger router update
-      window.dispatchEvent(new PopStateEvent("popstate"));
+      return `?${params.toString()}`;
     }
+
+    // Fallback to # for no-op links
+    return "#";
   }
 
   render() {
     return html`
-      <a href=${this.href} @click=${this._handleClick}>
+      <a href=${this._buildHref()}>
         <slot></slot>
       </a>
     `;
@@ -84,22 +101,39 @@ customElements.define("fable-link", FableLink);
 // Stories
 const meta = {
   component: "fable-link",
-  args: { href: "?story=fable-button/primary" },
+  args: {
+    story: "button/primary",
+    active: false,
+  },
   slots: {
     default: "Click me",
   },
 };
 
 const stories = {
-  Default: (args, slots) =>
-    html`<fable-link href=${args.href} ?active=${args.active}
-      >${slots?.default ?? "Click me"}</fable-link
+  "Simple Story Link": (args, slots) =>
+    html`<fable-link story=${args.story} ?active=${args.active}
+      >${slots?.default ?? "Story Link"}</fable-link
     >`,
+
+  "With Args": (args, slots) =>
+    html`<fable-link
+      story="button/primary"
+      .args=${{ variant: "primary", size: "large" }}
+      ?active=${args.active}
+      >${slots?.default ?? "Button Primary Large"}</fable-link
+    >`,
+
+  "Simple Href": (args, slots) =>
+    html`<fable-link href="/some/path" ?active=${args.active}
+      >${slots?.default ?? "Simple Link"}</fable-link
+    >`,
+
   Active: {
     args: (args) => ({ ...args, active: true }),
     lockedArgs: { active: true },
     render: (args, slots) =>
-      html`<fable-link href=${args.href} ?active=${args.active}
+      html`<fable-link story=${args.story} ?active=${args.active}
         >${slots?.default ?? "Active Link"}</fable-link
       >`,
   },
