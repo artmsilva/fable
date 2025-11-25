@@ -1,5 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { STORIES_KEY } from "../config.js";
+import "./icon-button.js";
 
 class FableDrawer extends LitElement {
   static status = "stable";
@@ -89,24 +90,6 @@ class FableDrawer extends LitElement {
       padding: var(--space-4);
     }
 
-    .close-button {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      padding: var(--space-2);
-      color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: var(--radius);
-      transition: background-color 0.2s;
-    }
-
-    .close-button:hover {
-      background-color: var(--bg-hover);
-    }
-
     .backdrop {
       position: fixed;
       top: 0;
@@ -181,13 +164,9 @@ class FableDrawer extends LitElement {
     return html`
       <div class="drawer-header">
         <h3 class="drawer-title"><slot name="title">Drawer</slot></h3>
-        <button
-          class="close-button"
-          @click=${this.close}
-          aria-label="Close drawer"
-        >
+        <fable-icon-button @click=${this.close} aria-label="Close drawer">
           ✕
-        </button>
+        </fable-icon-button>
       </div>
       <div class="drawer-content">
         <slot></slot>
@@ -255,7 +234,7 @@ const stories = {
       </fable-stack>
     </fable-drawer>
   `,
-  "Bottom Position": (args) => html`
+  "Bottom Position": (_args) => html`
     <fable-button
       @click=${(e) => {
         const drawer = e.target.nextElementSibling;
@@ -270,7 +249,7 @@ const stories = {
       <fable-button variant="primary">Action</fable-button>
     </fable-drawer>
   `,
-  "With Code": (args) => html`
+  "With Code": (_args) => html`
     <fable-button
       @click=${(e) => {
         const drawer = e.target.nextElementSibling;

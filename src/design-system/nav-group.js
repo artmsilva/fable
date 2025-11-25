@@ -70,14 +70,14 @@ const stories = {
       <fable-link>Select</fable-link>
     </fable-nav-group>
   `,
-  "Without Title": (args) => html`
+  "Without Title": (_args) => html`
     <fable-nav-group>
       <fable-link>Home</fable-link>
       <fable-link>About</fable-link>
       <fable-link>Contact</fable-link>
     </fable-nav-group>
   `,
-  "Multiple Groups": (args) => html`
+  "Multiple Groups": (_args) => html`
     <div style="display: flex; flex-direction: column; gap: 8px;">
       <fable-nav-group title="Forms">
         <fable-link>Button</fable-link>

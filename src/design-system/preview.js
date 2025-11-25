@@ -36,7 +36,7 @@ const meta = {
 };
 
 const stories = {
-  Default: (args) => html`
+  Default: (_args) => html`
     <div>
       <fable-preview>
         <h1>Preview Area</h1>

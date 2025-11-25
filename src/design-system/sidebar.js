@@ -71,7 +71,7 @@ const stories = {
       </div>
     </div>
   `,
-  "Right Position": (args) => html`
+  "Right Position": (_args) => html`
     <div
       style="display: flex; height: 400px; border: 1px solid var(--border-color);"
     >

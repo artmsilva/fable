@@ -1,13 +1,10 @@
+import { getSelectedStory, getStories, selectStory } from "@store";
+import { getStatusTooltip } from "@utils";
 import { css, html, LitElement } from "lit";
-import {
-  getStories,
-  getSelectedStory,
-  selectStory,
-} from "../store/app-store.js";
-import { getStatusTooltip } from "../utils/story-processor.js";
-import "../components/sidebar.js";
-import "../components/nav-group.js";
-import "../components/badge.js";
+import "@design-system/sidebar.js";
+import "@design-system/nav-group.js";
+import "@design-system/badge.js";
+import "@design-system/link.js";
 
 /**
  * Story Navigator - Left sidebar with navigation
@@ -16,34 +13,6 @@ export class FableStoryNavigator extends LitElement {
   static styles = css`
     :host {
       display: contents;
-    }
-    .story-link {
-      color: var(--primary-color);
-      text-decoration: none;
-      cursor: pointer;
-      padding: calc(var(--space-base)) var(--space-2);
-      border-radius: var(--space-base);
-      transition: background-color 0.2s;
-      display: block;
-      font-size: var(--font-body);
-      font-family: var(--font-stack);
-    }
-    .story-link:hover {
-      background-color: color-mix(
-        in srgb,
-        var(--primary-color) 10%,
-        transparent
-      );
-      text-decoration: underline;
-    }
-    .story-link.active {
-      background-color: color-mix(
-        in srgb,
-        var(--primary-color) 15%,
-        transparent
-      );
-      color: var(--primary-color);
-      font-weight: 600;
     }
   `;
 
@@ -122,26 +91,26 @@ export class FableStoryNavigator extends LitElement {
         ${this._stories.map(
           (g, gi) => html`
             <fable-nav-group title=${g.meta.title}>
-              ${g.meta.status
-                ? html`<fable-badge
+              ${
+                g.meta.status
+                  ? html`<fable-badge
                     slot="title"
                     variant=${g.meta.status}
                     size="condensed"
                     tooltip="${getStatusTooltip(g.meta.status)}"
                     >${g.meta.status}</fable-badge
                   >`
-                : ""}
+                  : ""
+              }
               ${Object.keys(g.stories).map(
                 (name) => html`
-                  <a
+                  <fable-link
                     href=${this._getStoryHref(gi, name)}
-                    class="story-link ${this._isActiveStory(gi, name)
-                      ? "active"
-                      : ""}"
+                    ?active=${this._isActiveStory(gi, name)}
                     @click=${(e) => this._handleStoryClick(e, gi, name)}
                   >
                     ${name}
-                  </a>
+                  </fable-link>
                 `
               )}
             </fable-nav-group>

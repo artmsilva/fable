@@ -1,6 +1,6 @@
 import { css, html, LitElement } from "lit";
-import { STORIES_KEY } from "../config.js";
 import { ifDefined } from "lit/directives/if-defined.js";
+import { STORIES_KEY } from "../config.js";
 
 class FableIconButton extends LitElement {
   static status = "beta";

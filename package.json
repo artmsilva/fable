@@ -8,7 +8,11 @@
     "start": "node --experimental-strip-types server.ts",
     "build": "node --experimental-strip-types build.ts",
     "preview": "cd dist && python3 -m http.server 8080",
-    "check:fix": "npx @biomejs/biome check --write ."
+    "check:fix": "npx @biomejs/biome check --write .",
+    "lint:styles": "node --experimental-strip-types lint-styles.ts",
+    "lint:imports": "node --experimental-strip-types lint-imports.ts",
+    "lint": "npm run lint:styles && npm run lint:imports && npx @biomejs/biome check .",
+    "pretest": "npm run lint"
   },
   "keywords": [
     "web-components",

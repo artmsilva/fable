@@ -1,13 +1,9 @@
+import { getSelectedStory, getSourceDrawerOpen, getStories, toggleSourceDrawer } from "@store";
+import { getStorySource } from "@utils";
 import { css, html, LitElement } from "lit";
-import {
-  getStories,
-  getSelectedStory,
-  getSourceDrawerOpen,
-  toggleSourceDrawer,
-} from "../store/app-store.js";
-import { getStorySource } from "../utils/story-processor.js";
-import "../components/drawer.js";
-import "../components/icon-button.js";
+import "@design-system/drawer.js";
+import "@design-system/icon-button.js";
+import "@design-system/code-block.js";
 
 /**
  * Source Drawer - Bottom drawer showing story source code
@@ -16,18 +12,6 @@ export class FableSourceDrawer extends LitElement {
   static styles = css`
     :host {
       display: contents;
-    }
-    pre {
-      background: var(--bg-primary);
-      padding: var(--space-4);
-      border-radius: var(--radius);
-      overflow-x: auto;
-      margin: 0;
-      font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
-      font-size: 0.875rem;
-      line-height: 1.5;
-      color: var(--text-primary);
-      border: 1px solid var(--border-color);
     }
   `;
 
@@ -100,9 +84,9 @@ export class FableSourceDrawer extends LitElement {
             📋
           </fable-icon-button>
         </div>
-        <div style="position: relative;">
-          <pre><code>${this._getSource()}</code></pre>
-        </div>
+        <fable-code-block language="javascript">
+          ${this._getSource()}
+        </fable-code-block>
       </fable-drawer>
     `;
   }

@@ -60,7 +60,7 @@ const stories = {
       <fable-checkbox label="Subscribe to newsletter"></fable-checkbox>
     </fable-stack>
   `,
-  "Form Controls": (args) => html`
+  "Form Controls": (_args) => html`
     <fable-card>
       <fable-stack>
         <h3>User Information</h3>
@@ -76,21 +76,21 @@ const stories = {
       </fable-stack>
     </fable-card>
   `,
-  "Align Start": (args) => html`
+  "Align Start": (_args) => html`
     <fable-stack align-items="start">
       <fable-button variant="primary">Short</fable-button>
       <fable-button variant="secondary">Medium Button</fable-button>
       <fable-button>Very Long Button Text Here</fable-button>
     </fable-stack>
   `,
-  "Align Center": (args) => html`
+  "Align Center": (_args) => html`
     <fable-stack align-items="center">
       <fable-button variant="primary">Short</fable-button>
       <fable-button variant="secondary">Medium Button</fable-button>
       <fable-button>Very Long Button Text Here</fable-button>
     </fable-stack>
   `,
-  "Align End": (args) => html`
+  "Align End": (_args) => html`
     <fable-stack align-items="end">
       <fable-button variant="primary">Short</fable-button>
       <fable-button variant="secondary">Medium Button</fable-button>

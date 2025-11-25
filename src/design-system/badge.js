@@ -208,7 +208,7 @@ const stories = {
       size: "condensed",
     }),
     lockedArgs: { size: true },
-    render: (args, slots) =>
+    render: (_args, _slots) =>
       html`
         <div style="display: flex; gap: 8px; align-items: center;">
           <fable-badge variant="alpha" size="condensed">alpha</fable-badge>

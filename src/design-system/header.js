@@ -83,14 +83,14 @@ const stories = {
       <fable-badge variant="info">v2.0</fable-badge>
     </fable-header>
   `,
-  "Align Start": (args) => html`
+  "Align Start": (_args) => html`
     <fable-header align="start">
       <h3>Tall Title</h3>
       <fable-badge variant="beta">beta</fable-badge>
       <fable-button variant="secondary">Action</fable-button>
     </fable-header>
   `,
-  "Align End": (args) => html`
+  "Align End": (_args) => html`
     <fable-header align="end">
       <h3>Tall Title</h3>
       <fable-badge variant="alpha">alpha</fable-badge>

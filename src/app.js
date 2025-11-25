@@ -1,36 +1,18 @@
 import { css, html, LitElement } from "lit";
 import { STORIES_KEY } from "./config.js";
 import {
-  setStories,
-  selectStory,
-  getStories,
-  getSelectedStory,
   getCurrentArgs,
+  getSelectedStory,
+  getStories,
+  selectStory,
+  setStories,
   setTheme,
 } from "./store/app-store.js";
-import {
-  parseStoryFromURL,
-  getDefaultStory,
-  updateURL,
-} from "./utils/url-manager.js";
 import { processStories } from "./utils/story-processor.js";
+import { getDefaultStory, parseStoryFromURL, updateURL } from "./utils/url-manager.js";
 
-// Import all component library components
-import "./components/button.js";
-import "./components/card.js";
-import "./components/input.js";
-import "./components/link.js";
-import "./components/select.js";
-import "./components/checkbox.js";
-import "./components/textarea.js";
-import "./components/badge.js";
-import "./components/icon-button.js";
-import "./components/nav-group.js";
-import "./components/sidebar.js";
-import "./components/stack.js";
-import "./components/header.js";
-import "./components/preview.js";
-import "./components/drawer.js";
+// Import all design system components via barrel file
+import "@design-system";
 
 // Import new composed components
 import "./components/fable-story-navigator.js";
@@ -53,9 +35,16 @@ class FableApp extends LitElement {
       grid-template-columns: 300px 1fr 300px;
       height: 100vh;
       gap: 0;
+      position: relative;
     }
     main > fable-story-preview {
       border-right: 1px solid var(--border-color);
+    }
+    .theme-toggle-wrapper {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
     }
   `;
 
@@ -81,9 +70,7 @@ class FableApp extends LitElement {
     setStories(processed);
 
     // Initialize theme
-    setTheme(
-      getStories().length > 0 ? getCurrentArgs().theme || "light" : "light"
-    );
+    setTheme(getStories().length > 0 ? getCurrentArgs().theme || "light" : "light");
 
     // Initialize from URL or set default
     this._initializeFromURL();
@@ -129,7 +116,9 @@ class FableApp extends LitElement {
         <fable-story-navigator></fable-story-navigator>
         <fable-story-preview></fable-story-preview>
         <fable-controls-panel></fable-controls-panel>
-        <fable-theme-toggle></fable-theme-toggle>
+        <div class="theme-toggle-wrapper">
+          <fable-theme-toggle></fable-theme-toggle>
+        </div>
         <fable-source-drawer></fable-source-drawer>
       </main>
     `;

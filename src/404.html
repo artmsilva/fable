@@ -113,8 +113,12 @@
       <p class="message">
         The page you're looking for doesn't exist or has been moved.
       </p>
-      <div class="path">{{pathname}}</div>
+      <div class="path" id="pathname"></div>
       <a href="/" class="home-link">← Back to Home</a>
     </div>
+    <script>
+      document.getElementById("pathname").textContent =
+        window.location.pathname;
+    </script>
   </body>
 </html>

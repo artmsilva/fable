@@ -59,9 +59,7 @@ class FableTextarea extends LitElement {
           ?disabled=${this.disabled}
           @input=${(e) => {
             this.value = e.target.value;
-            this.dispatchEvent(
-              new CustomEvent("input", { detail: this.value })
-            );
+            this.dispatchEvent(new CustomEvent("input", { detail: this.value }));
           }}
         ></textarea>
       </label>

@@ -1,8 +1,8 @@
+import type { FSWatcher, Stats } from "node:fs";
+import { watch } from "node:fs";
+import fs from "node:fs/promises";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import http from "node:http";
-import fs from "node:fs/promises";
-import type { Stats, FSWatcher } from "node:fs";
-import { watch } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -150,11 +150,7 @@ async function serveFile(
 /**
  * Serve 404 error page
  */
-async function serve404(
-  res: http.ServerResponse,
-  pathname: string,
-  method: string
-): Promise<void> {
+async function serve404(res: http.ServerResponse, pathname: string, method: string): Promise<void> {
   const notFoundPath = path.join(SRC_DIR, "404.html");
   const stats = await getFileStat(notFoundPath);
 
@@ -191,175 +187,131 @@ async function serve404(
   }
 }
 
-const server = http.createServer(
-  async (req: IncomingMessage, res: ServerResponse) => {
-    const startTime = Date.now();
-    const method = req.method || "GET";
+const server = http.createServer(async (req: IncomingMessage, res: ServerResponse) => {
+  const startTime = Date.now();
+  const method = req.method || "GET";
 
-    // Only allow GET and HEAD methods
-    if (method !== "GET" && method !== "HEAD") {
-      res.writeHead(HTTP_STATUS.METHOD_NOT_ALLOWED, {
-        "Content-Type": "text/plain",
-        Allow: "GET, HEAD",
+  // Only allow GET and HEAD methods
+  if (method !== "GET" && method !== "HEAD") {
+    res.writeHead(HTTP_STATUS.METHOD_NOT_ALLOWED, {
+      "Content-Type": "text/plain",
+      Allow: "GET, HEAD",
+    });
+    res.end("Method Not Allowed");
+    logRequest(method, req.url || "/", HTTP_STATUS.METHOD_NOT_ALLOWED, Date.now() - startTime);
+    return;
+  }
+
+  try {
+    const url = new URL(req.url || "/", `http://${req.headers.host}`);
+    let pathname = decodeURIComponent(url.pathname);
+
+    // Handle SSE endpoint for live reload
+    if (ENABLE_LIVE_RELOAD && pathname === "/__live_reload") {
+      res.writeHead(HTTP_STATUS.OK, {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+        "Access-Control-Allow-Origin": "*",
       });
-      res.end("Method Not Allowed");
-      logRequest(
-        method,
-        req.url || "/",
-        HTTP_STATUS.METHOD_NOT_ALLOWED,
-        Date.now() - startTime
-      );
+      res.write("data: connected\n\n");
+      sseClients.add(res);
+
+      req.on("close", () => {
+        sseClients.delete(res);
+      });
+
+      logRequest(method, pathname, HTTP_STATUS.OK, Date.now() - startTime);
       return;
     }
 
-    try {
-      const url = new URL(req.url || "/", `http://${req.headers.host}`);
-      let pathname = decodeURIComponent(url.pathname);
+    // Normalize and remove leading slash
+    pathname = path.normalize(pathname);
+    if (pathname.startsWith("/")) {
+      pathname = pathname.slice(1);
+    }
 
-      // Handle SSE endpoint for live reload
-      if (ENABLE_LIVE_RELOAD && pathname === "/__live_reload") {
-        res.writeHead(HTTP_STATUS.OK, {
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          Connection: "keep-alive",
-          "Access-Control-Allow-Origin": "*",
-        });
-        res.write("data: connected\n\n");
-        sseClients.add(res);
+    // Default to index.html for root path
+    if (pathname === "" || pathname === ".") {
+      pathname = "index.html";
+    }
 
-        req.on("close", () => {
-          sseClients.delete(res);
-        });
+    // Resolve and validate path security
+    const filePath = path.resolve(SRC_DIR, pathname);
 
-        logRequest(method, pathname, HTTP_STATUS.OK, Date.now() - startTime);
-        return;
-      }
+    if (!isPathSafe(filePath, SRC_DIR)) {
+      res.writeHead(HTTP_STATUS.BAD_REQUEST, {
+        "Content-Type": "text/plain",
+      });
+      res.end("Bad Request");
+      logRequest(method, pathname, HTTP_STATUS.BAD_REQUEST, Date.now() - startTime);
+      return;
+    }
 
-      // Normalize and remove leading slash
-      pathname = path.normalize(pathname);
-      if (pathname.startsWith("/")) {
-        pathname = pathname.slice(1);
-      }
+    // Get file stats
+    const stats = await getFileStat(filePath);
 
-      // Default to index.html for root path
-      if (pathname === "" || pathname === ".") {
-        pathname = "index.html";
-      }
+    if (stats) {
+      if (stats.isDirectory()) {
+        // Try to serve index.html from directory
+        const indexPath = path.join(filePath, "index.html");
+        const indexStats = await getFileStat(indexPath);
 
-      // Resolve and validate path security
-      const filePath = path.resolve(SRC_DIR, pathname);
-
-      if (!isPathSafe(filePath, SRC_DIR)) {
-        res.writeHead(HTTP_STATUS.BAD_REQUEST, {
-          "Content-Type": "text/plain",
-        });
-        res.end("Bad Request");
-        logRequest(
-          method,
-          pathname,
-          HTTP_STATUS.BAD_REQUEST,
-          Date.now() - startTime
-        );
-        return;
-      }
-
-      // Get file stats
-      const stats = await getFileStat(filePath);
-
-      if (stats) {
-        if (stats.isDirectory()) {
-          // Try to serve index.html from directory
-          const indexPath = path.join(filePath, "index.html");
-          const indexStats = await getFileStat(indexPath);
-
-          if (indexStats?.isFile()) {
-            const success = await serveFile(indexPath, res, method);
-            if (success) {
-              logRequest(
-                method,
-                pathname,
-                HTTP_STATUS.OK,
-                Date.now() - startTime
-              );
-              return;
-            }
-          }
-
-          // Directory without index.html
-          res.writeHead(HTTP_STATUS.FORBIDDEN, {
-            "Content-Type": "text/plain",
-          });
-          res.end("Forbidden");
-          logRequest(
-            method,
-            pathname,
-            HTTP_STATUS.FORBIDDEN,
-            Date.now() - startTime
-          );
-          return;
-        }
-
-        if (stats.isFile()) {
-          const success = await serveFile(filePath, res, method);
+        if (indexStats?.isFile()) {
+          const success = await serveFile(indexPath, res, method);
           if (success) {
-            logRequest(
-              method,
-              pathname,
-              HTTP_STATUS.OK,
-              Date.now() - startTime
-            );
+            logRequest(method, pathname, HTTP_STATUS.OK, Date.now() - startTime);
             return;
           }
         }
+
+        // Directory without index.html
+        res.writeHead(HTTP_STATUS.FORBIDDEN, {
+          "Content-Type": "text/plain",
+        });
+        res.end("Forbidden");
+        logRequest(method, pathname, HTTP_STATUS.FORBIDDEN, Date.now() - startTime);
+        return;
       }
 
-      // File not found - serve 404.html
-      await serve404(res, pathname, method);
-      logRequest(
-        method,
-        pathname,
-        HTTP_STATUS.NOT_FOUND,
-        Date.now() - startTime
-      );
-    } catch (error) {
-      console.error("Server error:", error);
-      res.writeHead(HTTP_STATUS.INTERNAL_SERVER_ERROR, {
-        "Content-Type": "text/plain",
-      });
-      res.end("Internal Server Error");
-      logRequest(
-        method,
-        req.url || "/",
-        HTTP_STATUS.INTERNAL_SERVER_ERROR,
-        Date.now() - startTime
-      );
+      if (stats.isFile()) {
+        const success = await serveFile(filePath, res, method);
+        if (success) {
+          logRequest(method, pathname, HTTP_STATUS.OK, Date.now() - startTime);
+          return;
+        }
+      }
     }
+
+    // File not found - serve 404.html
+    await serve404(res, pathname, method);
+    logRequest(method, pathname, HTTP_STATUS.NOT_FOUND, Date.now() - startTime);
+  } catch (error) {
+    console.error("Server error:", error);
+    res.writeHead(HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      "Content-Type": "text/plain",
+    });
+    res.end("Internal Server Error");
+    logRequest(method, req.url || "/", HTTP_STATUS.INTERNAL_SERVER_ERROR, Date.now() - startTime);
   }
-);
+});
 
 /**
  * Log HTTP request with colored output
  */
-function logRequest(
-  method: string,
-  path: string,
-  status: number,
-  duration: number
-): void {
+function logRequest(method: string, path: string, status: number, duration: number): void {
   const statusColor =
     status >= 500
       ? "\x1b[31m"
       : status >= 400
-      ? "\x1b[33m"
-      : status >= 300
-      ? "\x1b[36m"
-      : "\x1b[32m";
+        ? "\x1b[33m"
+        : status >= 300
+          ? "\x1b[36m"
+          : "\x1b[32m";
   const reset = "\x1b[0m";
   const timestamp = new Date().toLocaleTimeString();
 
-  console.log(
-    `[${timestamp}] ${method} ${path} ${statusColor}${status}${reset} ${duration}ms`
-  );
+  console.log(`[${timestamp}] ${method} ${path} ${statusColor}${status}${reset} ${duration}ms`);
 }
 
 /**
@@ -367,9 +319,7 @@ function logRequest(
  */
 function notifyReload(): void {
   if (sseClients.size > 0) {
-    console.log(
-      `\x1b[35m[Live Reload]\x1b[0m Notifying ${sseClients.size} client(s)`
-    );
+    console.log(`\x1b[35m[Live Reload]\x1b[0m Notifying ${sseClients.size} client(s)`);
     for (const client of sseClients) {
       client.write("data: reload\n\n");
     }
@@ -383,17 +333,11 @@ function setupFileWatcher(): FSWatcher {
   const watcher = watch(SRC_DIR, { recursive: true });
   let reloadTimeout: NodeJS.Timeout | null = null;
 
-  watcher.on("change", (eventType, filename) => {
+  watcher.on("change", (_eventType, filename) => {
     if (!filename) return;
 
     // Ignore certain files and directories
-    const ignored = [
-      "node_modules",
-      ".git",
-      "server.ts",
-      "server.js",
-      ".DS_Store",
-    ];
+    const ignored = ["node_modules", ".git", "server.ts", "server.js", ".DS_Store"];
 
     if (ignored.some((pattern) => filename.includes(pattern))) {
       return;

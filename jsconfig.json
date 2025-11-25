@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "checkJs": false,
+    "baseUrl": ".",
+    "paths": {
+      "@design-system": ["./src/design-system/index.js"],
+      "@design-system/*": ["./src/design-system/*"],
+      "@store": ["./src/store/index.js"],
+      "@utils": ["./src/utils/index.js"],
+      "@config": ["./src/config.js"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

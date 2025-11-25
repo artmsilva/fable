@@ -1,6 +1,6 @@
+import { getTheme, toggleTheme } from "@store";
 import { css, html, LitElement } from "lit";
-import { getTheme, toggleTheme } from "../store/app-store.js";
-import "../components/icon-button.js";
+import "@design-system/icon-button.js";
 
 /**
  * Theme Toggle - Floating theme switcher button
@@ -8,9 +8,7 @@ import "../components/icon-button.js";
 export class FableThemeToggle extends LitElement {
   static styles = css`
     :host {
-      position: absolute;
-      top: 20px;
-      right: 20px;
+      display: contents;
     }
   `;
 

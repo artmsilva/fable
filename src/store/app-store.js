@@ -1,167 +1,185 @@
-import { STORIES_KEY, THEME_STORAGE_KEY } from "../config.js";
-import { updateURL } from "../utils/url-manager.js";
+import { STORIES_KEY, THEME_STORAGE_KEY } from "@config";
+import { updateURL } from "@utils";
 
 /**
- * Central application state using custom events
+ * Central application state store using custom events
  * Components listen for 'state-changed' events on window
  */
-
-// Event target for state changes
-const stateEvents = window;
-
-// State object
-const state = {
-  stories: window[STORIES_KEY] || [],
-  selectedStory: null, // { groupIndex, name }
-  currentArgs: {},
-  currentSlots: {},
-  lockedArgs: {},
-  sourceDrawerOpen: false,
-  theme:
-    localStorage.getItem(THEME_STORAGE_KEY) ||
-    (window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light"),
-};
-
-// Dispatch state change event
-function notifyStateChange(key) {
-  stateEvents.dispatchEvent(
-    new CustomEvent("state-changed", {
-      detail: { key, value: state[key] },
-    })
-  );
-}
-
-/**
- * Getters - Access state
- */
-export function getStories() {
-  return state.stories;
-}
-
-export function getSelectedStory() {
-  return state.selectedStory;
-}
-
-export function getCurrentArgs() {
-  return state.currentArgs;
-}
-
-export function getCurrentSlots() {
-  return state.currentSlots;
-}
-
-export function getLockedArgs() {
-  return state.lockedArgs;
-}
-
-export function getSourceDrawerOpen() {
-  return state.sourceDrawerOpen;
-}
-
-export function getTheme() {
-  return state.theme;
-}
-
-/**
- * Actions - Functions that modify state and notify listeners
- */
-
-export function setStories(newStories) {
-  state.stories = newStories;
-  notifyStateChange("stories");
-}
-
-export function selectStory(groupIndex, name) {
-  const story = state.stories[groupIndex];
-  if (!story) return;
-
-  state.selectedStory = { groupIndex, name };
-
-  const storyData = story.stories[name];
-  const baseArgs = { ...(story.meta?.args || {}) };
-
-  // If story is an object with args function, compute the args
-  if (typeof storyData === "object" && storyData.args) {
-    state.currentArgs = storyData.args(baseArgs);
-  } else {
-    state.currentArgs = baseArgs;
+class AppStore {
+  constructor() {
+    this.stateEvents = window;
+    this.state = {
+      stories: window[STORIES_KEY] || [],
+      selectedStory: null, // { groupIndex, name }
+      currentArgs: {},
+      currentSlots: {},
+      lockedArgs: {},
+      sourceDrawerOpen: false,
+      theme:
+        localStorage.getItem(THEME_STORAGE_KEY) ||
+        (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"),
+    };
   }
 
-  state.currentSlots = { ...(story.meta?.slots || {}) };
-
-  // Merge meta-level and story-level locked args
-  state.lockedArgs = {
-    ...(story.meta?.lockedArgs || {}),
-    ...(typeof storyData === "object" ? storyData.lockedArgs || {} : {}),
-  };
-
-  // Notify all state changes
-  notifyStateChange("selectedStory");
-  notifyStateChange("currentArgs");
-  notifyStateChange("currentSlots");
-  notifyStateChange("lockedArgs");
-
-  // Trigger URL update
-  _syncURL();
-}
-
-export function updateArg(key, value) {
-  state.currentArgs = { ...state.currentArgs, [key]: value };
-  notifyStateChange("currentArgs");
-  _syncURL();
-}
-
-function _syncURL() {
-  updateURL(state.stories, state.selectedStory, state.currentArgs, true);
-}
-
-export function updateSlot(key, value) {
-  state.currentSlots = { ...state.currentSlots, [key]: value };
-  notifyStateChange("currentSlots");
-}
-
-export function unlockArg(key) {
-  state.lockedArgs = { ...state.lockedArgs, [key]: false };
-  notifyStateChange("lockedArgs");
-}
-
-export function toggleSourceDrawer() {
-  state.sourceDrawerOpen = !state.sourceDrawerOpen;
-  notifyStateChange("sourceDrawerOpen");
-}
-
-export function setTheme(newTheme) {
-  state.theme = newTheme;
-  document.documentElement.setAttribute("data-theme", newTheme);
-  localStorage.setItem(THEME_STORAGE_KEY, newTheme);
-  notifyStateChange("theme");
-}
-
-export function toggleTheme() {
-  setTheme(state.theme === "dark" ? "light" : "dark");
-}
-
-/**
- * Computed values - Derived from state
- */
-
-export function getCurrentStory() {
-  if (!state.selectedStory) return null;
-  return state.stories[state.selectedStory.groupIndex];
-}
-
-export function getProcessedSlots() {
-  if (!state.selectedStory) return {};
-
-  const story = getCurrentStory();
-  const slotDefs = story?.meta?.slots || {};
-  const processed = {};
-
-  for (const key in slotDefs) {
-    processed[key] = state.currentSlots[key] ?? slotDefs[key];
+  // Dispatch state change event
+  notifyStateChange(key) {
+    this.stateEvents.dispatchEvent(
+      new CustomEvent("state-changed", {
+        detail: { key, value: this.state[key] },
+      })
+    );
   }
 
-  return processed;
+  /**
+   * Getters - Access state
+   */
+  getStories() {
+    return this.state.stories;
+  }
+
+  getSelectedStory() {
+    return this.state.selectedStory;
+  }
+
+  getCurrentArgs() {
+    return this.state.currentArgs;
+  }
+
+  getCurrentSlots() {
+    return this.state.currentSlots;
+  }
+
+  getLockedArgs() {
+    return this.state.lockedArgs;
+  }
+
+  getSourceDrawerOpen() {
+    return this.state.sourceDrawerOpen;
+  }
+
+  getTheme() {
+    return this.state.theme;
+  }
+
+  /**
+   * Actions - Methods that modify state and notify listeners
+   */
+  setStories(newStories) {
+    this.state.stories = newStories;
+    this.notifyStateChange("stories");
+  }
+
+  selectStory(groupIndex, name) {
+    const story = this.state.stories[groupIndex];
+    if (!story) return;
+
+    this.state.selectedStory = { groupIndex, name };
+
+    const storyData = story.stories[name];
+    const baseArgs = { ...(story.meta?.args || {}) };
+
+    // If story is an object with args function, compute the args
+    if (typeof storyData === "object" && storyData.args) {
+      this.state.currentArgs = storyData.args(baseArgs);
+    } else {
+      this.state.currentArgs = baseArgs;
+    }
+
+    this.state.currentSlots = { ...(story.meta?.slots || {}) };
+
+    // Merge meta-level and story-level locked args
+    this.state.lockedArgs = {
+      ...(story.meta?.lockedArgs || {}),
+      ...(typeof storyData === "object" ? storyData.lockedArgs || {} : {}),
+    };
+
+    // Notify all state changes
+    this.notifyStateChange("selectedStory");
+    this.notifyStateChange("currentArgs");
+    this.notifyStateChange("currentSlots");
+    this.notifyStateChange("lockedArgs");
+
+    // Trigger URL update
+    this._syncURL();
+  }
+
+  updateArg(key, value) {
+    this.state.currentArgs = { ...this.state.currentArgs, [key]: value };
+    this.notifyStateChange("currentArgs");
+    this._syncURL();
+  }
+
+  _syncURL() {
+    updateURL(this.state.stories, this.state.selectedStory, this.state.currentArgs, true);
+  }
+
+  updateSlot(key, value) {
+    this.state.currentSlots = { ...this.state.currentSlots, [key]: value };
+    this.notifyStateChange("currentSlots");
+  }
+
+  unlockArg(key) {
+    this.state.lockedArgs = { ...this.state.lockedArgs, [key]: false };
+    this.notifyStateChange("lockedArgs");
+  }
+
+  toggleSourceDrawer() {
+    this.state.sourceDrawerOpen = !this.state.sourceDrawerOpen;
+    this.notifyStateChange("sourceDrawerOpen");
+  }
+
+  setTheme(newTheme) {
+    this.state.theme = newTheme;
+    document.documentElement.setAttribute("data-theme", newTheme);
+    localStorage.setItem(THEME_STORAGE_KEY, newTheme);
+    this.notifyStateChange("theme");
+  }
+
+  toggleTheme() {
+    this.setTheme(this.state.theme === "dark" ? "light" : "dark");
+  }
+
+  /**
+   * Computed values - Derived from state
+   */
+  getCurrentStory() {
+    if (!this.state.selectedStory) return null;
+    return this.state.stories[this.state.selectedStory.groupIndex];
+  }
+
+  getProcessedSlots() {
+    if (!this.state.selectedStory) return {};
+
+    const story = this.getCurrentStory();
+    const slotDefs = story?.meta?.slots || {};
+    const processed = {};
+
+    for (const key in slotDefs) {
+      processed[key] = this.state.currentSlots[key] ?? slotDefs[key];
+    }
+
+    return processed;
+  }
 }
+
+// Create and export singleton instance
+const store = new AppStore();
+
+// Export methods bound to the singleton instance
+export const getStories = () => store.getStories();
+export const getSelectedStory = () => store.getSelectedStory();
+export const getCurrentArgs = () => store.getCurrentArgs();
+export const getCurrentSlots = () => store.getCurrentSlots();
+export const getLockedArgs = () => store.getLockedArgs();
+export const getSourceDrawerOpen = () => store.getSourceDrawerOpen();
+export const getTheme = () => store.getTheme();
+export const setStories = (newStories) => store.setStories(newStories);
+export const selectStory = (groupIndex, name) => store.selectStory(groupIndex, name);
+export const updateArg = (key, value) => store.updateArg(key, value);
+export const updateSlot = (key, value) => store.updateSlot(key, value);
+export const unlockArg = (key) => store.unlockArg(key);
+export const toggleSourceDrawer = () => store.toggleSourceDrawer();
+export const setTheme = (newTheme) => store.setTheme(newTheme);
+export const toggleTheme = () => store.toggleTheme();
+export const getCurrentStory = () => store.getCurrentStory();
+export const getProcessedSlots = () => store.getProcessedSlots();

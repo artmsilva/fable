@@ -1,18 +1,18 @@
-import { css, html, LitElement } from "lit";
+import { PROJECT_NAME } from "@config";
 import {
-  getStories,
-  getSelectedStory,
   getCurrentArgs,
   getCurrentSlots,
   getProcessedSlots,
+  getSelectedStory,
+  getStories,
   toggleSourceDrawer,
-} from "../store/app-store.js";
-import { getStatusTooltip } from "../utils/story-processor.js";
-import { PROJECT_NAME } from "../config.js";
-import "../components/preview.js";
-import "../components/header.js";
-import "../components/badge.js";
-import "../components/icon-button.js";
+} from "@store";
+import { getStatusTooltip } from "@utils";
+import { css, html, LitElement } from "lit";
+import "@design-system/preview.js";
+import "@design-system/header.js";
+import "@design-system/badge.js";
+import "@design-system/icon-button.js";
 
 /**
  * Story Preview - Center preview area with header
@@ -52,9 +52,7 @@ export class FableStoryPreview extends LitElement {
 
   _handleStateChange(e) {
     const key = e.detail.key;
-    if (
-      ["stories", "selectedStory", "currentArgs", "currentSlots"].includes(key)
-    ) {
+    if (["stories", "selectedStory", "currentArgs", "currentSlots"].includes(key)) {
       this._stories = getStories();
       this._selected = getSelectedStory();
       this._args = getCurrentArgs();
@@ -91,13 +89,15 @@ export class FableStoryPreview extends LitElement {
         <fable-header>
           <h3>${group.meta.title} — ${this._selected.name}</h3>
           <div style="display: flex; gap: var(--space-2); align-items: center;">
-            ${status
-              ? html`<fable-badge
+            ${
+              status
+                ? html`<fable-badge
                   variant=${status}
                   tooltip="${getStatusTooltip(status)}"
                   >${status}</fable-badge
                 >`
-              : ""}
+                : ""
+            }
             <fable-icon-button
               aria-label="View source code"
               @click=${this._handleSourceClick}

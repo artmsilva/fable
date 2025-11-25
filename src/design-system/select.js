@@ -115,9 +115,7 @@ class FableSelect extends LitElement {
           ?disabled=${this.disabled}
           @change=${(e) => {
             this.value = e.target.value;
-            this.dispatchEvent(
-              new CustomEvent("change", { detail: this.value })
-            );
+            this.dispatchEvent(new CustomEvent("change", { detail: this.value }));
           }}
         >
           ${this._options.map(
@@ -169,7 +167,7 @@ const stories = {
     >
       ${slots?.default}
     </fable-select>`,
-  "With Countries": (args) =>
+  "With Countries": (_args) =>
     html`<fable-select label="Select Country" value="us">
       <fable-select-option value="us">United States</fable-select-option>
       <fable-select-option value="uk">United Kingdom</fable-select-option>
@@ -177,7 +175,7 @@ const stories = {
       <fable-select-option value="au">Australia</fable-select-option>
       <fable-select-option value="de">Germany</fable-select-option>
     </fable-select>`,
-  "Many Options": (args) =>
+  "Many Options": (_args) =>
     html`<fable-select label="Choose Framework" value="react">
       <fable-select-option value="react">React</fable-select-option>
       <fable-select-option value="vue">Vue</fable-select-option>

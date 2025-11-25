@@ -1,21 +1,21 @@
-import { css, html, LitElement } from "lit";
 import {
-  getStories,
-  getSelectedStory,
   getCurrentArgs,
   getCurrentSlots,
   getLockedArgs,
+  getSelectedStory,
+  getStories,
+  unlockArg,
   updateArg,
   updateSlot,
-  unlockArg,
-} from "../store/app-store.js";
-import "../components/sidebar.js";
-import "../components/stack.js";
-import "../components/input.js";
-import "../components/checkbox.js";
-import "../components/select.js";
-import "../components/textarea.js";
-import "../components/button.js";
+} from "@store";
+import { css, html, LitElement } from "lit";
+import "@design-system/sidebar.js";
+import "@design-system/stack.js";
+import "@design-system/input.js";
+import "@design-system/checkbox.js";
+import "@design-system/select.js";
+import "@design-system/textarea.js";
+import "@design-system/button.js";
 
 /**
  * Controls Panel - Right sidebar with story controls
@@ -57,15 +57,7 @@ export class FableControlsPanel extends LitElement {
 
   _handleStateChange(e) {
     const key = e.detail.key;
-    if (
-      [
-        "stories",
-        "selectedStory",
-        "currentArgs",
-        "currentSlots",
-        "lockedArgs",
-      ].includes(key)
-    ) {
+    if (["stories", "selectedStory", "currentArgs", "currentSlots", "lockedArgs"].includes(key)) {
       this._stories = getStories();
       this._selected = getSelectedStory();
       this._args = getCurrentArgs();
@@ -95,9 +87,7 @@ export class FableControlsPanel extends LitElement {
 
     // Get component class to check for enum definitions
     const componentName = group.meta?.component;
-    const componentClass = componentName
-      ? customElements.get(componentName)
-      : null;
+    const componentClass = componentName ? customElements.get(componentName) : null;
 
     // Check for enum in component's static properties
     const propEnum = componentClass?.properties?.[key]?.enum;
@@ -107,14 +97,16 @@ export class FableControlsPanel extends LitElement {
     if ((argType?.control === "select" || propEnum) && enumOptions) {
       return html`
         <fable-stack align-items="start">
-          ${isLocked
-            ? html`<fable-button
+          ${
+            isLocked
+              ? html`<fable-button
                 variant="secondary"
                 @click=${() => this._handleUnlock(key)}
               >
                 🔓 Unlock ${key}
               </fable-button>`
-            : ""}
+              : ""
+          }
           <fable-select
             label=${key}
             .value=${val}
@@ -136,14 +128,16 @@ export class FableControlsPanel extends LitElement {
     if (typeof argDefs[key] === "boolean" || typeof val === "boolean") {
       return html`
         <fable-stack align-items="start">
-          ${isLocked
-            ? html`<fable-button
+          ${
+            isLocked
+              ? html`<fable-button
                 variant="secondary"
                 @click=${() => this._handleUnlock(key)}
               >
                 🔓 Unlock ${key}
               </fable-button>`
-            : ""}
+              : ""
+          }
           <fable-checkbox
             label=${key}
             ?checked=${!!val}
@@ -157,14 +151,16 @@ export class FableControlsPanel extends LitElement {
     // Text input (default)
     return html`
       <fable-stack align-items="start">
-        ${isLocked
-          ? html`<fable-button
+        ${
+          isLocked
+            ? html`<fable-button
               variant="secondary"
               @click=${() => this._handleUnlock(key)}
             >
               🔓 Unlock ${key}
             </fable-button>`
-          : ""}
+            : ""
+        }
         <fable-input
           label=${key}
           .value=${val ?? ""}
@@ -202,8 +198,7 @@ export class FableControlsPanel extends LitElement {
           ${slotKeys.map((k) => {
             const val = this._slots[k] ?? slotDefs[k];
             // Display template result as readable text
-            const displayVal =
-              typeof val === "string" ? val : "[HTML Template]";
+            const displayVal = typeof val === "string" ? val : "[HTML Template]";
             return html`
               <fable-textarea
                 label=${k}
