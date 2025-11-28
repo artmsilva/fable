@@ -5,8 +5,8 @@ import url from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
 import { listComponentMetadata } from "../src/metadata/components.js";
 import { listDocsMetadata } from "../src/metadata/docs.js";
-import { listTokenMetadata } from "../src/metadata/tokens.js";
 import { listIconMetadata } from "../src/metadata/icons.js";
+import { listTokenMetadata } from "../src/metadata/tokens.js";
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
@@ -69,8 +69,8 @@ async function validate() {
         errored = true;
         console.error(
           `\nMetadata validation failed for ${registry.name} entry "${meta.id}":\n${formatErrors(
-            validator.errors,
-          )}`,
+            validator.errors
+          )}`
         );
       }
     }

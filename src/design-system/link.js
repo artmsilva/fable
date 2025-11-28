@@ -60,7 +60,7 @@ class FableLink extends LitElement {
           detail: { href: this.href },
           bubbles: true,
           composed: true,
-        }),
+        })
       );
 
       // Also update browser history directly

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFile, writeFile, readdir } from "node:fs/promises";
+import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import url from "node:url";
 
@@ -7,13 +7,7 @@ const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
 const srcDir = path.join(rootDir, "design-system", "icons-src");
 const outputPath = path.join(rootDir, "design-system", "icons.json");
-const moduleOutPath = path.join(
-  rootDir,
-  "src",
-  "metadata",
-  "generated",
-  "icons-data.js",
-);
+const moduleOutPath = path.join(rootDir, "src", "metadata", "generated", "icons-data.js");
 
 const metadata = {
   sun: {
@@ -107,7 +101,7 @@ async function main() {
   const moduleContent = `// Generated from design-system/icons.json\nexport default ${JSON.stringify(
     icons,
     null,
-    2,
+    2
   )};\n`;
   await writeFile(moduleOutPath, moduleContent);
   console.log(`Wrote ${outputPath} (${icons.length} icons)`);

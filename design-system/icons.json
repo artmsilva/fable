@@ -13,14 +13,9 @@
       "group": "Icons",
       "category": "Foundations",
       "status": "beta",
-      "platforms": [
-        "web"
-      ],
+      "platforms": ["web"],
       "accessibility": "baseline",
-      "tags": [
-        "icon",
-        "warning"
-      ]
+      "tags": ["icon", "warning"]
     }
   },
   {
@@ -37,14 +32,9 @@
       "group": "Icons",
       "category": "Foundations",
       "status": "beta",
-      "platforms": [
-        "web"
-      ],
+      "platforms": ["web"],
       "accessibility": "baseline",
-      "tags": [
-        "icon",
-        "navigation"
-      ]
+      "tags": ["icon", "navigation"]
     }
   },
   {
@@ -61,14 +51,9 @@
       "group": "Icons",
       "category": "Foundations",
       "status": "beta",
-      "platforms": [
-        "web"
-      ],
+      "platforms": ["web"],
       "accessibility": "baseline",
-      "tags": [
-        "icon",
-        "status"
-      ]
+      "tags": ["icon", "status"]
     }
   },
   {
@@ -85,14 +70,9 @@
       "group": "Icons",
       "category": "Foundations",
       "status": "beta",
-      "platforms": [
-        "web"
-      ],
+      "platforms": ["web"],
       "accessibility": "baseline",
-      "tags": [
-        "icon",
-        "editor"
-      ]
+      "tags": ["icon", "editor"]
     }
   },
   {
@@ -109,14 +89,9 @@
       "group": "Icons",
       "category": "Foundations",
       "status": "beta",
-      "platforms": [
-        "web"
-      ],
+      "platforms": ["web"],
       "accessibility": "baseline",
-      "tags": [
-        "icon",
-        "theme"
-      ]
+      "tags": ["icon", "theme"]
     }
   },
   {
@@ -133,14 +108,9 @@
       "group": "Icons",
       "category": "Foundations",
       "status": "beta",
-      "platforms": [
-        "web"
-      ],
+      "platforms": ["web"],
       "accessibility": "baseline",
-      "tags": [
-        "icon",
-        "weather"
-      ]
+      "tags": ["icon", "weather"]
     }
   }
 ]

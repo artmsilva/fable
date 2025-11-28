@@ -1,5 +1,10 @@
 import { STORIES_KEY, THEME_STORAGE_KEY } from "@config";
 import { buildStoryURL } from "@utils";
+import {
+  HOMEPAGE_HERO_CONTENT,
+  HOMEPAGE_HIGHLIGHT_CARDS,
+  HOMEPAGE_SPOTLIGHTS,
+} from "../config/homepage-content.js";
 import { getMetadataRegistry } from "../config/metadata-registry.js";
 import { navigateTo } from "../router.js";
 
@@ -21,9 +26,7 @@ class AppStore {
       view: { name: "home", params: {} },
       theme:
         localStorage.getItem(THEME_STORAGE_KEY) ||
-        (window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light"),
+        (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"),
     };
   }
 
@@ -32,7 +35,7 @@ class AppStore {
     this.stateEvents.dispatchEvent(
       new CustomEvent("state-changed", {
         detail: { key, value: this.state[key] },
-      }),
+      })
     );
   }
 
@@ -157,7 +160,7 @@ class AppStore {
       this.state.stories,
       this.state.selectedStory.groupIndex,
       this.state.selectedStory.name,
-      this.state.currentArgs,
+      this.state.currentArgs
     );
     navigateTo(url, { replace });
   }
@@ -214,6 +217,79 @@ class AppStore {
 
     return processed;
   }
+
+  _findStoryEntryByGroupTitle(title) {
+    if (!title) return null;
+    const stories = this.getStories();
+    for (let i = 0; i < stories.length; i++) {
+      if (stories[i]?.meta?.title === title) {
+        const storyNames = Object.keys(stories[i].stories || {});
+        return { groupIndex: i, storyName: storyNames[0] };
+      }
+    }
+    return null;
+  }
+
+  _buildComponentHref(groupTitle) {
+    const entry = this._findStoryEntryByGroupTitle(groupTitle);
+    if (!entry) return null;
+    const { groupIndex, storyName } = entry;
+    return buildStoryURL(
+      this.state.stories,
+      groupIndex,
+      storyName,
+      this.state.stories[groupIndex]?.meta?.args || {}
+    );
+  }
+
+  getRecentComponents(limit = 6) {
+    const components = this.state.metadata.components || [];
+    const sorted = [...components].sort((a, b) => {
+      const aDate = new Date(a.updatedAt || a.createdAt || 0).getTime();
+      const bDate = new Date(b.updatedAt || b.createdAt || 0).getTime();
+      return bDate - aDate;
+    });
+    const slice = sorted.slice(0, limit);
+    return slice.map((meta) => ({
+      ...meta,
+      updatedAt: meta.updatedAt || meta.createdAt,
+      href: this._buildComponentHref(meta.storyGroup),
+    }));
+  }
+
+  getTaxonomyGroups() {
+    const components = this.state.metadata.components || [];
+    const counts = new Map();
+    components.forEach((meta) => {
+      const group = meta.taxonomy?.group || "General";
+      counts.set(group, (counts.get(group) || 0) + 1);
+    });
+    return [...counts.entries()]
+      .map(([group, count]) => ({ id: group, label: group, count }))
+      .sort((a, b) => b.count - a.count);
+  }
+
+  getHeroContent() {
+    const componentsCount = this.state.metadata.components?.length || 0;
+    const docsCount = this.state.metadata.docs?.length || 0;
+    const tokensCount = this.state.metadata.tokens?.length || 0;
+    return {
+      ...HOMEPAGE_HERO_CONTENT,
+      stats: [
+        { label: "Components", value: componentsCount },
+        { label: "Docs", value: docsCount },
+        { label: "Tokens", value: tokensCount },
+      ],
+    };
+  }
+
+  getHighlightCards() {
+    return HOMEPAGE_HIGHLIGHT_CARDS;
+  }
+
+  getSearchSpotlights() {
+    return HOMEPAGE_SPOTLIGHTS;
+  }
 }
 
 // Create and export singleton instance
@@ -245,3 +321,8 @@ export const getCurrentStory = () => store.getCurrentStory();
 export const getProcessedSlots = () => store.getProcessedSlots();
 export const getView = () => store.getView();
 export const setView = (view) => store.setView(view);
+export const getHomepageHeroContent = () => store.getHeroContent();
+export const getHomepageHighlightCards = () => store.getHighlightCards();
+export const getHomepageRecentComponents = (limit) => store.getRecentComponents(limit);
+export const getHomepageTaxonomyGroups = () => store.getTaxonomyGroups();
+export const getHomepageSearchSpotlights = () => store.getSearchSpotlights();

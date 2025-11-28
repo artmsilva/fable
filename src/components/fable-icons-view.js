@@ -1,7 +1,7 @@
-import { css, html, LitElement } from "lit";
 import { getIconMetadata, getView } from "@store";
-import { navigateTo } from "../router.js";
 import { buildIconsPath } from "@utils";
+import { html, LitElement } from "lit";
+import { navigateTo } from "../router.js";
 
 export class FableIconsView extends LitElement {
   static properties = {
@@ -10,78 +10,19 @@ export class FableIconsView extends LitElement {
     _activeIconId: { state: true },
   };
 
-  static styles = css`
-    :host {
-      display: block;
-      height: 100%;
-      background: var(--bg-primary);
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
-      gap: var(--space-6, 32px);
-      padding: var(--space-5, 24px);
-      height: 100%;
-    }
-    .grid-container {
-      overflow-y: auto;
-      padding-right: var(--space-3);
-    }
-    .icon-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-      gap: var(--space-3, 12px);
-    }
-    .icon-card.active {
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 1px
-        color-mix(in srgb, var(--primary-color) 40%, transparent);
-    }
-    .icon-card {
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius, 12px);
-      padding: var(--space-3, 12px);
-      background: var(--bg-secondary);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--space-2, 8px);
-      text-align: center;
-      cursor: pointer;
-    }
-    svg {
-      width: 32px;
-      height: 32px;
-      fill: currentColor;
-    }
-    .detail-panel {
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius, 12px);
-      padding: var(--space-4);
-      background: var(--bg-secondary);
-      position: sticky;
-      top: 24px;
-      align-self: start;
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-3);
-    }
-    button {
-      font-size: 0.8rem;
-      padding: 6px 10px;
-      border-radius: 8px;
-      border: 1px solid var(--border-color);
-      background: transparent;
-      cursor: pointer;
-    }
-  `;
-
   constructor() {
     super();
     this._icons = getIconMetadata();
     this._view = getView();
     this._activeIconId = null;
     this._handleStateChange = this._handleStateChange.bind(this);
+    this.style.display = "block";
+    this.style.height = "100%";
+    this.style.background = "var(--bg-primary)";
+  }
+
+  createRenderRoot() {
+    return this;
   }
 
   connectedCallback() {
@@ -116,10 +57,7 @@ export class FableIconsView extends LitElement {
 
   _getActiveIcon() {
     if (!this._icons.length) return null;
-    return (
-      this._icons.find((icon) => icon.id === this._activeIconId) ||
-      this._icons[0]
-    );
+    return this._icons.find((icon) => icon.id === this._activeIconId) || this._icons[0];
   }
 
   _handleIconSelect(icon) {
@@ -166,15 +104,13 @@ export class FableIconsView extends LitElement {
             ${this._icons.map(
               (icon) => html`
                 <article
-                  class="icon-card ${icon.id === this._activeIconId
-                    ? "active"
-                    : ""}"
+                  class="icon-card ${icon.id === this._activeIconId ? "active" : ""}"
                   @click=${() => this._handleIconSelect(icon)}
                 >
                   ${this._renderIcon(icon)}
                   <strong>${icon.title}</strong>
                 </article>
-              `,
+              `
             )}
           </div>
         </div>

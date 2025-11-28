@@ -107,13 +107,11 @@ export const slugify = (text) => urlManager.slugify(text);
 export const getDefaultStory = (stories) => urlManager.getDefaultStory(stories);
 export const findStoryBySlugs = (stories, componentSlug, storySlug) =>
   urlManager.findStoryBySlugs(stories, componentSlug, storySlug);
-export const parseArgsFromSearch = (searchParams) =>
-  urlManager.parseArgs(searchParams);
+export const parseArgsFromSearch = (searchParams) => urlManager.parseArgs(searchParams);
 export const buildStoryPath = (stories, groupIndex, storyName) =>
   urlManager.buildStoryPath(stories, groupIndex, storyName);
 export const buildStoryURL = (stories, groupIndex, storyName, args) =>
   urlManager.buildStoryURL(stories, groupIndex, storyName, args);
-export const buildDocsPath = (section, slug) =>
-  urlManager.buildDocsPath(section, slug);
+export const buildDocsPath = (section, slug) => urlManager.buildDocsPath(section, slug);
 export const buildTokensPath = (tokenId) => urlManager.buildTokensPath(tokenId);
 export const buildIconsPath = (iconId) => urlManager.buildIconsPath(iconId);

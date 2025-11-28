@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import url from "node:url";
 
@@ -7,17 +7,10 @@ const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
 const tokensPath = path.join(rootDir, "design-system", "tokens.json");
 const cssOutPath = path.join(rootDir, "src", "design-system", "tokens.css");
-const moduleOutPath = path.join(
-  rootDir,
-  "src",
-  "metadata",
-  "generated",
-  "tokens-data.js",
-);
+const moduleOutPath = path.join(rootDir, "src", "metadata", "generated", "tokens-data.js");
 
 const deriveVarName = (token) =>
-  token.attributes?.cssVar ||
-  `--${token.id.replace(/[^a-z0-9-]/gi, "-").replace(/--+/g, "-")}`;
+  token.attributes?.cssVar || `--${token.id.replace(/[^a-z0-9-]/gi, "-").replace(/--+/g, "-")}`;
 
 async function ensureDir(filePath) {
   await mkdir(path.dirname(filePath), { recursive: true });
@@ -43,7 +36,7 @@ async function main() {
   const jsModule = `// Generated from design-system/tokens.json\nexport default ${JSON.stringify(
     tokens,
     null,
-    2,
+    2
   )};\n`;
   await writeFile(moduleOutPath, jsModule);
   console.log(`Wrote ${cssOutPath}`);

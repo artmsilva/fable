@@ -9,7 +9,7 @@ import {
   toggleSourceDrawer,
 } from "@store";
 import { getStatusTooltip } from "@utils";
-import { css, html, LitElement } from "lit";
+import { html, LitElement } from "lit";
 import "@design-system/preview.js";
 import "@design-system/header.js";
 import "@design-system/badge.js";
@@ -19,33 +19,6 @@ import "@design-system/icon-button.js";
  * Story Preview - Center preview area with header
  */
 export class FableStoryPreview extends LitElement {
-  static styles = css`
-    :host {
-      display: block;
-      height: 100%;
-    }
-    .preview-card {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      width: 100%;
-      box-sizing: border-box;
-      padding: var(--space-4, 16px);
-      gap: var(--space-4, 16px);
-    }
-    fable-header {
-      width: 100%;
-    }
-    fable-preview {
-      flex: 1;
-      min-height: 0;
-    }
-    .story-area {
-      width: 100%;
-      height: 100%;
-    }
-  `;
-
   static properties = {
     _stories: { state: true },
     _selected: { state: true },
@@ -62,6 +35,12 @@ export class FableStoryPreview extends LitElement {
     this._slots = getCurrentSlots();
     this._view = getView();
     this._handleStateChange = this._handleStateChange.bind(this);
+    this.style.display = "block";
+    this.style.height = "100%";
+  }
+
+  createRenderRoot() {
+    return this;
   }
 
   connectedCallback() {
@@ -76,9 +55,7 @@ export class FableStoryPreview extends LitElement {
 
   _handleStateChange(e) {
     const key = e.detail.key;
-    if (
-      ["stories", "selectedStory", "currentArgs", "currentSlots"].includes(key)
-    ) {
+    if (["stories", "selectedStory", "currentArgs", "currentSlots"].includes(key)) {
       this._stories = getStories();
       this._selected = getSelectedStory();
       this._args = getCurrentArgs();
@@ -118,13 +95,15 @@ export class FableStoryPreview extends LitElement {
         <fable-header>
           <h3>${group.meta.title} — ${this._selected.name}</h3>
           <div style="display: flex; gap: var(--space-2); align-items: center;">
-            ${status
-              ? html`<fable-badge
+            ${
+              status
+                ? html`<fable-badge
                   variant=${status}
                   tooltip=${getStatusTooltip(status)}
                   >${status}</fable-badge
                 >`
-              : ""}
+                : ""
+            }
             <fable-icon-button
               aria-label="View source code"
               @click=${this._handleSourceClick}

@@ -7,8 +7,7 @@ const componentMetadata = [
     id: "button",
     title: "Button",
     kind: "component-story",
-    description:
-      "Pressable action trigger supporting primary and secondary variants.",
+    description: "Pressable action trigger supporting primary and secondary variants.",
     component: "fable-button",
     storyGroup: "Button",
     createdAt: toISODate("2024-05-01"),
@@ -46,8 +45,7 @@ const componentMetadata = [
     id: "card",
     title: "Card",
     kind: "component-story",
-    description:
-      "Surface container with title + body slots for flexible content blocks.",
+    description: "Surface container with title + body slots for flexible content blocks.",
     component: "fable-card",
     storyGroup: "Card",
     createdAt: ISO("2024-05-01"),
@@ -311,9 +309,7 @@ const componentMetadata = [
   },
 ];
 
-const componentMetaMap = new Map(
-  componentMetadata.map((meta) => [meta.id, meta]),
-);
+const componentMetaMap = new Map(componentMetadata.map((meta) => [meta.id, meta]));
 
 export const listComponentMetadata = () => componentMetadata.map(deepClone);
 

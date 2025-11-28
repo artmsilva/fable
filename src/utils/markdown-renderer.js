@@ -34,9 +34,7 @@ export const parseMarkdown = (content = "") => {
   const flushCode = () => {
     if (inCode) {
       const code = escapeHtml(codeLines.join("\n"));
-      parts.push(
-        `<pre><code${codeLang ? ` data-lang="${codeLang}"` : ""}>${code}</code></pre>`,
-      );
+      parts.push(`<pre><code${codeLang ? ` data-lang="${codeLang}"` : ""}>${code}</code></pre>`);
       inCode = false;
       codeLang = "";
       codeLines = [];
@@ -74,7 +72,10 @@ export const parseMarkdown = (content = "") => {
       flushList();
       const level = headingMatch[1].length;
       const text = headingMatch[2].trim();
-      const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+      const id = text
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
       parts.push(`<h${level} id="${id}">${formatInline(text)}</h${level}>`);
       toc.push({ level, text, id });
       continue;

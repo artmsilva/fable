@@ -23,18 +23,18 @@ const warnings: LintError[] = [];
 
 // Patterns to detect CSS styles in components
 const STYLE_PATTERN = /static\s+styles\s*=\s*css`/;
-const _ALLOWED_MINIMAL_STYLES = /^\s*:host\s*{\s*display:\s*contents;?\s*}\s*$/m;
 
 async function lintFile(filePath: string, allowStyles: boolean): Promise<void> {
   try {
     const content = await readFile(filePath, "utf-8");
     const lines = content.split("\n");
+    const fileCanHaveStyles = allowStyles || content.includes("@allow-styles");
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
 
       if (STYLE_PATTERN.test(line)) {
-        if (!allowStyles) {
+        if (!fileCanHaveStyles) {
           // Check if it's just minimal positioning styles
           const styleBlock = extractStyleBlock(lines, i);
 

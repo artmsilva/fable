@@ -116,9 +116,7 @@ class FableSelect extends LitElement {
           ?disabled=${this.disabled}
           @change=${(e) => {
             this.value = e.target.value;
-            this.dispatchEvent(
-              new CustomEvent("change", { detail: this.value }),
-            );
+            this.dispatchEvent(new CustomEvent("change", { detail: this.value }));
           }}
         >
           ${this._options.map(
@@ -128,7 +126,7 @@ class FableSelect extends LitElement {
                 ?selected=${this.value === opt.value}
               >
                 ${opt.label}
-              </option>`,
+              </option>`
           )}
         </select>
       </label>

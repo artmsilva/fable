@@ -2,8 +2,14 @@ import { prependBasePath, stripBasePath } from "./router/base-path.js";
 
 const routeDefinitions = [
   { name: "home", pattern: new URLPattern({ pathname: "/" }) },
-  { name: "component", pattern: new URLPattern({ pathname: "/components/:group/:story" }) },
-  { name: "docs", pattern: new URLPattern({ pathname: "/docs/:section/:slug" }) },
+  {
+    name: "component",
+    pattern: new URLPattern({ pathname: "/components/:group/:story" }),
+  },
+  {
+    name: "docs",
+    pattern: new URLPattern({ pathname: "/docs/:section/:slug" }),
+  },
   { name: "tokens", pattern: new URLPattern({ pathname: "/tokens/:tokenId" }) },
   { name: "tokens", pattern: new URLPattern({ pathname: "/tokens" }) },
   { name: "icons", pattern: new URLPattern({ pathname: "/icons/:iconId" }) },
@@ -17,10 +23,7 @@ let initialized = false;
 const buildURLForMatching = () => {
   const { pathname, search, hash } = window.location;
   const normalizedPath = stripBasePath(pathname) || "/";
-  return new URL(
-    `${normalizedPath}${search || ""}${hash || ""}`,
-    window.location.origin
-  );
+  return new URL(`${normalizedPath}${search || ""}${hash || ""}`, window.location.origin);
 };
 
 const evaluateRoute = () => {
@@ -39,12 +42,18 @@ const evaluateRoute = () => {
       };
     }
   }
-  return { name: "not-found", params: {}, searchParams: new URLSearchParams(url.search || "") };
+  return {
+    name: "not-found",
+    params: {},
+    searchParams: new URLSearchParams(url.search || ""),
+  };
 };
 
 const notify = () => {
   currentRoute = evaluateRoute();
-  listeners.forEach((cb) => cb(currentRoute));
+  listeners.forEach((cb) => {
+    cb(currentRoute);
+  });
 };
 
 export const initRouter = () => {

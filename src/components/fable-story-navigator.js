@@ -12,7 +12,7 @@ import {
   buildTokensPath,
   getStatusTooltip,
 } from "@utils";
-import { css, html, LitElement } from "lit";
+import { html, LitElement } from "lit";
 import "@design-system/sidebar.js";
 import "@design-system/nav-group.js";
 import "@design-system/badge.js";
@@ -23,48 +23,6 @@ import { navigateTo } from "../router.js";
  * Story Navigator - Left sidebar with navigation
  */
 export class FableStoryNavigator extends LitElement {
-  static styles = css`
-    :host {
-      display: contents;
-    }
-    fable-sidebar {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-4);
-    }
-    .search {
-      position: sticky;
-      top: 0;
-      background: var(--bg-secondary, #f5f5f5);
-      padding: var(--space-2) 0;
-      z-index: 1;
-    }
-    .search input {
-      width: 100%;
-      padding: 8px 12px;
-      border-radius: 999px;
-      border: 1px solid var(--border-color, #e0e0e0);
-      background: var(--bg-primary, #fff);
-      color: var(--text-primary, #111);
-      font-size: 0.9rem;
-    }
-    .search input:focus {
-      outline: 2px solid var(--primary-color);
-    }
-    section {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2);
-    }
-    h2 {
-      margin: 0;
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-muted, var(--text-secondary));
-    }
-  `;
-
   static properties = {
     _stories: { state: true },
     _selected: { state: true },
@@ -83,6 +41,11 @@ export class FableStoryNavigator extends LitElement {
     this._icons = getIconMetadata();
     this._query = "";
     this._handleStateChange = this._handleStateChange.bind(this);
+    this.style.display = "contents";
+  }
+
+  createRenderRoot() {
+    return this;
   }
 
   connectedCallback() {
@@ -120,12 +83,7 @@ export class FableStoryNavigator extends LitElement {
   _getStoryHref(groupIndex, storyName) {
     const group = this._stories[groupIndex];
     if (!group) return "#";
-    return buildStoryURL(
-      this._stories,
-      groupIndex,
-      storyName,
-      group.meta?.args || {},
-    );
+    return buildStoryURL(this._stories, groupIndex, storyName, group.meta?.args || {});
   }
 
   _handleStoryClick(e, groupIndex, name) {
@@ -152,6 +110,11 @@ export class FableStoryNavigator extends LitElement {
     this._query = event.target.value;
   }
 
+  _handleHomeClick(e) {
+    e.preventDefault();
+    navigateTo("/");
+  }
+
   _matchesQuery(text, query) {
     return text?.toLowerCase().includes(query);
   }
@@ -171,12 +134,8 @@ export class FableStoryNavigator extends LitElement {
       const storyNames = Object.keys(group.stories);
       const groupMatches =
         this._matchesQuery(group.meta?.title, query) ||
-        group.meta?.taxonomy?.tags?.some((tag) =>
-          this._matchesQuery(tag, query),
-        );
-      const filteredStories = storyNames.filter((name) =>
-        this._matchesQuery(name, query),
-      );
+        group.meta?.taxonomy?.tags?.some((tag) => this._matchesQuery(tag, query));
+      const filteredStories = storyNames.filter((name) => this._matchesQuery(name, query));
 
       if (groupMatches || filteredStories.length) {
         filtered.push({
@@ -194,12 +153,7 @@ export class FableStoryNavigator extends LitElement {
     const query = this._query.trim().toLowerCase();
     if (!query) return items;
     return items.filter((item) => {
-      const fields = [
-        item.title,
-        item.description,
-        item.section,
-        ...(item.taxonomy?.tags || []),
-      ]
+      const fields = [item.title, item.description, item.section, ...(item.taxonomy?.tags || [])]
         .filter(Boolean)
         .join(" ")
         .toLowerCase();
@@ -219,8 +173,8 @@ export class FableStoryNavigator extends LitElement {
     }, new Map());
 
     return html`
-      <section>
-        <h2>Docs</h2>
+      <section class="navigator-section">
+        <h2 class="navigator-heading">Docs</h2>
         ${[...sections.entries()].map(
           ([section, docs]) => html`
             <fable-nav-group title=${section}>
@@ -233,10 +187,10 @@ export class FableStoryNavigator extends LitElement {
                   >
                     ${doc.title}
                   </fable-link>
-                `,
+                `
               )}
             </fable-nav-group>
-          `,
+          `
         )}
       </section>
     `;
@@ -253,8 +207,8 @@ export class FableStoryNavigator extends LitElement {
     }, new Map());
 
     return html`
-      <section>
-        <h2>Tokens</h2>
+      <section class="navigator-section">
+        <h2 class="navigator-heading">Tokens</h2>
         ${[...groups.entries()].map(
           ([group, tokens]) => html`
             <fable-nav-group title=${group}>
@@ -266,10 +220,10 @@ export class FableStoryNavigator extends LitElement {
                   >
                     ${token.title}
                   </fable-link>
-                `,
+                `
               )}
             </fable-nav-group>
-          `,
+          `
         )}
       </section>
     `;
@@ -279,8 +233,8 @@ export class FableStoryNavigator extends LitElement {
     const icons = this._filterList(this._icons);
     if (!icons?.length) return null;
     return html`
-      <section>
-        <h2>Icons</h2>
+      <section class="navigator-section">
+        <h2 class="navigator-heading">Icons</h2>
         <fable-nav-group title="Gallery">
           ${icons.map(
             (icon) => html`
@@ -289,7 +243,7 @@ export class FableStoryNavigator extends LitElement {
                 @click=${(e) => this._handleIconClick(e, icon)}
                 >${icon.title}</fable-link
               >
-            `,
+            `
           )}
         </fable-nav-group>
       </section>
@@ -300,7 +254,7 @@ export class FableStoryNavigator extends LitElement {
     const filteredStories = this._filterStories();
     return html`
       <fable-sidebar>
-        <div class="search">
+        <div class="navigator-search">
           <input
             type="search"
             placeholder="Search components, docs, tokens"
@@ -308,39 +262,46 @@ export class FableStoryNavigator extends LitElement {
             @input=${this._handleSearchInput}
           />
         </div>
-        <section>
-          <h2>Components</h2>
-          ${filteredStories.length === 0
-            ? html`<p>No components match "${this._query}".</p>`
-            : filteredStories.map(
-                ({ group, groupIndex, stories }) => html`
+        <section class="navigator-section">
+          <h2 class="navigator-heading">Overview</h2>
+          <fable-link href="/" @click=${this._handleHomeClick}
+            >Homepage</fable-link
+          >
+        </section>
+        <section class="navigator-section">
+          <h2 class="navigator-heading">Components</h2>
+          ${
+            filteredStories.length === 0
+              ? html`<p>No components match "${this._query}".</p>`
+              : filteredStories.map(
+                  ({ group, groupIndex, stories }) => html`
                   <fable-nav-group title=${group.meta.title}>
-                    ${group.meta?.taxonomy?.status
-                      ? html`<fable-badge
+                    ${
+                      group.meta?.taxonomy?.status
+                        ? html`<fable-badge
                           slot="title"
                           variant=${group.meta.taxonomy.status}
                           size="condensed"
-                          tooltip=${getStatusTooltip(
-                            group.meta.taxonomy.status,
-                          )}
+                          tooltip=${getStatusTooltip(group.meta.taxonomy.status)}
                           >${group.meta.taxonomy.status}</fable-badge
                         >`
-                      : ""}
+                        : ""
+                    }
                     ${stories.map(
                       (name) => html`
                         <fable-link
                           href=${this._getStoryHref(groupIndex, name)}
                           ?active=${this._isActiveStory(groupIndex, name)}
-                          @click=${(e) =>
-                            this._handleStoryClick(e, groupIndex, name)}
+                          @click=${(e) => this._handleStoryClick(e, groupIndex, name)}
                         >
                           ${name}
                         </fable-link>
-                      `,
+                      `
                     )}
                   </fable-nav-group>
-                `,
-              )}
+                `
+                )
+          }
         </section>
 
         ${this._renderDocsSection()} ${this._renderTokensSection()}

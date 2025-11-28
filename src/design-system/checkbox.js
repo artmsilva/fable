@@ -63,9 +63,7 @@ class FableCheckbox extends LitElement {
           ?disabled=${this.disabled}
           @change=${(e) => {
             this.checked = e.target.checked;
-            this.dispatchEvent(
-              new CustomEvent("change", { detail: this.checked }),
-            );
+            this.dispatchEvent(new CustomEvent("change", { detail: this.checked }));
           }}
         />
         ${this.label ? html`<span>${this.label}</span>` : ""}

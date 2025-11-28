@@ -157,7 +157,7 @@ class FableDrawer extends LitElement {
       new CustomEvent("close", {
         bubbles: true,
         composed: true,
-      }),
+      })
     );
   }
 

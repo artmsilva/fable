@@ -1,30 +1,29 @@
 import { css, html, LitElement } from "lit";
 import { STORIES_KEY } from "./config.js";
+import { initRouter, navigateTo, subscribeToRouter } from "./router.js";
 import {
   getCurrentArgs,
   getDocsMetadata,
-  getSelectedStory,
+  getIconMetadata,
   getStories,
+  getTokenMetadata,
+  getView,
   selectStory,
   setStories,
   setTheme,
   setView,
-  getTokenMetadata,
-  getIconMetadata,
-  getView,
 } from "./store/app-store.js";
 import { processStories } from "./utils/story-processor.js";
 import {
+  buildDocsPath,
+  buildIconsPath,
   buildStoryURL,
+  buildTokensPath,
   findStoryBySlugs,
   getDefaultStory,
   parseArgsFromSearch,
-  buildDocsPath,
-  buildTokensPath,
-  buildIconsPath,
   slugify,
 } from "./utils/url-manager.js";
-import { initRouter, navigateTo, subscribeToRouter } from "./router.js";
 
 // Import all design system components via barrel file
 import "@design-system";
@@ -38,6 +37,7 @@ import "./components/fable-source-drawer.js";
 import "./components/fable-docs-view.js";
 import "./components/fable-tokens-view.js";
 import "./components/fable-icons-view.js";
+import "./components/fable-home-view.js";
 
 /**
  * Main Fable App - Orchestrates the composed components
@@ -121,9 +121,7 @@ class FableApp extends LitElement {
     setStories(processed);
 
     // Initialize theme
-    setTheme(
-      getStories().length > 0 ? getCurrentArgs().theme || "light" : "light",
-    );
+    setTheme(getStories().length > 0 ? getCurrentArgs().theme || "light" : "light");
 
     // Router setup
     this._setupRouter();
@@ -131,10 +129,9 @@ class FableApp extends LitElement {
 
   _setupRouter() {
     const initialRoute = initRouter();
-    this._unsubscribeRouter = subscribeToRouter(
-      (route) => this._handleRouteChange(route),
-      { immediate: false },
-    );
+    this._unsubscribeRouter = subscribeToRouter((route) => this._handleRouteChange(route), {
+      immediate: false,
+    });
     if (initialRoute) {
       this._handleRouteChange(initialRoute);
     }
@@ -151,9 +148,7 @@ class FableApp extends LitElement {
         syncURL: false,
       });
       const fallbackParams = {
-        group: slugify(
-          storiesData[defaultStory.groupIndex]?.meta?.title || "component",
-        ),
+        group: slugify(storiesData[defaultStory.groupIndex]?.meta?.title || "component"),
         story: slugify(defaultStory.name),
       };
       setView({ name: "component", params: fallbackParams });
@@ -161,18 +156,14 @@ class FableApp extends LitElement {
         storiesData,
         defaultStory.groupIndex,
         defaultStory.name,
-        defaultStory.args || {},
+        defaultStory.args || {}
       );
       navigateTo(defaultUrl, { replace: true });
     };
 
     switch (route.name) {
       case "component": {
-        const match = findStoryBySlugs(
-          storiesData,
-          route.params.group,
-          route.params.story,
-        );
+        const match = findStoryBySlugs(storiesData, route.params.group, route.params.story);
         if (match) {
           const args = parseArgsFromSearch(route.searchParams);
           selectStory(match.groupIndex, match.name, {
@@ -192,14 +183,10 @@ class FableApp extends LitElement {
           break;
         }
         let doc = docs.find(
-          (entry) =>
-            entry.section === route.params.section &&
-            entry.slug === route.params.slug,
+          (entry) => entry.section === route.params.section && entry.slug === route.params.slug
         );
         if (!doc) {
-          doc =
-            docs.find((entry) => entry.section === route.params.section) ||
-            docs[0];
+          doc = docs.find((entry) => entry.section === route.params.section) || docs[0];
           navigateTo(buildDocsPath(doc.section, doc.slug), { replace: true });
         }
         setView({
@@ -210,9 +197,7 @@ class FableApp extends LitElement {
       }
       case "tokens": {
         const tokens = getTokenMetadata();
-        const token =
-          tokens.find((entry) => entry.id === route.params.tokenId) ||
-          tokens[0];
+        const token = tokens.find((entry) => entry.id === route.params.tokenId) || tokens[0];
         if (token && token.id !== route.params.tokenId) {
           navigateTo(buildTokensPath(token.id), { replace: true });
         }
@@ -221,8 +206,7 @@ class FableApp extends LitElement {
       }
       case "icons": {
         const icons = getIconMetadata();
-        const icon =
-          icons.find((entry) => entry.id === route.params.iconId) || icons[0];
+        const icon = icons.find((entry) => entry.id === route.params.iconId) || icons[0];
         if (icon && icon.id !== route.params.iconId) {
           navigateTo(buildIconsPath(icon.id), { replace: true });
         }
@@ -230,7 +214,6 @@ class FableApp extends LitElement {
         break;
       }
       case "home":
-        ensureDefaultStory();
         setView({ name: "home", params: {} });
         break;
       default:
@@ -247,7 +230,8 @@ class FableApp extends LitElement {
         return html`<fable-tokens-view class="active"></fable-tokens-view>`;
       case "icons":
         return html`<fable-icons-view class="active"></fable-icons-view>`;
-      case "component":
+      case "home":
+        return html`<fable-home-view class="active"></fable-home-view>`;
       default:
         return html`<fable-story-preview class="active"></fable-story-preview>`;
     }

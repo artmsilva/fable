@@ -1,10 +1,7 @@
-import {
-  getComponentMetadataByComponent,
-  listComponentMetadata,
-} from "../metadata/components.js";
+import { getComponentMetadataByComponent, listComponentMetadata } from "../metadata/components.js";
 import { listDocsMetadata } from "../metadata/docs.js";
-import { listTokenMetadata } from "../metadata/tokens.js";
 import { listIconMetadata } from "../metadata/icons.js";
+import { listTokenMetadata } from "../metadata/tokens.js";
 
 const registry = {
   components: listComponentMetadata(),

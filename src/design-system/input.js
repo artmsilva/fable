@@ -55,9 +55,7 @@ class FableInput extends LitElement {
           placeholder=${this.placeholder}
           @input=${(e) => {
             this.value = e.target.value;
-            this.dispatchEvent(
-              new CustomEvent("input", { detail: this.value }),
-            );
+            this.dispatchEvent(new CustomEvent("input", { detail: this.value }));
           }}
         />
       </label>
