@@ -1,5 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { STORIES_KEY } from "../config.js";
+import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableHeader extends LitElement {
   static status = "stable";
@@ -40,9 +41,7 @@ class FableHeader extends LitElement {
 customElements.define("fable-header", FableHeader);
 
 // Stories
-const meta = {
-  title: "Header",
-  component: "fable-header",
+const meta = getComponentStoryMeta("header", {
   args: {
     align: "center",
   },
@@ -52,7 +51,7 @@ const meta = {
       options: ["start", "center", "end"],
     },
   },
-};
+});
 
 const stories = {
   Default: (args) => html`

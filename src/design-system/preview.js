@@ -1,5 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { STORIES_KEY } from "../config.js";
+import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FablePreview extends LitElement {
   static status = "stable";
@@ -10,14 +11,15 @@ class FablePreview extends LitElement {
     :host {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      height: calc(
-        100vh - 100px
-      ); /** fable-header height implemention in app */
+      align-items: flex-start;
+      justify-content: flex-start;
+      width: 100%;
+      height: 100%;
+      padding: var(--space-4, 16px);
+      box-sizing: border-box;
       background-color: var(--bg-primary);
       position: relative;
+      overflow: auto;
     }
   `;
 
@@ -29,11 +31,9 @@ class FablePreview extends LitElement {
 customElements.define("fable-preview", FablePreview);
 
 // Stories
-const meta = {
-  title: "Preview",
-  component: "fable-preview",
+const meta = getComponentStoryMeta("preview", {
   args: {},
-};
+});
 
 const stories = {
   Default: (_args) => html`

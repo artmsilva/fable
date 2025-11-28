@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fable.dev/schemas/metadata.schema.json",
+  "title": "Fable Metadata Schema",
+  "type": "object",
+  "definitions": {
+    "taxonomy": {
+      "type": "object",
+      "properties": {
+        "group": { "type": "string", "minLength": 1 },
+        "category": { "type": "string", "minLength": 1 },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": ["stable", "beta", "alpha", "deprecated"]
+        },
+        "platforms": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["web", "ios", "android"] },
+          "minItems": 1
+        },
+        "accessibility": {
+          "type": "string",
+          "enum": ["baseline", "enhanced"]
+        }
+      },
+      "required": ["group", "category", "tags", "status", "platforms", "accessibility"],
+      "additionalProperties": false
+    },
+    "baseMeta": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "title": { "type": "string", "minLength": 1 },
+        "kind": {
+          "type": "string",
+          "enum": ["component-story", "docs", "token", "icon"]
+        },
+        "description": { "type": "string" },
+        "createdAt": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+        },
+        "updatedAt": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+        },
+        "featured": { "type": "boolean" },
+        "keywords": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "taxonomy": { "$ref": "#/definitions/taxonomy" }
+      },
+      "required": ["id", "title", "kind"],
+      "additionalProperties": true
+    },
+    "componentStoryMeta": {
+      "allOf": [
+        { "$ref": "#/definitions/baseMeta" },
+        {
+          "type": "object",
+          "properties": {
+            "kind": { "const": "component-story" },
+            "component": { "type": "string", "minLength": 1 },
+            "storyGroup": { "type": "string", "minLength": 1 },
+            "args": { "type": "object" },
+            "slots": { "type": "object" },
+            "permutations": {
+              "type": "object",
+              "properties": {
+                "axes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": { "type": "string", "minLength": 1 },
+                      "label": { "type": "string" },
+                      "values": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "label": { "type": "string" },
+                            "value": { "type": "string" },
+                            "lockedArgs": { "type": "object" }
+                          },
+                          "required": ["label", "value"],
+                          "additionalProperties": true
+                        },
+                        "minItems": 1
+                      }
+                    },
+                    "required": ["name", "values"],
+                    "additionalProperties": true
+                  },
+                  "minItems": 1
+                },
+                "maxCases": { "type": "integer", "minimum": 1 },
+                "layout": { "type": "string", "enum": ["grid", "list"] }
+              },
+              "required": ["axes"],
+              "additionalProperties": true
+            }
+          },
+          "required": ["component", "storyGroup"],
+          "additionalProperties": true
+        }
+      ]
+    },
+    "docsMeta": {
+      "allOf": [
+        { "$ref": "#/definitions/baseMeta" },
+        {
+          "type": "object",
+          "properties": {
+            "kind": { "const": "docs" },
+            "section": { "type": "string", "minLength": 1 },
+            "slug": { "type": "string", "minLength": 1 },
+            "content": { "type": "string" },
+            "contentUrl": { "type": "string" },
+            "relatedStories": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "required": ["section", "slug"],
+          "additionalProperties": true
+        }
+      ]
+    },
+    "tokenMeta": {
+      "allOf": [
+        { "$ref": "#/definitions/baseMeta" },
+        {
+          "type": "object",
+          "properties": {
+            "kind": { "const": "token" },
+            "tokenType": {
+              "type": "string",
+              "enum": ["color", "dimension", "font", "shadow", "motion"]
+            },
+            "value": { "type": "string", "minLength": 1 },
+            "attributes": { "type": "object" },
+            "deprecated": { "type": "boolean" }
+          },
+          "required": ["tokenType", "value"],
+          "additionalProperties": true
+        }
+      ]
+    },
+    "iconMeta": {
+      "allOf": [
+        { "$ref": "#/definitions/baseMeta" },
+        {
+          "type": "object",
+          "properties": {
+            "kind": { "const": "icon" },
+            "svgPath": { "type": "string", "minLength": 1 },
+            "size": { "type": "number", "minimum": 0 },
+            "style": { "type": "string", "enum": ["filled", "outline", "duotone"] },
+            "introducedIn": { "type": "string" }
+          },
+          "required": ["svgPath", "style"],
+          "additionalProperties": true
+        }
+      ]
+    }
+  }
+}

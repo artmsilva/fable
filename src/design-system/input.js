@@ -1,5 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { STORIES_KEY } from "../config.js";
+import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableInput extends LitElement {
   static status = "beta";
@@ -54,7 +55,9 @@ class FableInput extends LitElement {
           placeholder=${this.placeholder}
           @input=${(e) => {
             this.value = e.target.value;
-            this.dispatchEvent(new CustomEvent("input", { detail: this.value }));
+            this.dispatchEvent(
+              new CustomEvent("input", { detail: this.value }),
+            );
           }}
         />
       </label>
@@ -65,10 +68,9 @@ class FableInput extends LitElement {
 customElements.define("fable-input", FableInput);
 
 // Stories
-const meta = {
-  component: "fable-input",
+const meta = getComponentStoryMeta("input", {
   args: { label: "Name", placeholder: "Enter name" },
-};
+});
 const stories = {
   Default: (args) =>
     html`<fable-input

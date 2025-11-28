@@ -1,5 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { STORIES_KEY } from "../config.js";
+import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableButton extends LitElement {
   static status = "alpha";
@@ -83,12 +84,15 @@ customElements.define("fable-button", FableButton);
 /**
  * Meta information for fable Button component
  */
-const meta = {
-  component: "fable-button",
+const meta = getComponentStoryMeta("button", {
+  args: {
+    disabled: false,
+    variant: "primary",
+  },
   slots: {
     default: "Primary Button",
   },
-};
+});
 
 /**
  * Stories for fable Button component

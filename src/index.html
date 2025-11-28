@@ -1,27 +1,28 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>fable</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-    <link rel="stylesheet" href="style.css" />
-    <script type="importmap">
-      {
-        "imports": {
-          "lit": "https://esm.sh/lit@3",
-          "lit/": "https://esm.sh/lit@3/",
-          "@design-system": "./design-system/index.js",
-          "@design-system/": "./design-system/",
-          "@store": "./store/index.js",
-          "@utils": "./utils/index.js",
-          "@config": "./config.js"
-        }
-      }
-    </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="app.js"></script>
-  </body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>fable</title>
+        <base href="/" />
+        <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+        <link rel="stylesheet" href="style.css" />
+        <script type="importmap">
+            {
+                "imports": {
+                    "lit": "https://esm.sh/lit@3",
+                    "lit/": "https://esm.sh/lit@3/",
+                    "@design-system": "./design-system/index.js",
+                    "@design-system/": "./design-system/",
+                    "@store": "./store/index.js",
+                    "@utils": "./utils/index.js",
+                    "@config": "./config.js"
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <div id="root"></div>
+        <script type="module" src="app.js"></script>
+    </body>
 </html>

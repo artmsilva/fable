@@ -1,0 +1,11 @@
+/* Generated from design-system/tokens.json */
+:root {
+  --primary-color: #5B3CC4; /* Primary Color */
+  --accent-color: #1FB6FF; /* Accent Color */
+  --bg-primary: #FFFFFF; /* Surface Color */
+  --bg-primary-dark: #111827; /* Surface Color (Dark) */
+  --space-4: 16px; /* Space / 4 */
+  --space-6: 24px; /* Space / 6 */
+  --font-stack: "Inter", "Segoe UI", system-ui, -apple-system; /* Font Body */
+  --radius: 12px; /* Radius / 3 */
+}

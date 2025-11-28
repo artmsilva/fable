@@ -1,5 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { STORIES_KEY } from "../config.js";
+import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableBadge extends LitElement {
   static status = "stable";
@@ -108,8 +109,7 @@ class FableBadge extends LitElement {
 customElements.define("fable-badge", FableBadge);
 
 // Stories
-const meta = {
-  component: "fable-badge",
+const meta = getComponentStoryMeta("badge", {
   args: {
     variant: "stable",
     size: "default",
@@ -124,7 +124,7 @@ const meta = {
   slots: {
     default: "Badge",
   },
-};
+});
 
 const stories = {
   Alpha: {
@@ -208,18 +208,17 @@ const stories = {
       size: "condensed",
     }),
     lockedArgs: { size: true },
-    render: (_args, _slots) =>
-      html`
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <fable-badge variant="alpha" size="condensed">alpha</fable-badge>
-          <fable-badge variant="beta" size="condensed">beta</fable-badge>
-          <fable-badge variant="stable" size="condensed">stable</fable-badge>
-          <fable-badge variant="deprecated" size="condensed"
-            >deprecated</fable-badge
-          >
-          <fable-badge variant="info" size="condensed">info</fable-badge>
-        </div>
-      `,
+    render: (_args, _slots) => html`
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <fable-badge variant="alpha" size="condensed">alpha</fable-badge>
+        <fable-badge variant="beta" size="condensed">beta</fable-badge>
+        <fable-badge variant="stable" size="condensed">stable</fable-badge>
+        <fable-badge variant="deprecated" size="condensed"
+          >deprecated</fable-badge
+        >
+        <fable-badge variant="info" size="condensed">info</fable-badge>
+      </div>
+    `,
   },
 };
 

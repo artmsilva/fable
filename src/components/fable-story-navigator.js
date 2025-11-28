@@ -1,10 +1,23 @@
-import { getSelectedStory, getStories, selectStory } from "@store";
-import { getStatusTooltip } from "@utils";
+import {
+  getDocsMetadata,
+  getIconMetadata,
+  getSelectedStory,
+  getStories,
+  getTokenMetadata,
+} from "@store";
+import {
+  buildDocsPath,
+  buildIconsPath,
+  buildStoryURL,
+  buildTokensPath,
+  getStatusTooltip,
+} from "@utils";
 import { css, html, LitElement } from "lit";
 import "@design-system/sidebar.js";
 import "@design-system/nav-group.js";
 import "@design-system/badge.js";
 import "@design-system/link.js";
+import { navigateTo } from "../router.js";
 
 /**
  * Story Navigator - Left sidebar with navigation
@@ -14,17 +27,61 @@ export class FableStoryNavigator extends LitElement {
     :host {
       display: contents;
     }
+    fable-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+    .search {
+      position: sticky;
+      top: 0;
+      background: var(--bg-secondary, #f5f5f5);
+      padding: var(--space-2) 0;
+      z-index: 1;
+    }
+    .search input {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border-color, #e0e0e0);
+      background: var(--bg-primary, #fff);
+      color: var(--text-primary, #111);
+      font-size: 0.9rem;
+    }
+    .search input:focus {
+      outline: 2px solid var(--primary-color);
+    }
+    section {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+    h2 {
+      margin: 0;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted, var(--text-secondary));
+    }
   `;
 
   static properties = {
     _stories: { state: true },
     _selected: { state: true },
+    _docs: { state: true },
+    _tokens: { state: true },
+    _icons: { state: true },
+    _query: { state: true },
   };
 
   constructor() {
     super();
     this._stories = getStories();
     this._selected = getSelectedStory();
+    this._docs = getDocsMetadata();
+    this._tokens = getTokenMetadata();
+    this._icons = getIconMetadata();
+    this._query = "";
     this._handleStateChange = this._handleStateChange.bind(this);
   }
 
@@ -39,11 +96,17 @@ export class FableStoryNavigator extends LitElement {
   }
 
   _handleStateChange(e) {
-    if (e.detail.key === "stories" || e.detail.key === "selectedStory") {
+    const { key } = e.detail;
+    if (key === "stories" || key === "selectedStory") {
       this._stories = getStories();
       this._selected = getSelectedStory();
-      this.requestUpdate();
     }
+    if (key === "metadata") {
+      this._docs = getDocsMetadata();
+      this._tokens = getTokenMetadata();
+      this._icons = getIconMetadata();
+    }
+    this.requestUpdate();
   }
 
   _isActiveStory(groupIndex, storyName) {
@@ -54,68 +117,234 @@ export class FableStoryNavigator extends LitElement {
     );
   }
 
-  _slugify(text) {
-    return text
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-  }
-
   _getStoryHref(groupIndex, storyName) {
     const group = this._stories[groupIndex];
     if (!group) return "#";
-
-    const componentSlug = this._slugify(group.meta.title);
-    const storySlug = this._slugify(storyName);
-    const defaultArgs = group.meta?.args || {};
-
-    const params = new URLSearchParams();
-    params.set("story", `${componentSlug}/${storySlug}`);
-
-    Object.entries(defaultArgs).forEach(([key, value]) => {
-      params.set(key, String(value));
-    });
-
-    return `?${params.toString()}`;
+    return buildStoryURL(
+      this._stories,
+      groupIndex,
+      storyName,
+      group.meta?.args || {},
+    );
   }
 
   _handleStoryClick(e, groupIndex, name) {
     e.preventDefault();
-    selectStory(groupIndex, name);
+    navigateTo(this._getStoryHref(groupIndex, name));
+  }
+
+  _handleDocsClick(e, doc) {
+    e.preventDefault();
+    navigateTo(buildDocsPath(doc.section, doc.slug));
+  }
+
+  _handleTokenClick(e, token) {
+    e.preventDefault();
+    navigateTo(buildTokensPath(token.id));
+  }
+
+  _handleIconClick(e, icon) {
+    e.preventDefault();
+    navigateTo(buildIconsPath(icon.id));
+  }
+
+  _handleSearchInput(event) {
+    this._query = event.target.value;
+  }
+
+  _matchesQuery(text, query) {
+    return text?.toLowerCase().includes(query);
+  }
+
+  _filterStories() {
+    const query = this._query.trim().toLowerCase();
+    if (!query) {
+      return this._stories.map((group, groupIndex) => ({
+        group,
+        groupIndex,
+        stories: Object.keys(group.stories),
+      }));
+    }
+
+    const filtered = [];
+    this._stories.forEach((group, groupIndex) => {
+      const storyNames = Object.keys(group.stories);
+      const groupMatches =
+        this._matchesQuery(group.meta?.title, query) ||
+        group.meta?.taxonomy?.tags?.some((tag) =>
+          this._matchesQuery(tag, query),
+        );
+      const filteredStories = storyNames.filter((name) =>
+        this._matchesQuery(name, query),
+      );
+
+      if (groupMatches || filteredStories.length) {
+        filtered.push({
+          group,
+          groupIndex,
+          stories: groupMatches ? storyNames : filteredStories,
+        });
+      }
+    });
+
+    return filtered;
+  }
+
+  _filterList(items = []) {
+    const query = this._query.trim().toLowerCase();
+    if (!query) return items;
+    return items.filter((item) => {
+      const fields = [
+        item.title,
+        item.description,
+        item.section,
+        ...(item.taxonomy?.tags || []),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return fields.includes(query);
+    });
+  }
+
+  _renderDocsSection() {
+    const docs = this._filterList(this._docs);
+    if (!docs?.length) return null;
+
+    const sections = docs.reduce((acc, doc) => {
+      const key = doc.section || "general";
+      if (!acc.has(key)) acc.set(key, []);
+      acc.get(key).push(doc);
+      return acc;
+    }, new Map());
+
+    return html`
+      <section>
+        <h2>Docs</h2>
+        ${[...sections.entries()].map(
+          ([section, docs]) => html`
+            <fable-nav-group title=${section}>
+              ${docs.map(
+                (doc) => html`
+                  <fable-link
+                    href=${buildDocsPath(doc.section, doc.slug)}
+                    data-doc=${doc.id}
+                    @click=${(e) => this._handleDocsClick(e, doc)}
+                  >
+                    ${doc.title}
+                  </fable-link>
+                `,
+              )}
+            </fable-nav-group>
+          `,
+        )}
+      </section>
+    `;
+  }
+
+  _renderTokensSection() {
+    const tokens = this._filterList(this._tokens);
+    if (!tokens?.length) return null;
+    const groups = tokens.reduce((acc, token) => {
+      const key = token.taxonomy?.group || "Tokens";
+      if (!acc.has(key)) acc.set(key, []);
+      acc.get(key).push(token);
+      return acc;
+    }, new Map());
+
+    return html`
+      <section>
+        <h2>Tokens</h2>
+        ${[...groups.entries()].map(
+          ([group, tokens]) => html`
+            <fable-nav-group title=${group}>
+              ${tokens.map(
+                (token) => html`
+                  <fable-link
+                    href=${buildTokensPath(token.id)}
+                    @click=${(e) => this._handleTokenClick(e, token)}
+                  >
+                    ${token.title}
+                  </fable-link>
+                `,
+              )}
+            </fable-nav-group>
+          `,
+        )}
+      </section>
+    `;
+  }
+
+  _renderIconsSection() {
+    const icons = this._filterList(this._icons);
+    if (!icons?.length) return null;
+    return html`
+      <section>
+        <h2>Icons</h2>
+        <fable-nav-group title="Gallery">
+          ${icons.map(
+            (icon) => html`
+              <fable-link
+                href=${buildIconsPath(icon.id)}
+                @click=${(e) => this._handleIconClick(e, icon)}
+                >${icon.title}</fable-link
+              >
+            `,
+          )}
+        </fable-nav-group>
+      </section>
+    `;
   }
 
   render() {
+    const filteredStories = this._filterStories();
     return html`
       <fable-sidebar>
-        <h2>Components</h2>
-        ${this._stories.map(
-          (g, gi) => html`
-            <fable-nav-group title=${g.meta.title}>
-              ${
-                g.meta.status
-                  ? html`<fable-badge
-                    slot="title"
-                    variant=${g.meta.status}
-                    size="condensed"
-                    tooltip="${getStatusTooltip(g.meta.status)}"
-                    >${g.meta.status}</fable-badge
-                  >`
-                  : ""
-              }
-              ${Object.keys(g.stories).map(
-                (name) => html`
-                  <fable-link
-                    href=${this._getStoryHref(gi, name)}
-                    ?active=${this._isActiveStory(gi, name)}
-                    @click=${(e) => this._handleStoryClick(e, gi, name)}
-                  >
-                    ${name}
-                  </fable-link>
-                `
+        <div class="search">
+          <input
+            type="search"
+            placeholder="Search components, docs, tokens"
+            .value=${this._query}
+            @input=${this._handleSearchInput}
+          />
+        </div>
+        <section>
+          <h2>Components</h2>
+          ${filteredStories.length === 0
+            ? html`<p>No components match "${this._query}".</p>`
+            : filteredStories.map(
+                ({ group, groupIndex, stories }) => html`
+                  <fable-nav-group title=${group.meta.title}>
+                    ${group.meta?.taxonomy?.status
+                      ? html`<fable-badge
+                          slot="title"
+                          variant=${group.meta.taxonomy.status}
+                          size="condensed"
+                          tooltip=${getStatusTooltip(
+                            group.meta.taxonomy.status,
+                          )}
+                          >${group.meta.taxonomy.status}</fable-badge
+                        >`
+                      : ""}
+                    ${stories.map(
+                      (name) => html`
+                        <fable-link
+                          href=${this._getStoryHref(groupIndex, name)}
+                          ?active=${this._isActiveStory(groupIndex, name)}
+                          @click=${(e) =>
+                            this._handleStoryClick(e, groupIndex, name)}
+                        >
+                          ${name}
+                        </fable-link>
+                      `,
+                    )}
+                  </fable-nav-group>
+                `,
               )}
-            </fable-nav-group>
-          `
-        )}
+        </section>
+
+        ${this._renderDocsSection()} ${this._renderTokensSection()}
+        ${this._renderIconsSection()}
       </fable-sidebar>
     `;
   }

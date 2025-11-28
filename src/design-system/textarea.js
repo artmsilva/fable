@@ -1,5 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { STORIES_KEY } from "../config.js";
+import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableTextarea extends LitElement {
   static status = "beta";
@@ -59,7 +60,9 @@ class FableTextarea extends LitElement {
           ?disabled=${this.disabled}
           @input=${(e) => {
             this.value = e.target.value;
-            this.dispatchEvent(new CustomEvent("input", { detail: this.value }));
+            this.dispatchEvent(
+              new CustomEvent("input", { detail: this.value }),
+            );
           }}
         ></textarea>
       </label>
@@ -70,14 +73,13 @@ class FableTextarea extends LitElement {
 customElements.define("fable-textarea", FableTextarea);
 
 // Stories
-const meta = {
-  component: "fable-textarea",
+const meta = getComponentStoryMeta("textarea", {
   args: {
     label: "Description",
     placeholder: "Enter description",
     rows: 3,
   },
-};
+});
 
 const stories = {
   Default: (args) =>

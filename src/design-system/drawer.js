@@ -1,5 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { STORIES_KEY } from "../config.js";
+import { getComponentStoryMeta } from "../metadata/components.js";
 import "./icon-button.js";
 
 class FableDrawer extends LitElement {
@@ -156,7 +157,7 @@ class FableDrawer extends LitElement {
       new CustomEvent("close", {
         bubbles: true,
         composed: true,
-      })
+      }),
     );
   }
 
@@ -194,9 +195,7 @@ class FableDrawer extends LitElement {
 customElements.define("fable-drawer", FableDrawer);
 
 // Stories
-const meta = {
-  title: "Drawer",
-  component: "fable-drawer",
+const meta = getComponentStoryMeta("drawer", {
   args: {
     open: false,
     position: "right",
@@ -208,7 +207,7 @@ const meta = {
       options: ["left", "right", "bottom"],
     },
   },
-};
+});
 
 const stories = {
   Default: (args) => html`

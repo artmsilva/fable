@@ -1,5 +1,7 @@
 import { STORIES_KEY, THEME_STORAGE_KEY } from "@config";
-import { updateURL } from "@utils";
+import { buildStoryURL } from "@utils";
+import { getMetadataRegistry } from "../config/metadata-registry.js";
+import { navigateTo } from "../router.js";
 
 /**
  * Central application state store using custom events
@@ -10,14 +12,18 @@ class AppStore {
     this.stateEvents = window;
     this.state = {
       stories: window[STORIES_KEY] || [],
+      metadata: getMetadataRegistry(),
       selectedStory: null, // { groupIndex, name }
       currentArgs: {},
       currentSlots: {},
       lockedArgs: {},
       sourceDrawerOpen: false,
+      view: { name: "home", params: {} },
       theme:
         localStorage.getItem(THEME_STORAGE_KEY) ||
-        (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"),
+        (window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light"),
     };
   }
 
@@ -26,7 +32,7 @@ class AppStore {
     this.stateEvents.dispatchEvent(
       new CustomEvent("state-changed", {
         detail: { key, value: this.state[key] },
-      })
+      }),
     );
   }
 
@@ -39,6 +45,26 @@ class AppStore {
 
   getSelectedStory() {
     return this.state.selectedStory;
+  }
+
+  getMetadata() {
+    return this.state.metadata;
+  }
+
+  getComponentMetadata() {
+    return this.state.metadata.components;
+  }
+
+  getDocsMetadata() {
+    return this.state.metadata.docs;
+  }
+
+  getTokenMetadata() {
+    return this.state.metadata.tokens;
+  }
+
+  getIconMetadata() {
+    return this.state.metadata.icons;
   }
 
   getCurrentArgs() {
@@ -61,6 +87,10 @@ class AppStore {
     return this.state.theme;
   }
 
+  getView() {
+    return this.state.view;
+  }
+
   /**
    * Actions - Methods that modify state and notify listeners
    */
@@ -69,7 +99,8 @@ class AppStore {
     this.notifyStateChange("stories");
   }
 
-  selectStory(groupIndex, name) {
+  selectStory(groupIndex, name, options = {}) {
+    const { argsOverride, slotsOverride, syncURL = true } = options;
     const story = this.state.stories[groupIndex];
     if (!story) return;
 
@@ -85,7 +116,17 @@ class AppStore {
       this.state.currentArgs = baseArgs;
     }
 
+    if (argsOverride) {
+      this.state.currentArgs = { ...this.state.currentArgs, ...argsOverride };
+    }
+
     this.state.currentSlots = { ...(story.meta?.slots || {}) };
+    if (slotsOverride) {
+      this.state.currentSlots = {
+        ...this.state.currentSlots,
+        ...slotsOverride,
+      };
+    }
 
     // Merge meta-level and story-level locked args
     this.state.lockedArgs = {
@@ -99,8 +140,9 @@ class AppStore {
     this.notifyStateChange("currentSlots");
     this.notifyStateChange("lockedArgs");
 
-    // Trigger URL update
-    this._syncURL();
+    if (syncURL) {
+      this._syncURL();
+    }
   }
 
   updateArg(key, value) {
@@ -109,8 +151,15 @@ class AppStore {
     this._syncURL();
   }
 
-  _syncURL() {
-    updateURL(this.state.stories, this.state.selectedStory, this.state.currentArgs, true);
+  _syncURL(replace = false) {
+    if (!this.state.selectedStory) return;
+    const url = buildStoryURL(
+      this.state.stories,
+      this.state.selectedStory.groupIndex,
+      this.state.selectedStory.name,
+      this.state.currentArgs,
+    );
+    navigateTo(url, { replace });
   }
 
   updateSlot(key, value) {
@@ -126,6 +175,11 @@ class AppStore {
   toggleSourceDrawer() {
     this.state.sourceDrawerOpen = !this.state.sourceDrawerOpen;
     this.notifyStateChange("sourceDrawerOpen");
+  }
+
+  setView(view) {
+    this.state.view = view;
+    this.notifyStateChange("view");
   }
 
   setTheme(newTheme) {
@@ -168,13 +222,19 @@ const store = new AppStore();
 // Export methods bound to the singleton instance
 export const getStories = () => store.getStories();
 export const getSelectedStory = () => store.getSelectedStory();
+export const getMetadata = () => store.getMetadata();
+export const getComponentMetadata = () => store.getComponentMetadata();
+export const getDocsMetadata = () => store.getDocsMetadata();
+export const getTokenMetadata = () => store.getTokenMetadata();
+export const getIconMetadata = () => store.getIconMetadata();
 export const getCurrentArgs = () => store.getCurrentArgs();
 export const getCurrentSlots = () => store.getCurrentSlots();
 export const getLockedArgs = () => store.getLockedArgs();
 export const getSourceDrawerOpen = () => store.getSourceDrawerOpen();
 export const getTheme = () => store.getTheme();
 export const setStories = (newStories) => store.setStories(newStories);
-export const selectStory = (groupIndex, name) => store.selectStory(groupIndex, name);
+export const selectStory = (groupIndex, name, options) =>
+  store.selectStory(groupIndex, name, options);
 export const updateArg = (key, value) => store.updateArg(key, value);
 export const updateSlot = (key, value) => store.updateSlot(key, value);
 export const unlockArg = (key) => store.unlockArg(key);
@@ -183,3 +243,5 @@ export const setTheme = (newTheme) => store.setTheme(newTheme);
 export const toggleTheme = () => store.toggleTheme();
 export const getCurrentStory = () => store.getCurrentStory();
 export const getProcessedSlots = () => store.getProcessedSlots();
+export const getView = () => store.getView();
+export const setView = (view) => store.setView(view);

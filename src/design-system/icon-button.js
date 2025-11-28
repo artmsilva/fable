@@ -1,6 +1,7 @@
 import { css, html, LitElement } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { STORIES_KEY } from "../config.js";
+import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableIconButton extends LitElement {
   static status = "beta";
@@ -66,15 +67,14 @@ class FableIconButton extends LitElement {
 customElements.define("fable-icon-button", FableIconButton);
 
 // Stories
-const meta = {
-  component: "fable-icon-button",
+const meta = getComponentStoryMeta("icon-button", {
   args: {
     ariaLabel: "Icon button",
   },
   slots: {
     default: "🌙",
   },
-};
+});
 
 const stories = {
   Default: (args, slots) =>

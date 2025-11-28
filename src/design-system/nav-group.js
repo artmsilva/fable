@@ -1,5 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { STORIES_KEY } from "../config.js";
+import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableNavGroup extends LitElement {
   static status = "stable";
@@ -53,13 +54,11 @@ class FableNavGroup extends LitElement {
 customElements.define("fable-nav-group", FableNavGroup);
 
 // Stories
-const meta = {
-  title: "Nav Group",
-  component: "fable-nav-group",
+const meta = getComponentStoryMeta("nav-group", {
   args: {
     title: "Components",
   },
-};
+});
 
 const stories = {
   Default: (args) => html`

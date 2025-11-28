@@ -1,5 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { STORIES_KEY } from "../config.js";
+import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableCard extends LitElement {
   static status = "stable";
@@ -47,13 +48,12 @@ class FableCard extends LitElement {
 customElements.define("fable-card", FableCard);
 
 // Stories
-const meta = {
-  component: "fable-card",
+const meta = getComponentStoryMeta("card", {
   args: { title: "Card Title" },
   slots: {
     default: "This is a card content.",
   },
-};
+});
 const stories = {
   Default: (args, slots) =>
     html`<fable-card title=${args.title}

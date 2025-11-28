@@ -2,61 +2,11 @@
  * URL and routing utilities
  */
 class URLManager {
-  slugify(text) {
+  slugify(text = "") {
     return text
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
-  }
-
-  parseStoryFromURL(stories) {
-    const params = new URLSearchParams(window.location.search);
-    const storyParam = params.get("story");
-
-    if (!storyParam || !stories.length) {
-      return null;
-    }
-
-    // Parse story param: "component-slug/story-slug"
-    const [componentSlug, storySlug] = storyParam.split("/");
-
-    if (!componentSlug || !storySlug) {
-      return null;
-    }
-
-    // Find the matching story
-    for (let gi = 0; gi < stories.length; gi++) {
-      const group = stories[gi];
-      const titleSlug = this.slugify(group.meta.title);
-
-      if (titleSlug === componentSlug) {
-        const storyNames = Object.keys(group.stories);
-        for (const name of storyNames) {
-          if (this.slugify(name) === storySlug) {
-            // Parse args from URL
-            const args = { ...(group.meta?.args || {}) };
-
-            // Override with URL params (excluding 'story' param)
-            params.forEach((value, key) => {
-              if (key !== "story") {
-                // Parse boolean values
-                if (value === "true") {
-                  args[key] = true;
-                } else if (value === "false") {
-                  args[key] = false;
-                } else {
-                  args[key] = value;
-                }
-              }
-            });
-
-            return { groupIndex: gi, name, args };
-          }
-        }
-      }
-    }
-
-    return null;
   }
 
   getDefaultStory(stories) {
@@ -73,40 +23,79 @@ class URLManager {
     };
   }
 
-  buildStoryURL(stories, groupIndex, storyName, args = {}) {
-    const group = stories[groupIndex];
-    if (!group) return "";
+  findStoryBySlugs(stories, componentSlug, storySlug) {
+    if (!stories.length || !componentSlug || !storySlug) return null;
 
-    const componentSlug = this.slugify(group.meta.title);
-    const storySlug = this.slugify(storyName);
+    for (let gi = 0; gi < stories.length; gi++) {
+      const group = stories[gi];
+      const groupSlug = this.slugify(group.meta.title);
+      if (groupSlug !== componentSlug) continue;
 
-    // Build query string with story param and all args
-    const params = new URLSearchParams();
-    params.set("story", `${componentSlug}/${storySlug}`);
+      const storyNames = Object.keys(group.stories);
+      for (const name of storyNames) {
+        if (this.slugify(name) === storySlug) {
+          return { groupIndex: gi, name };
+        }
+      }
+    }
 
-    Object.entries(args).forEach(([key, value]) => {
-      params.set(key, String(value));
-    });
-
-    return `?${params.toString()}`;
+    return null;
   }
 
-  updateURL(stories, selected, args, pushState = true) {
-    if (!selected) return;
+  parseArgs(searchParams) {
+    const params =
+      typeof searchParams === "string"
+        ? new URLSearchParams(searchParams)
+        : searchParams || new URLSearchParams();
 
-    const url = this.buildStoryURL(stories, selected.groupIndex, selected.name, args);
-
-    const state = {
-      groupIndex: selected.groupIndex,
-      name: selected.name,
-      args: args,
-    };
-
-    if (pushState) {
-      window.history.pushState(state, "", url);
-    } else {
-      window.history.replaceState(state, "", url);
+    const result = {};
+    for (const [key, value] of params.entries()) {
+      if (value === "true") {
+        result[key] = true;
+      } else if (value === "false") {
+        result[key] = false;
+      } else if (!Number.isNaN(Number(value)) && value.trim() !== "") {
+        result[key] = Number(value);
+      } else {
+        result[key] = value;
+      }
     }
+    return result;
+  }
+
+  buildStoryPath(stories, groupIndex, storyName) {
+    const group = stories[groupIndex];
+    if (!group) return "/";
+    const componentSlug = this.slugify(group.meta.title);
+    const storySlug = this.slugify(storyName);
+    return `/components/${componentSlug}/${storySlug}`;
+  }
+
+  buildStoryURL(stories, groupIndex, storyName, args = {}) {
+    const path = this.buildStoryPath(stories, groupIndex, storyName);
+    const params = new URLSearchParams();
+
+    Object.entries(args).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        params.set(key, String(value));
+      }
+    });
+
+    const search = params.toString();
+    return search ? `${path}?${search}` : path;
+  }
+
+  buildDocsPath(section, slug) {
+    if (!section || !slug) return "/docs";
+    return `/docs/${section}/${slug}`;
+  }
+
+  buildTokensPath(tokenId) {
+    return tokenId ? `/tokens/${tokenId}` : "/tokens";
+  }
+
+  buildIconsPath(iconId) {
+    return iconId ? `/icons/${iconId}` : "/icons";
   }
 }
 
@@ -115,9 +104,16 @@ const urlManager = new URLManager();
 
 // Export methods bound to the singleton instance
 export const slugify = (text) => urlManager.slugify(text);
-export const parseStoryFromURL = (stories) => urlManager.parseStoryFromURL(stories);
 export const getDefaultStory = (stories) => urlManager.getDefaultStory(stories);
+export const findStoryBySlugs = (stories, componentSlug, storySlug) =>
+  urlManager.findStoryBySlugs(stories, componentSlug, storySlug);
+export const parseArgsFromSearch = (searchParams) =>
+  urlManager.parseArgs(searchParams);
+export const buildStoryPath = (stories, groupIndex, storyName) =>
+  urlManager.buildStoryPath(stories, groupIndex, storyName);
 export const buildStoryURL = (stories, groupIndex, storyName, args) =>
   urlManager.buildStoryURL(stories, groupIndex, storyName, args);
-export const updateURL = (stories, selected, args, pushState) =>
-  urlManager.updateURL(stories, selected, args, pushState);
+export const buildDocsPath = (section, slug) =>
+  urlManager.buildDocsPath(section, slug);
+export const buildTokensPath = (tokenId) => urlManager.buildTokensPath(tokenId);
+export const buildIconsPath = (iconId) => urlManager.buildIconsPath(iconId);

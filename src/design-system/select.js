@@ -1,5 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { STORIES_KEY } from "../config.js";
+import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableSelectOption extends HTMLElement {
   static get observedAttributes() {
@@ -115,7 +116,9 @@ class FableSelect extends LitElement {
           ?disabled=${this.disabled}
           @change=${(e) => {
             this.value = e.target.value;
-            this.dispatchEvent(new CustomEvent("change", { detail: this.value }));
+            this.dispatchEvent(
+              new CustomEvent("change", { detail: this.value }),
+            );
           }}
         >
           ${this._options.map(
@@ -125,7 +128,7 @@ class FableSelect extends LitElement {
                 ?selected=${this.value === opt.value}
               >
                 ${opt.label}
-              </option>`
+              </option>`,
           )}
         </select>
       </label>
@@ -137,8 +140,7 @@ class FableSelect extends LitElement {
 customElements.define("fable-select", FableSelect);
 
 // Stories
-const meta = {
-  component: "fable-select",
+const meta = getComponentStoryMeta("select", {
   args: {
     label: "Choose option",
     value: "option2",
@@ -156,7 +158,7 @@ const meta = {
       <fable-select-option value="option3">Option 3</fable-select-option>
     `,
   },
-};
+});
 
 const stories = {
   Default: (args, slots) =>

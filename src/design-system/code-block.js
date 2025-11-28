@@ -1,5 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { STORIES_KEY } from "../config.js";
+import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableCodeBlock extends LitElement {
   static status = "stable";
@@ -42,12 +43,11 @@ class FableCodeBlock extends LitElement {
 customElements.define("fable-code-block", FableCodeBlock);
 
 // Stories
-const meta = {
-  component: "fable-code-block",
+const meta = getComponentStoryMeta("code-block", {
   args: {
     language: "javascript",
   },
-};
+});
 
 const stories = {
   Default: (args) => html`

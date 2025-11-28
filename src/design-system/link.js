@@ -1,5 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { STORIES_KEY } from "../config.js";
+import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableLink extends LitElement {
   static status = "stable";
@@ -59,7 +60,7 @@ class FableLink extends LitElement {
           detail: { href: this.href },
           bubbles: true,
           composed: true,
-        })
+        }),
       );
 
       // Also update browser history directly
@@ -82,13 +83,12 @@ class FableLink extends LitElement {
 customElements.define("fable-link", FableLink);
 
 // Stories
-const meta = {
-  component: "fable-link",
+const meta = getComponentStoryMeta("link", {
   args: { href: "?story=fable-button/primary" },
   slots: {
     default: "Click me",
   },
-};
+});
 
 const stories = {
   Default: (args, slots) =>

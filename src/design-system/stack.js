@@ -1,5 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { STORIES_KEY } from "../config.js";
+import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableStack extends LitElement {
   static status = "stable";
@@ -47,9 +48,7 @@ class FableStack extends LitElement {
 customElements.define("fable-stack", FableStack);
 
 // Stories
-const meta = {
-  component: "fable-stack",
-};
+const meta = getComponentStoryMeta("stack", {});
 
 const stories = {
   Default: (args) => html`

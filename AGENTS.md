@@ -18,9 +18,9 @@ Welcome to Fable. This guide orients autonomous/LLM-based assistants so they can
 - `npm run dev` – custom dev server with live reload at `http://localhost:3000`.
 - `npm run check` / `npm run check:fix` – Biome lint/format (no extra deps needed).
 - `npm run build` (if present) – static export for GitHub Pages.
-- Planned scripts:
-  - `npm run validate:metadata` – validate schema (see ADR 0001) once implemented.
-  - `npm run tokens:sync`, `npm run icons:sync` – build asset manifests.
+- `npm run validate:metadata` – validate schema compliance (ADR 0001) before landing metadata changes.
+- `npm run tokens:sync` – regenerate CSS variables from `design-system/tokens.json`.
+- `npm run icons:sync` – rebuild `design-system/icons.json` from SVGs in `design-system/icons-src/`.
 
 ## Story Authoring Pattern
 
@@ -32,7 +32,7 @@ Welcome to Fable. This guide orients autonomous/LLM-based assistants so they can
 
 - Prefer manual browser verification via `npm run dev`. Automated tests are minimal today; document manual steps in PR description.
 - Run Biome checks before committing. No Prettier/ESLint.
-- When touching metadata, ensure future `validate:metadata` passes once available; follow schema from ADR 0001.
+- When touching metadata, run `npm run validate:metadata`; follow schema from ADR 0001.
 
 ## File Conventions
 

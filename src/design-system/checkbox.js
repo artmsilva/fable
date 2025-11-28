@@ -1,5 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { STORIES_KEY } from "../config.js";
+import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableCheckbox extends LitElement {
   static status = "beta";
@@ -62,7 +63,9 @@ class FableCheckbox extends LitElement {
           ?disabled=${this.disabled}
           @change=${(e) => {
             this.checked = e.target.checked;
-            this.dispatchEvent(new CustomEvent("change", { detail: this.checked }));
+            this.dispatchEvent(
+              new CustomEvent("change", { detail: this.checked }),
+            );
           }}
         />
         ${this.label ? html`<span>${this.label}</span>` : ""}
@@ -74,13 +77,12 @@ class FableCheckbox extends LitElement {
 customElements.define("fable-checkbox", FableCheckbox);
 
 // Stories
-const meta = {
-  component: "fable-checkbox",
+const meta = getComponentStoryMeta("checkbox", {
   args: {
     label: "Accept terms",
     checked: false,
   },
-};
+});
 
 const stories = {
   Default: (args) =>

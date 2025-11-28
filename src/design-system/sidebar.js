@@ -1,5 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { STORIES_KEY } from "../config.js";
+import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableSidebar extends LitElement {
   static status = "stable";
@@ -35,9 +36,7 @@ class FableSidebar extends LitElement {
 customElements.define("fable-sidebar", FableSidebar);
 
 // Stories
-const meta = {
-  title: "Sidebar",
-  component: "fable-sidebar",
+const meta = getComponentStoryMeta("sidebar", {
   args: {
     position: "left",
   },
@@ -47,7 +46,7 @@ const meta = {
       options: ["left", "right"],
     },
   },
-};
+});
 
 const stories = {
   Default: (args) => html`
