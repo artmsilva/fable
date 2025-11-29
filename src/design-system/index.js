@@ -67,3 +67,12 @@ import "./icon-detail.js";
 import "./token-groups.js";
 import "./token-detail.js";
 import "./doc-toc.js";
+
+if (import.meta.hot) {
+  const componentModules = Object.keys(import.meta.glob("./*.js")).filter(
+    (path) => path !== "./index.js"
+  );
+  if (componentModules.length) {
+    import.meta.hot.accept(componentModules, () => null);
+  }
+}

@@ -6,6 +6,7 @@ if (typeof window !== "undefined") {
     window.__FABLE_BASE_PATH__ = base;
   }
 }
+import "./utils/custom-element-hmr.js";
 import { STORIES_KEY } from "./config.js";
 import { initRouter, navigateTo, subscribeToRouter } from "./router.js";
 import {
@@ -115,9 +116,7 @@ class FableApp extends LitElement {
     setStories(processed);
 
     // Initialize theme
-    setTheme(
-      getStories().length > 0 ? getCurrentArgs().theme || "light" : "light",
-    );
+    setTheme(getStories().length > 0 ? getCurrentArgs().theme || "light" : "light");
 
     // Router setup
     this._setupRouter();
@@ -125,12 +124,9 @@ class FableApp extends LitElement {
 
   _setupRouter() {
     const initialRoute = initRouter();
-    this._unsubscribeRouter = subscribeToRouter(
-      (route) => this._handleRouteChange(route),
-      {
-        immediate: false,
-      },
-    );
+    this._unsubscribeRouter = subscribeToRouter((route) => this._handleRouteChange(route), {
+      immediate: false,
+    });
     if (initialRoute) {
       this._handleRouteChange(initialRoute);
     }
@@ -142,15 +138,9 @@ class FableApp extends LitElement {
 
     switch (route.name) {
       case "component": {
-        const match = findStoryBySlugs(
-          storiesData,
-          route.params.group,
-          route.params.story,
-        );
+        const match = findStoryBySlugs(storiesData, route.params.group, route.params.story);
         if (match) {
-          const { args, permutation } = parseStorySearchParams(
-            route.searchParams,
-          );
+          const { args, permutation } = parseStorySearchParams(route.searchParams);
           selectStory(match.groupIndex, match.name, {
             argsOverride: args,
             permutationSelection: permutation,
@@ -170,14 +160,10 @@ class FableApp extends LitElement {
           break;
         }
         let doc = docs.find(
-          (entry) =>
-            entry.section === route.params.section &&
-            entry.slug === route.params.slug,
+          (entry) => entry.section === route.params.section && entry.slug === route.params.slug
         );
         if (!doc) {
-          doc =
-            docs.find((entry) => entry.section === route.params.section) ||
-            docs[0];
+          doc = docs.find((entry) => entry.section === route.params.section) || docs[0];
           navigateTo(buildDocsPath(doc.section, doc.slug), { replace: true });
         }
         setView({
@@ -191,14 +177,9 @@ class FableApp extends LitElement {
         const token =
           tokens.find(
             (entry) =>
-              entry.id === route.params.category ||
-              entry.category === route.params.category,
+              entry.id === route.params.category || entry.category === route.params.category
           ) || tokens[0];
-        if (
-          token &&
-          route.params.category &&
-          token.id !== route.params.category
-        ) {
+        if (token && route.params.category && token.id !== route.params.category) {
           navigateTo(buildTokensPath(token.id), { replace: true });
         }
         setView({ name: "tokens", params: { category: token?.id } });
@@ -206,8 +187,7 @@ class FableApp extends LitElement {
       }
       case "icons": {
         const icons = getIconMetadata();
-        const icon =
-          icons.find((entry) => entry.id === route.params.iconId) || icons[0];
+        const icon = icons.find((entry) => entry.id === route.params.iconId) || icons[0];
         if (icon && icon.id !== route.params.iconId) {
           navigateTo(buildIconsPath(icon.id), { replace: true });
         }
@@ -261,3 +241,10 @@ customElements.define("fable-app", FableApp);
 // Initialize app
 const root = document.getElementById("root");
 if (root) root.innerHTML = "<fable-app></fable-app>";
+
+if (import.meta.hot) {
+  const componentModules = Object.keys(import.meta.glob("./components/*.js"));
+  if (componentModules.length) {
+    import.meta.hot.accept(componentModules, () => null);
+  }
+}
