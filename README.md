@@ -96,7 +96,7 @@ Environment variables:
 
 - `PORT` — override the dev server port (defaults to 3000)
 - `HOST` — set `0.0.0.0` to expose on LAN
-- `FABLE_BASE_PATH` — customize the base path used for routing and asset URLs (defaults to `/`)
+- `FABLE_BASE_PATH` — customize the base path used for routing and asset URLs (defaults to `/`). Create a `.env` file if you need to override locally; the Pages workflow sets this automatically to `/${REPO_NAME}/`.
 
 ## Linting and Formatting
 

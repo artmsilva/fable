@@ -5,6 +5,9 @@ node_modules/
 dist/
 build/
 *.min.js
+.env
+.env.*
+static.env
 
 # OS files
 .DS_Store

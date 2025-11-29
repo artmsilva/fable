@@ -4,8 +4,8 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>fable</title>
-        <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
-        <link rel="stylesheet" href="%BASE_URL%style.css" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="stylesheet" href="/style.css" />
     </head>
     <body>
         <div id="root"></div>
@@ -13,6 +13,6 @@
             window.__FABLE_BASE_PATH__ =
                 (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "") || "/";
         </script>
-        <script type="module" src="%BASE_URL%app.js"></script>
+        <script type="module" src="/app.js"></script>
     </body>
 </html>
