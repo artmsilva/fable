@@ -42,6 +42,10 @@ import "./components/fable-docs-view.js";
 import "./components/fable-tokens-view.js";
 import "./components/fable-icons-view.js";
 import "./components/fable-home-view.js";
+import "./components/fable-playroom-view.js";
+import "./components/fable-playroom-preview.js";
+import "./components/fable-playroom-editor.js";
+import "./components/fable-playroom-palette.js";
 
 /**
  * Main Fable App - Orchestrates the composed components
@@ -216,7 +220,7 @@ class FableApp extends LitElement {
       case "icons":
         return html`<fable-icons-view class="active"></fable-icons-view>`;
       case "playroom":
-        return html`<fable-home-view class="active"></fable-home-view>`;
+        return html`<fable-playroom-view class="active"></fable-playroom-view>`;
       case "home":
         return html`<fable-home-view class="active"></fable-home-view>`;
       default:

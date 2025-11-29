@@ -14,4 +14,5 @@ This index lists every active or archived user thread so agents can see who owns
 | [2025-11-29-production-404](ops/threads/2025-11-29-production-404.md) | codex | Done | 2025-11-29 | Build now copies router/config/metadata + non-JS assets and serves un-hashed components for GH Pages. |
 | [2025-11-29-adopt-vite](ops/threads/2025-11-29-adopt-vite.md) | codex | Done | 2025-11-29 | ADR ratifies moving to Vite with import-map plugin and outlines follow-up tasks. |
 | [2025-11-29-vite-migration](ops/threads/2025-11-29-vite-migration.md) | codex | Done | 2025-11-29 | Vite config + plugin landed, scripts/docs updated, and build verified. |
+| [2025-11-29-playroom-composer](ops/threads/2025-11-29-playroom-composer.md) | codex | Active | 2025-11-29 | Complete playroom composer architecture and 4-week implementation roadmap with DSL parser, Monaco editor, sandboxed preview, and sharing features. |
 | _(Add new rows here)_ | – | – | – | Copy `ops/threads/TEMPLATE.md` to start tracking another thread. |
