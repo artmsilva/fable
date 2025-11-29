@@ -53,7 +53,14 @@ async function setupDistDirectory(): Promise<void> {
  * Copy static assets that don't need fingerprinting
  */
 async function copyStaticAssets(): Promise<void> {
-  const staticFiles = ["404.html", "favicon.svg", "config.js"];
+  const staticFiles = [
+    "404.html",
+    "favicon.svg",
+    "config.js",
+    "router.js",
+    "FontWithASyntaxHighlighter-Regular.woff2",
+  ];
+  const staticDirs = ["config", "router", "metadata"];
 
   for (const file of staticFiles) {
     const src = path.join(SRC_DIR, file);
@@ -67,32 +74,57 @@ async function copyStaticAssets(): Promise<void> {
       console.log(`⚠ Skipped ${file} (not found)`);
     }
   }
+
+  for (const dir of staticDirs) {
+    const srcDir = path.join(SRC_DIR, dir);
+    const destDir = path.join(DIST_DIR, dir);
+
+    try {
+      await fs.cp(srcDir, destDir, { recursive: true });
+      console.log(`✓ Copied ${dir}/`);
+    } catch (_error) {
+      console.log(`⚠ Skipped ${dir}/ (not found)`);
+    }
+  }
 }
 
 /**
  * Build module directories with fingerprinting (first pass - just hash)
  */
-async function buildModule(moduleName: string, moduleMap: FileManifest): Promise<void> {
+async function buildModule(
+  moduleName: string,
+  moduleMap: FileManifest,
+): Promise<void> {
   const moduleDir = path.join(SRC_DIR, moduleName);
   const entries = await fs.readdir(moduleDir, { withFileTypes: true });
 
   await fs.mkdir(path.join(DIST_DIR, moduleName), { recursive: true });
 
   for (const entry of entries) {
-    if (!entry.isFile() || !entry.name.endsWith(".js")) continue;
+    if (!entry.isFile()) continue;
 
     const srcPath = path.join(moduleDir, entry.name);
-    const hash = await generateFileHash(srcPath);
-    const hashedName = getHashedFilename(entry.name, hash);
 
-    moduleMap[`./${moduleName}/${entry.name}`] = `./${moduleName}/${hashedName}`;
+    if (entry.name.endsWith(".js")) {
+      const hash = await generateFileHash(srcPath);
+      const hashedName = getHashedFilename(entry.name, hash);
+      moduleMap[`./${moduleName}/${entry.name}`] =
+        `./${moduleName}/${hashedName}`;
+    } else {
+      const destPath = path.join(DIST_DIR, moduleName, entry.name);
+      await fs.copyFile(srcPath, destPath);
+      console.log(`✓ Copied ${moduleName}/${entry.name}`);
+    }
   }
 }
 
 /**
  * Write module files with updated imports (second pass)
  */
-async function writeModuleFiles(moduleName: string, moduleMap: FileManifest): Promise<void> {
+async function writeModuleFiles(
+  moduleName: string,
+  moduleMap: FileManifest,
+): Promise<void> {
   const moduleDir = path.join(SRC_DIR, moduleName);
   const entries = await fs.readdir(moduleDir, { withFileTypes: true });
 
@@ -106,7 +138,9 @@ async function writeModuleFiles(moduleName: string, moduleMap: FileManifest): Pr
     const destPath = path.join(DIST_DIR, moduleName, hashedName);
 
     await fs.writeFile(destPath, content, "utf-8");
-    console.log(`✓ Built ${moduleName}/${entry.name} → ${moduleName}/${hashedName}`);
+    console.log(
+      `✓ Built ${moduleName}/${entry.name} → ${moduleName}/${hashedName}`,
+    );
   }
 }
 
@@ -141,7 +175,10 @@ async function buildModules(): Promise<FileManifest> {
 /**
  * Update imports in a file with hashed versions
  */
-async function updateImports(filePath: string, moduleMap: FileManifest): Promise<string> {
+async function updateImports(
+  filePath: string,
+  moduleMap: FileManifest,
+): Promise<string> {
   let content = await fs.readFile(filePath, "utf-8");
 
   // Get the directory of the current file for resolving relative imports
@@ -158,16 +195,16 @@ async function updateImports(filePath: string, moduleMap: FileManifest): Promise
     content = content.replace(
       new RegExp(
         `(import\\s+[^"']*["']${escapedOriginal}["']|from\\s+["']${escapedOriginal}["'])`,
-        "g"
+        "g",
       ),
-      (match) => match.replace(original, hashed)
+      (match) => match.replace(original, hashed),
     );
 
     // Also try relative path match (for imports within same module)
     // Matches: import "./file.js", from "./file.js", export * from "./file.js"
     content = content.replace(
       new RegExp(`(["'])\\.\\/${originalFileName}\\1`, "g"),
-      `$1./${hashedFileName}$1`
+      `$1./${hashedFileName}$1`,
     );
   }
 
@@ -183,22 +220,22 @@ async function buildComponents(moduleMap: FileManifest): Promise<FileManifest> {
   const componentMap: FileManifest = {};
 
   for (const file of componentFiles) {
-    if (!file.endsWith(".js")) continue;
-
     const srcPath = path.join(componentsDir, file);
+    const destPath = path.join(DIST_DIR, "components", file);
 
-    // Update imports in component
+    if (!file.endsWith(".js")) {
+      await fs.copyFile(srcPath, destPath);
+      console.log(`✓ Copied components/${file}`);
+      continue;
+    }
+
+    // Update imports in component to point to hashed module files
     const content = await updateImports(srcPath, moduleMap);
 
-    // Generate hash from updated content
-    const hash = createHash("sha256").update(content).digest("hex").substring(0, 8);
-    const hashedName = getHashedFilename(file, hash);
-    const destPath = path.join(DIST_DIR, "components", hashedName);
-
     await fs.writeFile(destPath, content, "utf-8");
-    componentMap[`./components/${file}`] = `./components/${hashedName}`;
+    componentMap[`./components/${file}`] = `./components/${file}`;
 
-    console.log(`✓ Built components/${file} → components/${hashedName}`);
+    console.log(`✓ Built components/${file}`);
   }
 
   return componentMap;
@@ -207,7 +244,10 @@ async function buildComponents(moduleMap: FileManifest): Promise<FileManifest> {
 /**
  * Build app.js with updated imports
  */
-async function buildApp(componentMap: FileManifest, moduleMap: FileManifest): Promise<string> {
+async function buildApp(
+  componentMap: FileManifest,
+  moduleMap: FileManifest,
+): Promise<string> {
   const appPath = path.join(SRC_DIR, "app.js");
   let appContent = await fs.readFile(appPath, "utf-8");
 
@@ -219,13 +259,20 @@ async function buildApp(componentMap: FileManifest, moduleMap: FileManifest): Pr
     // Escape special regex characters in the path
     const escapedOriginal = original.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     appContent = appContent.replace(
-      new RegExp(`(import\\s+["']${escapedOriginal}["']|from\\s+["']${escapedOriginal}["'])`, "g"),
-      (match) => (match.includes("import") ? `import "${hashed}"` : `from "${hashed}"`)
+      new RegExp(
+        `(import\\s+["']${escapedOriginal}["']|from\\s+["']${escapedOriginal}["'])`,
+        "g",
+      ),
+      (match) =>
+        match.includes("import") ? `import "${hashed}"` : `from "${hashed}"`,
     );
   }
 
   // Generate hash for modified app.js content
-  const appHash = createHash("sha256").update(appContent).digest("hex").substring(0, 8);
+  const appHash = createHash("sha256")
+    .update(appContent)
+    .digest("hex")
+    .substring(0, 8);
   const hashedAppName = getHashedFilename("app.js", appHash);
   const appDestPath = path.join(DIST_DIR, hashedAppName);
 
@@ -256,19 +303,24 @@ async function buildStyles(): Promise<string> {
 async function buildHTML(
   hashedAppName: string,
   hashedStyleName: string,
-  moduleMap: FileManifest
+  moduleMap: FileManifest,
 ): Promise<void> {
   const indexPath = path.join(SRC_DIR, "index.html");
   let htmlContent = await fs.readFile(indexPath, "utf-8");
 
   // Replace stylesheet reference
-  htmlContent = htmlContent.replace(/href="style\.css"/g, `href="${hashedStyleName}"`);
+  htmlContent = htmlContent.replace(
+    /href="style\.css"/g,
+    `href="${hashedStyleName}"`,
+  );
 
   // Replace script reference
   htmlContent = htmlContent.replace(/src="app\.js"/g, `src="${hashedAppName}"`);
 
   // Update import map with hashed barrel files and individual components
-  const importMapMatch = htmlContent.match(/<script type="importmap">([\s\S]*?)<\/script>/);
+  const importMapMatch = htmlContent.match(
+    /<script type="importmap">([\s\S]*?)<\/script>/,
+  );
   if (importMapMatch) {
     const importMap = JSON.parse(importMapMatch[1]);
 
@@ -296,10 +348,13 @@ async function buildHTML(
       }
     }
 
-    const updatedImportMapJson = JSON.stringify(importMap, null, 2).replace(/^/gm, "      ");
+    const updatedImportMapJson = JSON.stringify(importMap, null, 2).replace(
+      /^/gm,
+      "      ",
+    );
     htmlContent = htmlContent.replace(
       /<script type="importmap">[\s\S]*?<\/script>/,
-      `<script type="importmap">\n${updatedImportMapJson}\n    </script>`
+      `<script type="importmap">\n${updatedImportMapJson}\n    </script>`,
     );
   }
 
@@ -314,7 +369,7 @@ async function buildHTML(
 async function createManifest(
   componentMap: FileManifest,
   hashedAppName: string,
-  hashedStyleName: string
+  hashedStyleName: string,
 ): Promise<void> {
   const manifest: BuildManifest = {
     "app.js": hashedAppName,
