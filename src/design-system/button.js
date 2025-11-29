@@ -97,7 +97,34 @@ const meta = getComponentStoryMeta("button", {
 /**
  * Stories for fable Button component
  */
+const docsContent = `# Button usage
+
+Use the Button component for primary and secondary calls to action. Keep copy short and action oriented.
+
+:::story button--Primary
+
+### HTML usage snippet
+
+:::story code-block--HTML\ Code
+
+## Variants
+
+- **Primary**: Main task on a page (one per view).
+- **Secondary**: Supporting actions that should not distract from the primary task.
+
+## Accessibility
+
+- Provide \`aria-label\` when the button only shows an icon.
+- Keep focus outlines visible; avoid removing the default outline without replacing it.`;
+
 const stories = {
+  Docs: {
+    type: "docs",
+    title: "Button",
+    description:
+      "Usage, variants, and accessibility guidance for the Button component.",
+    content: docsContent,
+  },
   Primary: (args, slots) =>
     html`<fable-button ?disabled=${args.disabled} variant=${args.variant}
       >${slots?.default ?? "Primary Button"}</fable-button

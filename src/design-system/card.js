@@ -54,7 +54,34 @@ const meta = getComponentStoryMeta("card", {
     default: "This is a card content.",
   },
 });
+
+const docsContent = `# Card usage
+
+Cards group related content together on surfaces.
+
+:::callout info
+Use cards to separate distinct topics. Keep titles concise and consider adding supporting actions in the footer.
+:::
+
+:::story card--Default
+
+## Anatomy
+
+- **Title**: Summarizes the content.
+- **Body**: Flexible slot for text or media.
+
+## Do & Don't
+
+- Do use consistent padding between cards.
+- Don't overload a single card with unrelated controls.`;
+
 const stories = {
+  Docs: {
+    type: "docs",
+    title: "Card",
+    description: "Usage guidance for Card surfaces.",
+    content: docsContent,
+  },
   Default: (args, slots) =>
     html`<fable-card title=${args.title}
       >${slots?.default ?? "This is a card content."}</fable-card

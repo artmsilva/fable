@@ -57,6 +57,14 @@ Fable is a lightweight story explorer built with Lit web components. Use the nav
 - Use primary variant for high-emphasis actions.
 - Prefer secondary variant for less prominent choices.
 
+## HTML example
+
+\`\`\`html
+<fable-button variant="primary" type="button">
+  Primary Action
+</fable-button>
+\`\`\`
+
 ## Accessibility
 
 Ensure aria-labels are provided for icon-only buttons.`,

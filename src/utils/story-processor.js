@@ -61,10 +61,25 @@ class StoryProcessor {
   }
 
   getStorySource(story, storyName) {
-    if (!story) return "";
+    if (!story || !storyName) return "";
 
-    const storyData = story.stories[storyName];
-    const storyFn = typeof storyData === "function" ? storyData : storyData.render;
+    const storyData = story.stories?.[storyName];
+    if (!storyData) return "";
+
+    if (storyData.type === "docs" || story.meta?.type === "docs") {
+      return typeof storyData.content === "string"
+        ? storyData.content
+        : story.meta?.content || "Docs story — no render function.";
+    }
+
+    const storyFn =
+      typeof storyData === "function"
+        ? storyData
+        : typeof storyData?.render === "function"
+          ? storyData.render
+          : null;
+
+    if (!storyFn) return "";
 
     // Get the function source code
     const source = storyFn.toString();
@@ -91,8 +106,10 @@ class StoryProcessor {
 const processor = new StoryProcessor();
 
 // Export methods bound to the singleton instance
-export const getDefaultArgs = (componentName) => processor.getDefaultArgs(componentName);
+export const getDefaultArgs = (componentName) =>
+  processor.getDefaultArgs(componentName);
 export const toTitleCase = (str) => processor.toTitleCase(str);
 export const processStories = (stories) => processor.processStories(stories);
-export const getStorySource = (story, storyName) => processor.getStorySource(story, storyName);
+export const getStorySource = (story, storyName) =>
+  processor.getStorySource(story, storyName);
 export const getStatusTooltip = (status) => processor.getStatusTooltip(status);

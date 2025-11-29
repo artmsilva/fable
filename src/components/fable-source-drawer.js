@@ -1,4 +1,9 @@
-import { getSelectedStory, getSourceDrawerOpen, getStories, toggleSourceDrawer } from "@store";
+import {
+  getSelectedStory,
+  getSourceDrawerOpen,
+  getStories,
+  toggleSourceDrawer,
+} from "@store";
 import { getStorySource } from "@utils";
 import { html, LitElement } from "lit";
 import "@design-system/drawer.js";
@@ -49,6 +54,7 @@ export class FableSourceDrawer extends LitElement {
 
   _copyToClipboard() {
     const source = this._getSource();
+    if (!source) return;
     navigator.clipboard.writeText(source).then(() => {
       console.log("Source code copied to clipboard!");
     });
@@ -60,7 +66,16 @@ export class FableSourceDrawer extends LitElement {
     return getStorySource(group, this._selected.name);
   }
 
+  _isDocsStory() {
+    if (!this._selected) return false;
+    const group = this._stories[this._selected.groupIndex];
+    const story = group?.stories?.[this._selected.name];
+    return group?.meta?.type === "docs" || story?.type === "docs";
+  }
+
   render() {
+    const source = this._getSource();
+    const isDocs = this._isDocsStory();
     return html`
       <fable-drawer
         ?open=${this._open}
@@ -77,9 +92,11 @@ export class FableSourceDrawer extends LitElement {
             📋
           </fable-icon-button>
         </div>
-        <fable-code-block language="javascript">
-          ${this._getSource()}
-        </fable-code-block>
+        ${isDocs
+          ? html`<p>Source is not available for docs stories.</p>`
+          : html`<fable-code-block language="javascript">
+              ${source || "No source available for this story."}
+            </fable-code-block>`}
       </fable-drawer>
     `;
   }

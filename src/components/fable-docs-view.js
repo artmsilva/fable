@@ -57,6 +57,7 @@ export class FableDocsView extends LitElement {
         .title=${doc.title || ""}
         .description=${doc.description || ""}
         .content=${parsed.html || ""}
+        .toc=${parsed.toc || []}
       ></fable-docs-page>
     `;
   }

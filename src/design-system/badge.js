@@ -126,7 +126,32 @@ const meta = getComponentStoryMeta("badge", {
   },
 });
 
+const docsContent = `# Badge usage
+
+Badges convey short status labels. Keep copy to a single word where possible.
+
+## Variants
+
+- **alpha/beta**: Use for early-stage components.
+- **stable**: Indicates production readiness.
+- **deprecated**: Signals phase-out; include migration path nearby.
+
+:::callout danger
+Avoid using badges as buttons or links; they should be informational only.
+:::
+
+## Sizing
+
+- Default for content surfaces.
+- Condensed for navigation or dense tables.`;
+
 const stories = {
+  Docs: {
+    type: "docs",
+    title: "Badge",
+    description: "Status badge usage and variant guidance.",
+    content: docsContent,
+  },
   Alpha: {
     args: (baseArgs) => ({
       ...baseArgs,

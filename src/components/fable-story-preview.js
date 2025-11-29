@@ -8,12 +8,13 @@ import {
   getView,
   toggleSourceDrawer,
 } from "@store";
-import { getStatusTooltip } from "@utils";
+import { getStatusTooltip, parseMarkdown } from "@utils";
 import { html, LitElement } from "lit";
 import "@design-system/preview.js";
 import "@design-system/header.js";
 import "@design-system/badge.js";
 import "@design-system/icon-button.js";
+import "@design-system/docs-page.js";
 
 /**
  * Story Preview - Center preview area with header
@@ -53,7 +54,9 @@ export class FableStoryPreview extends LitElement {
 
   _handleStateChange(e) {
     const key = e.detail.key;
-    if (["stories", "selectedStory", "currentArgs", "currentSlots"].includes(key)) {
+    if (
+      ["stories", "selectedStory", "currentArgs", "currentSlots"].includes(key)
+    ) {
       this._stories = getStories();
       this._selected = getSelectedStory();
       this._args = getCurrentArgs();
@@ -83,6 +86,26 @@ export class FableStoryPreview extends LitElement {
     const group = this._stories[this._selected.groupIndex];
     const story = group.stories[this._selected.name];
     const status = group.meta?.status;
+    const isDocsStory = group.meta?.type === "docs" || story?.type === "docs";
+
+    if (isDocsStory) {
+      const docTitle = story?.title || group.meta?.title || this._selected.name;
+      const docDescription =
+        story?.description || group.meta?.description || "";
+      const parsed = parseMarkdown(story?.content || group.meta?.content || "");
+
+      return html`
+        <div class="preview-card">
+          <fable-docs-page
+            .section=${group.meta?.taxonomy?.group || "Components"}
+            .title=${docTitle}
+            .description=${docDescription}
+            .content=${parsed.html || ""}
+            .toc=${parsed.toc || []}
+          ></fable-docs-page>
+        </div>
+      `;
+    }
 
     // Support both function and object format
     const storyFn = typeof story === "function" ? story : story.render;
@@ -93,15 +116,13 @@ export class FableStoryPreview extends LitElement {
         <fable-header>
           <h3>${group.meta.title} — ${this._selected.name}</h3>
           <div class="preview-meta">
-            ${
-              status
-                ? html`<fable-badge
+            ${status
+              ? html`<fable-badge
                   variant=${status}
                   tooltip=${getStatusTooltip(status)}
                   >${status}</fable-badge
                 >`
-                : ""
-            }
+              : ""}
             <fable-icon-button
               aria-label="View source code"
               @click=${this._handleSourceClick}

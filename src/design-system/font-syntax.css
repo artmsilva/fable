@@ -1,0 +1,11 @@
+/* Font face for FontWithASyntaxHighlighter.
+ * Replace the src URL with the actual path to the provided .woff2 file.
+ */
+@font-face {
+    font-family: "FontWithASyntaxHighlighter";
+    /* Font file is served from src directory */
+    src: url("/FontWithASyntaxHighlighter-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}

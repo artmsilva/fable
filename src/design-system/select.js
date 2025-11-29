@@ -116,7 +116,9 @@ class FableSelect extends LitElement {
           ?disabled=${this.disabled}
           @change=${(e) => {
             this.value = e.target.value;
-            this.dispatchEvent(new CustomEvent("change", { detail: this.value }));
+            this.dispatchEvent(
+              new CustomEvent("change", { detail: this.value }),
+            );
           }}
         >
           ${this._options.map(
@@ -126,7 +128,7 @@ class FableSelect extends LitElement {
                 ?selected=${this.value === opt.value}
               >
                 ${opt.label}
-              </option>`
+              </option>`,
           )}
         </select>
       </label>
@@ -158,7 +160,33 @@ const meta = getComponentStoryMeta("select", {
   },
 });
 
+const docsContent = `# Select usage
+
+Use Select for choosing a single option from a short list. For long lists, prefer autocomplete.
+
+:::story select--Default
+
+## Behavior
+
+- Keep labels visible; avoid using placeholder-only labels.
+- Disable unavailable options instead of removing them to preserve context.
+
+:::callout warning
+Avoid using Select for yes/no decisions; a checkbox or switch is clearer.
+:::
+
+## Accessibility
+
+- Ensure the label is programmatically associated.
+- Provide visible focus styles and sufficient contrast.`;
+
 const stories = {
+  Docs: {
+    type: "docs",
+    title: "Select",
+    description: "Guidance for single-select dropdowns.",
+    content: docsContent,
+  },
   Default: (args, slots) =>
     html`<fable-select
       label=${args.label}
