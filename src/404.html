@@ -117,8 +117,21 @@
       <a href="/" class="home-link">← Back to Home</a>
     </div>
     <script>
-      document.getElementById("pathname").textContent =
-        window.location.pathname;
+      const path = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      document.getElementById("pathname").textContent = path;
+      // Remember the path and bounce to the site root so the SPA can restore it.
+      try {
+        sessionStorage.setItem("__FABLE_REDIRECT__", path);
+        const segments = window.location.pathname.split("/").filter(Boolean);
+        const isGitHubPages = window.location.hostname.endsWith("github.io");
+        const base = isGitHubPages && segments.length
+          ? `/${segments[0]}/`
+          : "/";
+        window.location.replace(base);
+      } catch (error) {
+        // If storage is blocked, still try to get back to root.
+        window.location.replace("/");
+      }
     </script>
   </body>
 </html>

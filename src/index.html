@@ -13,6 +13,25 @@
             window.__FABLE_BASE_PATH__ =
                 (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "") || "/";
         </script>
+        <script>
+            (function restorePath() {
+                const key = "__FABLE_REDIRECT__";
+                const saved = sessionStorage.getItem(key);
+                if (!saved) return;
+                sessionStorage.removeItem(key);
+
+                const base = window.__FABLE_BASE_PATH__ || "/";
+                const normalizedBase = base.endsWith("/") ? base : `${base}/`;
+                const target = saved.startsWith(base)
+                    ? saved
+                    : `${normalizedBase}${saved.replace(/^\//, "")}`;
+
+                const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+                if (target !== current) {
+                    history.replaceState({}, "", target);
+                }
+            })();
+        </script>
         <script type="module" src="/app.js"></script>
     </body>
 </html>

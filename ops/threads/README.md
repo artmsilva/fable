@@ -17,4 +17,6 @@ This index lists every active or archived user thread so agents can see who owns
 | [2025-11-29-playroom-composer](ops/threads/2025-11-29-playroom-composer.md) | codex | Active | 2025-11-29 | Complete playroom composer architecture and 4-week implementation roadmap with DSL parser, Monaco editor, sandboxed preview, and sharing features. |
 | [2025-11-29-opencode](ops/threads/2025-11-29-opencode.md) | codex | Active | 2025-11-29 | Save point committed to `main` (eaad6a9); playroom editor/persistence work added. |
 | [2025-11-29-playroom-layout](ops/threads/2025-11-29-playroom-layout.md) | codex | Active | 2025-11-29 | Fix `/playroom` layout so editor/preview/inspector panels size correctly and editor stays multi-line. |
+| [2025-11-29-readme-refresh](ops/threads/2025-11-29-readme-refresh.md) | codex | Done | 2025-11-30 | Refresh README to match current architecture, views, metadata, and tooling. |
+| [2025-11-30-gh-pages-404](ops/threads/2025-11-30-gh-pages-404.md) | codex | Done | 2025-11-30 | Fix GitHub Pages deep-link 404 by redirecting to SPA with preserved path. |
 | _(Add new rows here)_ | – | – | – | Copy `ops/threads/TEMPLATE.md` to start tracking another thread. |
