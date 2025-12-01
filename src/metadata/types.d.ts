@@ -27,7 +27,7 @@ export interface ComponentStoryMeta extends BaseMeta {
   storyGroup: string;
   args?: Record<string, unknown>;
   slots?: Record<string, unknown>;
-  permutations?: {
+  recipes?: {
     axes: Array<{
       name: string;
       label?: string;

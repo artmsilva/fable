@@ -2,14 +2,14 @@
 
 ## Overview
 
-Expose design tokens (color, typography, spacing, motion, elevation) as first-class entities with documentation, live previews, and integration into stories, permutations, and playroom autocomplete.
+Expose design tokens (color, typography, spacing, motion, elevation) as first-class entities with documentation, live previews, and integration into stories and recipes autocomplete.
 
 ## Goals
 
 1. Establish single source of truth for tokens (JSON/Style Dictionary-like).
 2. Render docs pages with interactive tables and usage guidelines.
 3. Sync tokens to CSS custom properties automatically.
-4. Provide APIs for other features (playroom, permutations) to query token values.
+4. Provide APIs for other features (recipes, docs) to query token values.
 
 ### Non-Goals
 
@@ -73,7 +73,7 @@ flowchart LR
 ## Integration Points
 
 - Playroom uses tokens for autocomplete (`{token.color.background.default}`).
-- Permutations axes can reference token lists (e.g., iterate over semantic colors).
+- Recipes axes can reference token lists (e.g., iterate over semantic colors).
 - Docs shortcodes to insert token tables.
 
 ## Risks
@@ -86,5 +86,5 @@ flowchart LR
 
 1. Token data + sync script.
 2. Docs page UI.
-3. Integration with Playroom/Permutations.
+3. Integration with Playroom/Recipes.
 4. Lint/test automation to ensure sync.

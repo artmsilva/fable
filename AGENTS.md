@@ -74,5 +74,6 @@ Welcome to Fable. This guide orients autonomous/LLM-based assistants so they can
 - When uncertain, ask clarifying questions referencing file paths.
 - Summaries should cite affected files with line numbers when possible.
 - Keep responses concise; CLI handles formatting.
+- Do not include explicit “Summary” sections in responses; answer directly with the required details.
 
 Happy shipping! Let this document evolve—agents should append notes when workflows change.

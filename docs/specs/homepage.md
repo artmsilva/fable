@@ -2,13 +2,13 @@
 
 ## Overview
 
-Provide a landing experience that showcases the breadth of the design system, surfaces new/featured work, and guides users to docs, tokens, and playroom quickly.
+Provide a landing experience that showcases the breadth of the design system, surfaces new/featured work, and guides users to docs and tokens quickly.
 
 ## Goals
 
 1. Default route should highlight key content before diving into a specific story.
 2. Promote recently added/updated components with metadata-driven cards.
-3. Offer entry points to foundations (tokens, icons) and tools (playroom).
+3. Offer entry points to foundations (tokens, icons) and tools (docs/features).
 4. Integrate taxonomy chips and search suggestions.
 
 ### Non-Goals

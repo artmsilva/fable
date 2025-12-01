@@ -7,18 +7,18 @@
 
 ## Feature Specifications
 
-### Permutations Engine
+### Recipes Engine
 
-- **Goal**: Auto-generate permutations by inferring axes/values from component code, meta args, and story definitions so authors never hand-write permutations metadata.
+- **Goal**: Auto-generate recipes by inferring axes/values from component code, meta args, and story definitions so authors never hand-write recipes metadata.
 - **User Experience**:
-  - `Permutations` tab beside existing controls with an “Auto” badge + axis count.
+  - `Recipes` tab beside existing controls with an “Auto” badge + axis count.
   - Axis filters show the signal source (enum, boolean, story) and can be toggled to trim the grid.
   - Virtualized grid/list renders every valid combination; selecting a cell syncs preview + URL and exposes copy/CSV/export actions.
 - **Technical Approach**:
-  - Enhance `processStories` (`src/utils/story-processor.js`) with an `analyzePermutations` step that inspects `customElements.get(meta.component).properties`, `meta.argTypes`, and `stories` to build a blueprint (`axes`, budget, warnings).
-  - Store the blueprint alongside story metadata (`story.meta.permutationBlueprint`) and persist selection state in `app-store`.
-  - Extend the router + URL manager to encode `?perm=variant.beta+disabled.false`, and teach `fable-story-preview` / `fable-permutations-view` how to consume the blueprint.
-- **Dependencies**: Router/query parsing (URLPattern spec), virtualization utilities shared with icons grid, optional `permutationHints` author annotations defined in component code (not metadata).
+  - Enhance `processStories` (`src/utils/story-processor.js`) with an `analyzeRecipes` step that inspects `customElements.get(meta.component).properties`, `meta.argTypes`, and `stories` to build a blueprint (`axes`, budget, warnings).
+  - Store the blueprint alongside story metadata (`story.meta.recipeBlueprint`) and persist selection state in `app-store`.
+  - Extend the router + URL manager to encode `?recipe=variant.beta+disabled.false`, and teach `fable-story-preview` / `fable-recipes-view` how to consume the blueprint.
+- **Dependencies**: Router/query parsing (URLPattern spec), virtualization utilities shared with icons grid, optional `recipeHints` author annotations defined in component code (not metadata).
 
 ### Docs Story Type
 
@@ -70,35 +70,23 @@
 
 - **Goal**: Replace manual query parsing with declarative router supporting nested paths (`/docs/components/button`).
 - **User Experience**:
-  - Human-friendly URLs, reliable back/forward navigation, shareable permutation URLs (`/components/button/primary?size=large`).
+  - Human-friendly URLs, reliable back/forward navigation, shareable recipe URLs (`/components/button/primary?size=large`).
 - **Technical Approach**:
-  - Introduce router module using `URLPattern`; map patterns to Home, Docs, Story, Playroom views.
+  - Introduce router module using `URLPattern`; map patterns to Home, Docs, Story views.
   - Update URL manager utilities and ensure history synchronization.
   - Provide migration for legacy query params (detect and redirect).
 - **Dependencies**: Store integration, tests ensuring canonical URL generation.
-
-### Playroom-Style Composer
-
-- **Goal**: Integrated playground to compose multiple components and share prototypes.
-- **User Experience**:
-  - “Playroom” view with split editor/preview, drag palette or type DSL (HTML-like) with autocomplete.
-  - Share links serialize layout; “Save as Story” pushes generated code snippet to clipboard or local storage.
-- **Technical Approach**:
-  - Monaco Editor via CDN for syntax highlighting and IntelliSense backed by component metadata.
-  - DSL parser (HTML + limited JS expressions) rendered inside sandboxed iframe.
-  - Palette metadata derived from story/component schema; tokens available for suggestions.
-- **Dependencies**: Component schema registry, router route (`/playroom`), storage for saved layouts.
 
 ### Design Tokens Support
 
 - **Goal**: Surface colors, typography, spacing as first-class citizens with documentation and live inspection.
 - **User Experience**:
   - “Tokens” docs page with swatches, copy buttons, usage guidance.
-  - Controls and Playroom auto-complete token names; permutations can reference token sets.
+  - Controls auto-complete token names; recipes can reference token sets.
 - **Technical Approach**:
   - Store tokens in JSON (e.g., `design-system/tokens.json`) and sync to CSS variables.
   - Build `<fable-token-table>` to render token categories and live previews; read computed styles to stay in sync.
-  - Expose tokens to Playroom/autocomplete via shared data module.
+  - Expose tokens to other surfaces (navigator search, docs) via shared data module.
 - **Dependencies**: Token source of truth, build script to regenerate CSS + docs.
 
 ### Icons Documentation
@@ -114,8 +102,8 @@
 
 ## Cross-Cutting Considerations
 
-- **Shared Metadata Schema (ADR 0001)**: Adopt the schema defined in `docs/decisions/0001-shared-metadata-schema.md`, covering component stories, docs entries, tokens, and icons. All features consume the centralized registry, and dev-time validation (JSON Schema + TypeScript types) ensures required fields (`id`, `title`, taxonomy info, timestamps, permutations config) are always present.
+- **Shared Metadata Schema (ADR 0001)**: Adopt the schema defined in `docs/decisions/0001-shared-metadata-schema.md`, covering component stories, docs entries, tokens, and icons. All features consume the centralized registry, and dev-time validation (JSON Schema + TypeScript types) ensures required fields (`id`, `title`, taxonomy info, timestamps, recipes config) are always present.
 - **Persistence (Greenfield)**: Manage URL/localStorage formats for the current iteration only—breaking older links/schemas is acceptable per ADR 0002, but document material changes.
-- **Performance**: Virtualization for large grids (permutations, icons). Debounce search queries.
-- **Accessibility**: Keyboard/focus management, semantic headings for new views (home, docs, playroom).
-- **Rollout Strategy**: Phase delivery—foundation (schema/router), discovery/search, rich stories (permutations/docs), primitives (tokens/icons), then Playroom.
+- **Performance**: Virtualization for large grids (recipes, icons). Debounce search queries.
+- **Accessibility**: Keyboard/focus management, semantic headings for new views (home, docs).
+- **Rollout Strategy**: Phase delivery—foundation (schema/router), discovery/search, rich stories (recipes/docs), primitives (tokens/icons).

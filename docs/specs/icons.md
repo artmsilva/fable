@@ -2,7 +2,7 @@
 
 ## Overview
 
-Document and showcase the icon library with searchable galleries, usage guidance, and integration into other tooling (playroom palette, docs).
+Document and showcase the icon library with searchable galleries, usage guidance, and integration into other tooling (docs, recipes search).
 
 ## Goals
 

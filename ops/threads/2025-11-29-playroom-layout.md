@@ -2,10 +2,10 @@
 
 | Field | Value |
 | ----- | ----- |
-| **Status** | `Active` |
+| **Status** | `Done` |
 | **Owner** | `codex` |
 | **Start Date** | `2025-11-29` |
-| **Last Update** | `2025-11-29 14:45 EST` |
+| **Last Update** | `2025-11-30 23:30 EST` |
 | **Related Work** | `src/components/fable-playroom-view.js`, `src/components/fable-playroom-editor.js` |
 | **Links** | `http://localhost:3000/playroom` |
 
@@ -31,6 +31,7 @@ Fix the `/playroom` layout so the editor, preview, and inspector panels occupy t
 - `2025-11-29 14:05 EST` — **Inspector polish**: Highlight selected nodes, allow adding/removing props, preserve token/args interpolations on edits, and keep selection synced. Build still passes.
 - `2025-11-29 14:25 EST` — **Validation + UX**: Added hover/selection affordance, clear-selection control, boolean-friendly inputs, metadata-based warnings for unknown props/components, and interpolation-safe prop edits. Build still passes.
 - `2025-11-29 14:45 EST` — **Overlay + toolbar warnings**: Added selection overlay, hover outline, toolbar-clear, warning bubble in preview for metadata issues; build still passes.
+- `2025-11-30 23:30 EST` — **Archived**: Playroom feature removed from the codebase; layout work retained only for historical reference.
 
 ## Current Risks / Blockers
 
@@ -42,4 +43,4 @@ Fix the `/playroom` layout so the editor, preview, and inspector panels occupy t
 
 ## Outcome (fill in when Done)
 
-- Pending final sign-off.
+- Playroom layout fixes archived following feature removal; no further action.

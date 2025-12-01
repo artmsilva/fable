@@ -7,14 +7,13 @@ if (typeof window !== "undefined") {
   }
 }
 import "./utils/custom-element-hmr.js";
+import { AUTO_RECIPES_STORY_TYPE } from "./config/recipes.js";
 import { STORIES_KEY } from "./config.js";
 import { initRouter, navigateTo, subscribeToRouter } from "./router.js";
 import {
   getCurrentArgs,
-  getDocsMetadata,
-  getIconMetadata,
+  getSelectedStory,
   getStories,
-  getTokenMetadata,
   getView,
   selectStory,
   setStories,
@@ -22,13 +21,7 @@ import {
   setView,
 } from "./store/app-store.js";
 import { processStories } from "./utils/story-processor.js";
-import {
-  buildDocsPath,
-  buildIconsPath,
-  buildTokensPath,
-  findStoryBySlugs,
-  parseStorySearchParams,
-} from "./utils/url-manager.js";
+import { findStoryBySlugs, getDefaultStory, parseStorySearchParams } from "./utils/url-manager.js";
 
 // Import all design system components via barrel file
 import "@design-system";
@@ -38,14 +31,8 @@ import "./components/fable-story-navigator.js";
 import "./components/fable-story-preview.js";
 import "./components/fable-controls-panel.js";
 import "./components/fable-source-drawer.js";
-import "./components/fable-docs-view.js";
-import "./components/fable-tokens-view.js";
-import "./components/fable-icons-view.js";
-import "./components/fable-home-view.js";
-import "./components/fable-playroom-view.js";
-import "./components/fable-playroom-preview.js";
-import "./components/fable-playroom-editor.js";
-import "./components/fable-playroom-palette.js";
+// Removed docs/tokens/icons/home views
+// Playroom feature removed
 
 /**
  * Main Fable App - Orchestrates the composed components
@@ -54,6 +41,7 @@ import "./components/fable-playroom-palette.js";
 class FableApp extends LitElement {
   static properties = {
     _currentView: { state: true },
+    _isRecipeStory: { state: true },
   };
 
   static styles = css`
@@ -68,19 +56,10 @@ class FableApp extends LitElement {
       gap: var(--space-4);
       position: relative;
     }
-    main.playroom-mode {
-      display: block;
-      padding: 0;
-      gap: 0;
-    }
     .view-host {
       position: relative;
       border-right: 1px solid var(--border-color);
       overflow-y: auto;
-      height: 100vh;
-    }
-    main.playroom-mode .view-host {
-      border-right: none;
       height: 100vh;
     }
     .view-host > :not(.active) {
@@ -91,9 +70,6 @@ class FableApp extends LitElement {
       opacity: 1;
       pointer-events: auto;
     }
-    .playroom-host {
-      height: 100vh;
-    }
   `;
 
   constructor() {
@@ -101,6 +77,7 @@ class FableApp extends LitElement {
     this._unsubscribeRouter = null;
     this._handleStoreChange = this._handleStoreChange.bind(this);
     this._currentView = getView();
+    this._isRecipeStory = this._computeIsRecipeStory();
     this._initializeApp();
   }
 
@@ -120,9 +97,22 @@ class FableApp extends LitElement {
   }
 
   _handleStoreChange(event) {
-    if (event.detail.key === "view") {
+    const key = event.detail.key;
+    if (key === "view") {
       this._currentView = getView();
     }
+    if (key === "selectedStory" || key === "stories") {
+      this._isRecipeStory = this._computeIsRecipeStory();
+    }
+  }
+
+  _computeIsRecipeStory() {
+    const selected = getSelectedStory();
+    if (!selected) return false;
+    const stories = getStories();
+    const group = stories[selected.groupIndex];
+    const story = group?.stories?.[selected.name];
+    return story?.type === AUTO_RECIPES_STORY_TYPE;
   }
 
   _initializeApp() {
@@ -132,9 +122,7 @@ class FableApp extends LitElement {
     setStories(processed);
 
     // Initialize theme
-    setTheme(
-      getStories().length > 0 ? getCurrentArgs().theme || "light" : "light",
-    );
+    setTheme(getStories().length > 0 ? getCurrentArgs().theme || "light" : "light");
 
     // Router setup
     this._setupRouter();
@@ -142,12 +130,9 @@ class FableApp extends LitElement {
 
   _setupRouter() {
     const initialRoute = initRouter();
-    this._unsubscribeRouter = subscribeToRouter(
-      (route) => this._handleRouteChange(route),
-      {
-        immediate: false,
-      },
-    );
+    this._unsubscribeRouter = subscribeToRouter((route) => this._handleRouteChange(route), {
+      immediate: false,
+    });
     if (initialRoute) {
       this._handleRouteChange(initialRoute);
     }
@@ -157,126 +142,44 @@ class FableApp extends LitElement {
     const storiesData = getStories();
     if (!storiesData.length) return;
 
-    switch (route.name) {
-      case "component": {
-        const match = findStoryBySlugs(
-          storiesData,
-          route.params.group,
-          route.params.story,
-        );
-        if (match) {
-          const { args, permutation } = parseStorySearchParams(
-            route.searchParams,
-          );
-          selectStory(match.groupIndex, match.name, {
-            argsOverride: args,
-            permutationSelection: permutation,
-            syncURL: false,
-          });
-          setView({ name: "component", params: route.params });
-        } else {
-          navigateTo("/", { replace: true });
-          setView({ name: "home", params: {} });
-        }
-        break;
-      }
-      case "docs": {
-        const docs = getDocsMetadata();
-        if (!docs.length) {
-          setView({ name: "docs", params: {} });
-          break;
-        }
-        let doc = docs.find(
-          (entry) =>
-            entry.section === route.params.section &&
-            entry.slug === route.params.slug,
-        );
-        if (!doc) {
-          doc =
-            docs.find((entry) => entry.section === route.params.section) ||
-            docs[0];
-          navigateTo(buildDocsPath(doc.section, doc.slug), { replace: true });
-        }
-        setView({
-          name: "docs",
-          params: { section: doc.section, slug: doc.slug, id: doc.id },
+    if (route.name === "component") {
+      const match = findStoryBySlugs(storiesData, route.params.group, route.params.story);
+      if (match) {
+        const { args, recipe } = parseStorySearchParams(route.searchParams);
+        selectStory(match.groupIndex, match.name, {
+          argsOverride: args,
+          recipeSelection: recipe,
+          syncURL: false,
         });
-        break;
+        setView({ name: "component", params: route.params });
+        return;
       }
-      case "tokens": {
-        const tokens = getTokenMetadata();
-        const token =
-          tokens.find(
-            (entry) =>
-              entry.id === route.params.category ||
-              entry.category === route.params.category,
-          ) || tokens[0];
-        if (
-          token &&
-          route.params.category &&
-          token.id !== route.params.category
-        ) {
-          navigateTo(buildTokensPath(token.id), { replace: true });
-        }
-        setView({ name: "tokens", params: { category: token?.id } });
-        break;
-      }
-      case "icons": {
-        const icons = getIconMetadata();
-        const icon =
-          icons.find((entry) => entry.id === route.params.iconId) || icons[0];
-        if (icon && icon.id !== route.params.iconId) {
-          navigateTo(buildIconsPath(icon.id), { replace: true });
-        }
-        setView({ name: "icons", params: { iconId: icon?.id } });
-        break;
-      }
-      case "playroom":
-        setView({ name: "playroom", params: {} });
-        break;
-      case "home":
-        setView({ name: "home", params: {} });
-        break;
-      default:
-        navigateTo("/", { replace: true });
-        setView({ name: "home", params: {} });
-        break;
+    }
+
+    // fallback to first story
+    const defaultStory = getDefaultStory(storiesData);
+    if (defaultStory) {
+      selectStory(defaultStory.groupIndex, defaultStory.name, { syncURL: false });
+      const path = `/components/${defaultStory.groupIndex}/${defaultStory.name}`;
+      navigateTo(path, { replace: true });
+      setView({ name: "component", params: {} });
+    } else {
+      navigateTo("/", { replace: true });
     }
   }
 
   _renderActiveView() {
-    switch (this._currentView?.name) {
-      case "docs":
-        return html`<fable-docs-view class="active"></fable-docs-view>`;
-      case "tokens":
-        return html`<fable-tokens-view class="active"></fable-tokens-view>`;
-      case "icons":
-        return html`<fable-icons-view class="active"></fable-icons-view>`;
-      case "playroom":
-        return html`<fable-playroom-view class="active"></fable-playroom-view>`;
-      case "home":
-        return html`<fable-home-view class="active"></fable-home-view>`;
-      default:
-        return html`<fable-story-preview class="active"></fable-story-preview>`;
-    }
+    return html`<fable-story-preview class="active"></fable-story-preview>`;
   }
 
   render() {
-    const isPlayroomView = this._currentView?.name === "playroom";
+    const hideControls = this._currentView?.name === "component" && this._isRecipeStory === true;
     return html`
-      <main class=${isPlayroomView ? "playroom-mode" : ""}>
-        ${isPlayroomView
-          ? html`
-              <div class="view-host playroom-host">
-                <fable-playroom-view class="active"></fable-playroom-view>
-              </div>
-            `
-          : html`
-              <fable-story-navigator></fable-story-navigator>
-              <div class="view-host">${this._renderActiveView()}</div>
-              <fable-controls-panel></fable-controls-panel>
-              <fable-source-drawer></fable-source-drawer>
-            `}
+      <main>
+        <fable-story-navigator></fable-story-navigator>
+        <div class="view-host">${this._renderActiveView()}</div>
+        ${hideControls ? "" : html`<fable-controls-panel></fable-controls-panel>`}
+        <fable-source-drawer></fable-source-drawer>
       </main>
     `;
   }

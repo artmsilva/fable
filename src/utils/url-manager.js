@@ -3,8 +3,8 @@
  */
 class URLManager {
   constructor() {
-    this.PERM_SEPARATOR = "+";
-    this.PERM_ASSIGN = ".";
+    this.RECIPE_SEPARATOR = "+";
+    this.RECIPE_ASSIGN = ".";
   }
 
   slugify(text = "") {
@@ -58,16 +58,16 @@ class URLManager {
         : searchParams || new URLSearchParams();
 
     const result = {};
-    let permutation = null;
+    let recipe = null;
     for (const [key, value] of params.entries()) {
-      if (key === "perm") {
-        permutation = this.parsePermutationParam(value);
+      if (key === "recipe") {
+        recipe = this.parseRecipeParam(value);
         continue;
       }
       if (key === "auto") continue;
       result[key] = this._coerceValue(value);
     }
-    return { args: result, permutation };
+    return { args: result, recipe };
   }
 
   buildStoryPath(stories, groupIndex, storyName) {
@@ -88,10 +88,10 @@ class URLManager {
       }
     });
 
-    if (options?.permutation) {
-      const encoded = this.serializePermutation(options.permutation);
+    if (options?.recipe) {
+      const encoded = this.serializeRecipe(options.recipe);
       if (encoded) {
-        params.set("perm", encoded);
+        params.set("recipe", encoded);
         params.set("auto", "1");
       }
     }
@@ -113,7 +113,7 @@ class URLManager {
     return iconId ? `/icons/${iconId}` : "/icons";
   }
 
-  serializePermutation(selection = {}) {
+  serializeRecipe(selection = {}) {
     const entries = Object.entries(selection || {}).filter(
       ([, value]) => value !== undefined && value !== null && value !== ""
     );
@@ -121,19 +121,19 @@ class URLManager {
     return entries
       .map(
         ([axis, value]) =>
-          `${encodeURIComponent(axis)}${this.PERM_ASSIGN}${encodeURIComponent(value)}`
+          `${encodeURIComponent(axis)}${this.RECIPE_ASSIGN}${encodeURIComponent(value)}`
       )
-      .join(this.PERM_SEPARATOR);
+      .join(this.RECIPE_SEPARATOR);
   }
 
-  parsePermutationParam(raw = "") {
+  parseRecipeParam(raw = "") {
     if (!raw) return null;
     const selection = {};
     raw
-      .split(this.PERM_SEPARATOR)
+      .split(this.RECIPE_SEPARATOR)
       .filter(Boolean)
       .forEach((pair) => {
-        const [axisPart, valuePart] = pair.split(this.PERM_ASSIGN);
+        const [axisPart, valuePart] = pair.split(this.RECIPE_ASSIGN);
         if (!axisPart || !valuePart) return;
         const axis = decodeURIComponent(axisPart);
         const value = decodeURIComponent(valuePart);
@@ -172,5 +172,5 @@ export const buildStoryURL = (stories, groupIndex, storyName, args, options) =>
 export const buildDocsPath = (section, slug) => urlManager.buildDocsPath(section, slug);
 export const buildTokensPath = (tokenId) => urlManager.buildTokensPath(tokenId);
 export const buildIconsPath = (iconId) => urlManager.buildIconsPath(iconId);
-export const serializePermutation = (selection) => urlManager.serializePermutation(selection);
-export const parsePermutationParam = (value) => urlManager.parsePermutationParam(value);
+export const serializeRecipe = (selection) => urlManager.serializeRecipe(selection);
+export const parseRecipeParam = (value) => urlManager.parseRecipeParam(value);

@@ -1,3 +1,4 @@
+import { AUTO_RECIPES_STORY_NAME, AUTO_RECIPES_STORY_TYPE } from "../config/recipes.js";
 import { slugify } from "./url-manager.js";
 
 /**
@@ -64,21 +65,24 @@ class StoryProcessor {
         }
       }
 
-      const blueprint = this._analyzePermutations(story);
+      const blueprint = this._analyzeRecipes(story);
       if (blueprint) {
-        story.meta.permutationBlueprint = blueprint;
-        story.meta.hasAutoPermutations = blueprint.axes.length > 0;
+        story.meta.recipeBlueprint = blueprint;
+        story.meta.hasAutoRecipes = blueprint.axes.length > 0;
+        if (blueprint.cases.length) {
+          this._ensureRecipesStory(story);
+        }
       }
     });
 
     return stories;
   }
 
-  _analyzePermutations(group) {
+  _analyzeRecipes(group) {
     const meta = group?.meta || {};
     const componentName = meta.component;
     const componentClass = componentName ? customElements.get(componentName) : null;
-    const hints = componentClass?.permutationHints || {};
+    const hints = componentClass?.recipeHints || {};
     const skipSet = new Set((hints.skip || []).map((name) => String(name)));
 
     const baseArgs = { ...(meta.args || {}) };
@@ -235,7 +239,7 @@ class StoryProcessor {
     };
 
     if (!axes.length) {
-      blueprint.warnings.push("No suitable args detected for auto permutations.");
+      blueprint.warnings.push("No suitable args detected for auto recipes.");
       return blueprint;
     }
 
@@ -259,16 +263,16 @@ class StoryProcessor {
 
     blueprint.axes = axes;
     blueprint.budget.estimatedCases = estimatedCases;
-    blueprint.cases = this._buildPermutationCases(axes, baseArgs);
+    blueprint.cases = this._buildRecipeCases(axes, baseArgs);
 
     if (!blueprint.cases.length) {
-      blueprint.warnings.push("No valid permutation cases generated.");
+      blueprint.warnings.push("No valid recipe cases generated.");
     }
 
     return blueprint;
   }
 
-  _buildPermutationCases(axes, baseArgs) {
+  _buildRecipeCases(axes, baseArgs) {
     if (!axes.length) return [];
     const cases = [];
     const traverse = (axisIndex, selection, argsAcc, confidenceSum) => {
@@ -351,6 +355,17 @@ class StoryProcessor {
       type: axis.type,
       values,
       totalConfidence,
+    };
+  }
+
+  _ensureRecipesStory(group) {
+    if (!group?.stories || group.stories[AUTO_RECIPES_STORY_NAME]) {
+      return;
+    }
+    group.stories[AUTO_RECIPES_STORY_NAME] = {
+      type: AUTO_RECIPES_STORY_TYPE,
+      title: AUTO_RECIPES_STORY_NAME,
+      auto: true,
     };
   }
 

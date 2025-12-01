@@ -6,6 +6,7 @@ import {
   HOMEPAGE_SPOTLIGHTS,
 } from "../config/homepage-content.js";
 import { getMetadataRegistry } from "../config/metadata-registry.js";
+import { AUTO_RECIPES_STORY_TYPE } from "../config/recipes.js";
 import { navigateTo } from "../router.js";
 
 /**
@@ -27,8 +28,8 @@ class AppStore {
       theme:
         localStorage.getItem(THEME_STORAGE_KEY) ||
         (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"),
-      selectedPermutation: null,
-      permutationSelections: {},
+      selectedRecipe: null,
+      recipeSelections: {},
     };
   }
 
@@ -101,23 +102,24 @@ class AppStore {
    */
   setStories(newStories) {
     this.state.stories = newStories;
-    this.state.permutationSelections = {};
-    this.state.selectedPermutation = null;
+    this.state.recipeSelections = {};
+    this.state.selectedRecipe = null;
     this.notifyStateChange("stories");
-    this.notifyStateChange("selectedPermutation");
+    this.notifyStateChange("selectedRecipe");
   }
 
   selectStory(groupIndex, name, options = {}) {
-    const { argsOverride, slotsOverride, syncURL = true, permutationSelection = null } = options;
+    const { argsOverride, slotsOverride, syncURL = true, recipeSelection = null } = options;
     const story = this.state.stories[groupIndex];
     if (!story) return;
 
     this.state.selectedStory = { groupIndex, name };
 
     const storyData = story.stories[name];
+    const isAutoRecipesStory = storyData?.type === AUTO_RECIPES_STORY_TYPE;
     const baseArgs = { ...(story.meta?.args || {}) };
     const storyKey = this._buildStoryKey(groupIndex, name);
-    const blueprint = this._getPermutationBlueprint(groupIndex);
+    const blueprint = this._getRecipeBlueprint(groupIndex);
 
     // If story is an object with args function, compute the args
     if (typeof storyData === "object" && storyData.args) {
@@ -130,17 +132,18 @@ class AppStore {
       this.state.currentArgs = { ...this.state.currentArgs, ...argsOverride };
     }
 
-    const normalizedPerm =
-      this._normalizePermutationSelection(blueprint, permutationSelection) ||
-      this.state.permutationSelections[storyKey] ||
-      null;
+    const normalizedPerm = isAutoRecipesStory
+      ? null
+      : this._normalizeRecipeSelection(blueprint, recipeSelection) ||
+        this.state.recipeSelections[storyKey] ||
+        null;
     if (normalizedPerm && blueprint) {
-      const permArgs = this._getPermutationArgs(blueprint, normalizedPerm);
-      this.state.currentArgs = { ...this.state.currentArgs, ...permArgs };
-      this.state.permutationSelections[storyKey] = normalizedPerm;
-      this.state.selectedPermutation = normalizedPerm;
+      const recipeArgs = this._getRecipeArgs(blueprint, normalizedPerm);
+      this.state.currentArgs = { ...this.state.currentArgs, ...recipeArgs };
+      this.state.recipeSelections[storyKey] = normalizedPerm;
+      this.state.selectedRecipe = normalizedPerm;
     } else {
-      this.state.selectedPermutation = null;
+      this.state.selectedRecipe = null;
     }
 
     this.state.currentSlots = { ...(story.meta?.slots || {}) };
@@ -162,7 +165,7 @@ class AppStore {
     this.notifyStateChange("currentArgs");
     this.notifyStateChange("currentSlots");
     this.notifyStateChange("lockedArgs");
-    this.notifyStateChange("selectedPermutation");
+    this.notifyStateChange("selectedRecipe");
 
     if (syncURL) {
       this._syncURL();
@@ -171,7 +174,7 @@ class AppStore {
 
   updateArg(key, value) {
     this.state.currentArgs = { ...this.state.currentArgs, [key]: value };
-    this._clearPermutationSelection();
+    this._clearRecipeSelection();
     this.notifyStateChange("currentArgs");
     this._syncURL();
   }
@@ -183,7 +186,7 @@ class AppStore {
       this.state.selectedStory.groupIndex,
       this.state.selectedStory.name,
       this.state.currentArgs,
-      { permutation: this.state.selectedPermutation }
+      { recipe: this.state.selectedRecipe }
     );
     navigateTo(url, { replace });
   }
@@ -265,9 +268,9 @@ class AppStore {
     );
   }
 
-  _getPermutationBlueprint(groupIndex) {
+  _getRecipeBlueprint(groupIndex) {
     const group = this.state.stories[groupIndex];
-    return group?.meta?.permutationBlueprint || null;
+    return group?.meta?.recipeBlueprint || null;
   }
 
   _buildStoryKey(groupIndex, storyName) {
@@ -279,7 +282,7 @@ class AppStore {
     return this._buildStoryKey(this.state.selectedStory.groupIndex, this.state.selectedStory.name);
   }
 
-  _normalizePermutationSelection(blueprint, selection) {
+  _normalizeRecipeSelection(blueprint, selection) {
     if (!blueprint || !selection) return null;
     const normalized = {};
     let matched = 0;
@@ -302,7 +305,7 @@ class AppStore {
     return matched ? normalized : null;
   }
 
-  _getPermutationArgs(blueprint, selection) {
+  _getRecipeArgs(blueprint, selection) {
     const args = {};
     if (!blueprint || !selection) return args;
     blueprint.axes.forEach((axis) => {
@@ -315,41 +318,41 @@ class AppStore {
     return args;
   }
 
-  _clearPermutationSelection() {
+  _clearRecipeSelection() {
     const storyKey = this._buildStoryKeyFromSelected();
     if (storyKey) {
-      delete this.state.permutationSelections[storyKey];
+      delete this.state.recipeSelections[storyKey];
     }
-    if (this.state.selectedPermutation) {
-      this.state.selectedPermutation = null;
-      this.notifyStateChange("selectedPermutation");
+    if (this.state.selectedRecipe) {
+      this.state.selectedRecipe = null;
+      this.notifyStateChange("selectedRecipe");
     }
   }
 
-  getSelectedPermutation() {
-    return this.state.selectedPermutation;
+  getSelectedRecipe() {
+    return this.state.selectedRecipe;
   }
 
-  getCurrentPermutationBlueprint() {
+  getCurrentRecipeBlueprint() {
     if (!this.state.selectedStory) return null;
-    return this._getPermutationBlueprint(this.state.selectedStory.groupIndex);
+    return this._getRecipeBlueprint(this.state.selectedStory.groupIndex);
   }
 
-  selectPermutation(selection, options = {}) {
+  selectRecipe(selection, options = {}) {
     if (!this.state.selectedStory) return;
     const { syncURL = true } = options;
-    const blueprint = this._getPermutationBlueprint(this.state.selectedStory.groupIndex);
+    const blueprint = this._getRecipeBlueprint(this.state.selectedStory.groupIndex);
     if (!blueprint) return;
-    const normalized = this._normalizePermutationSelection(blueprint, selection);
+    const normalized = this._normalizeRecipeSelection(blueprint, selection);
     if (!normalized) return;
     const storyKey = this._buildStoryKeyFromSelected();
     if (storyKey) {
-      this.state.permutationSelections[storyKey] = normalized;
+      this.state.recipeSelections[storyKey] = normalized;
     }
-    this.state.selectedPermutation = normalized;
-    const permArgs = this._getPermutationArgs(blueprint, normalized);
-    this.state.currentArgs = { ...this.state.currentArgs, ...permArgs };
-    this.notifyStateChange("selectedPermutation");
+    this.state.selectedRecipe = normalized;
+    const recipeArgs = this._getRecipeArgs(blueprint, normalized);
+    this.state.currentArgs = { ...this.state.currentArgs, ...recipeArgs };
+    this.notifyStateChange("selectedRecipe");
     this.notifyStateChange("currentArgs");
     if (syncURL) {
       this._syncURL();
@@ -422,8 +425,8 @@ export const getCurrentSlots = () => store.getCurrentSlots();
 export const getLockedArgs = () => store.getLockedArgs();
 export const getSourceDrawerOpen = () => store.getSourceDrawerOpen();
 export const getTheme = () => store.getTheme();
-export const getSelectedPermutation = () => store.getSelectedPermutation();
-export const getCurrentPermutationBlueprint = () => store.getCurrentPermutationBlueprint();
+export const getSelectedRecipe = () => store.getSelectedRecipe();
+export const getCurrentRecipeBlueprint = () => store.getCurrentRecipeBlueprint();
 export const setStories = (newStories) => store.setStories(newStories);
 export const selectStory = (groupIndex, name, options) =>
   store.selectStory(groupIndex, name, options);
@@ -442,5 +445,4 @@ export const getHomepageHighlightCards = () => store.getHighlightCards();
 export const getHomepageRecentComponents = (limit) => store.getRecentComponents(limit);
 export const getHomepageTaxonomyGroups = () => store.getTaxonomyGroups();
 export const getHomepageSearchSpotlights = () => store.getSearchSpotlights();
-export const selectPermutation = (selection, options) =>
-  store.selectPermutation(selection, options);
+export const selectRecipe = (selection, options) => store.selectRecipe(selection, options);

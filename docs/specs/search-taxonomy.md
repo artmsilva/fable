@@ -18,7 +18,7 @@ Implement instant search and structured taxonomy filters so users can locate com
 
 ## User Journeys
 
-- *Designer*: Types “button” and sees docs, permutations, and tokens results.
+- *Designer*: Types “button” and sees docs, recipes, and tokens results.
 - *Engineer*: Filters to “mobile” platform components to ensure parity.
 - *PM*: Looks for all “Beta” status components.
 
@@ -75,7 +75,7 @@ interface TaxonomyMeta {
 ## Dependencies
 
 - Router (for linking to result targets).
-- Taxonomy data consumed by homepage, permutations, docs.
+- Taxonomy data consumed by homepage, recipes, docs.
 - Lint tooling to ensure metadata completeness (could extend Biome rule or custom script).
 
 ## Risks

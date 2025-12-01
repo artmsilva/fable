@@ -31,7 +31,7 @@ Backlog entries live in `config/backlog.json` (new file). Schema keys:
 | `id` | string | slug (`component-name-new`, `controls-mini-map`). |
 | `title` | string | Short marketing-ready name. |
 | `type` | enum | `component`, `feature`, `infrastructure`. |
-| `scope` | string | Component name or subsystem (e.g., `fable-playroom`). |
+| `scope` | string | Component name or subsystem (e.g., `fable-recipes`). |
 | `status` | enum | `Ideation`, `Design`, `InProgress`, `QA`, `Shipped`. |
 | `targetRelease` | string | Calendar quarter or sprint (`2025-Q1`). |
 | `impact` | enum | `High`, `Medium`, `Low`. |

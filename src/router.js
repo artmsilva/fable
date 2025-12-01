@@ -1,23 +1,8 @@
 import { prependBasePath, stripBasePath } from "./router/base-path.js";
 
 const routeDefinitions = [
+  { name: "component", pattern: new URLPattern({ pathname: "/components/:group/:story" }) },
   { name: "home", pattern: new URLPattern({ pathname: "/" }) },
-  {
-    name: "component",
-    pattern: new URLPattern({ pathname: "/components/:group/:story" }),
-  },
-  {
-    name: "docs",
-    pattern: new URLPattern({ pathname: "/docs/:section/:slug" }),
-  },
-  { name: "playroom", pattern: new URLPattern({ pathname: "/playroom" }) },
-  {
-    name: "tokens",
-    pattern: new URLPattern({ pathname: "/tokens/:category" }),
-  },
-  { name: "tokens", pattern: new URLPattern({ pathname: "/tokens" }) },
-  { name: "icons", pattern: new URLPattern({ pathname: "/icons/:iconId" }) },
-  { name: "icons", pattern: new URLPattern({ pathname: "/icons" }) },
 ];
 
 let currentRoute = null;
@@ -27,18 +12,13 @@ let initialized = false;
 const normalizePathname = (pathname) => {
   if (!pathname || pathname === "/") return "/";
   const withLeading = pathname.startsWith("/") ? pathname : `/${pathname}`;
-  return withLeading.endsWith("/")
-    ? withLeading.slice(0, -1) || "/"
-    : withLeading;
+  return withLeading.endsWith("/") ? withLeading.slice(0, -1) || "/" : withLeading;
 };
 
 const buildURLForMatching = () => {
   const { pathname, search, hash } = window.location;
   const normalizedPath = normalizePathname(stripBasePath(pathname) || "/");
-  return new URL(
-    `${normalizedPath}${search || ""}${hash || ""}`,
-    window.location.origin,
-  );
+  return new URL(`${normalizedPath}${search || ""}${hash || ""}`, window.location.origin);
 };
 
 const matchRoute = (url) => {
@@ -70,10 +50,7 @@ const evaluateRoute = () => {
 
 export const matchRoutePath = (pathname = "/", search = "") => {
   const normalizedPath = normalizePathname(pathname);
-  const url = new URL(
-    `${normalizedPath}${search || ""}`,
-    "https://example.test",
-  );
+  const url = new URL(`${normalizedPath}${search || ""}`, "https://example.test");
   return matchRoute(url);
 };
 

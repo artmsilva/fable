@@ -6,16 +6,16 @@
 | **Owner** | `codex` |
 | **Start Date** | `2025-11-29` |
 | **Last Update** | `2025-11-29 00:23 EST` |
-| **Related Work** | `docs/specs/permutations.md`, `docs/specs/search-taxonomy.md`, `docs/specs/design-tokens.md` |
+| **Related Work** | `docs/specs/recipes.md`, `docs/specs/search-taxonomy.md`, `docs/specs/design-tokens.md` |
 | **Links** | – |
 
 ## Objective
 
-Map the next high-impact feature work (permutations, search/taxonomy, tokens) against the current codebase and propose a recommended sequence so implementation can start without context churn.
+Map the next high-impact feature work (recipes, search/taxonomy, tokens) against the current codebase and propose a recommended sequence so implementation can start without context churn.
 
 ## Deliverables
 
-- [x] Quick assessment of current state vs. specs for permutations, search/taxonomy, and tokens.
+- [x] Quick assessment of current state vs. specs for recipes, search/taxonomy, and tokens.
 - [x] Ranked recommendation of next engineering tasks with scope notes.
 - [x] Agreed next-action item ready to pick up (with owner/status update).
 
@@ -44,4 +44,4 @@ Update this checklist as tasks evolve.
 
 ## Outcome (fill in when Done)
 
-- Added docs story system, inline code samples, syntax-highlighting font, and HTML snippet example for Button docs. Ready for next initiatives (permutations/search/tokens).
+- Added docs story system, inline code samples, syntax-highlighting font, and HTML snippet example for Button docs. Ready for next initiatives (recipes/search/tokens).

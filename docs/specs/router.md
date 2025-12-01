@@ -2,13 +2,13 @@
 
 ## Overview
 
-Adopt the browser-native `URLPattern` API to create a declarative router that supports clean hierarchical paths, improved shareability, and integration with new views (home, docs, playroom, permutations). No legacy query-mode compatibility or polyfill is required; break old URLs in favor of the new structure.
+Adopt the browser-native `URLPattern` API to create a declarative router that supports clean hierarchical paths, improved shareability, and integration with new views (home, docs, recipes). No legacy query-mode compatibility or polyfill is required; break old URLs in favor of the new structure.
 
 ## Goals
 
-1. Map semantic URLs (`/components/{group}/{story}`, `/docs/{section}/{slug}`, `/playroom`) to view state.
+1. Map semantic URLs (`/components/{group}/{story}`, `/docs/{section}/{slug}`) to view state.
 2. Provide centralized router module emitting navigation events to the store.
-3. Support param parsing for permutations and filters via query strings.
+3. Support param parsing for recipes and filters via query strings.
 
 ### Non-Goals
 
@@ -20,9 +20,8 @@ Adopt the browser-native `URLPattern` API to create a declarative router that su
 | Path Pattern | View | Notes |
 |--------------|------|-------|
 | `/` | Home | Default discovery page |
-| `/components/:group/:story` | Story view | Optional `?perm=...` |
+| `/components/:group/:story` | Story view | Optional `?recipe=...` |
 | `/docs/:section/:slug` | Docs stories |
-| `/playroom` | Playroom composer |
 | `/tokens/:category?` | Design tokens |
 | `/icons` | Icon gallery |
 
@@ -37,7 +36,7 @@ Adopt the browser-native `URLPattern` API to create a declarative router that su
   - Navigation from UI uses router instead of manual URL updates.
 - **URL Generation**
   - Helper `buildStoryURL({ group, story, params })`.
-  - Ensure percent-encoding of args/permutations.
+  - Ensure percent-encoding of args/recipes.
 
 ```mermaid
 flowchart LR
@@ -68,7 +67,7 @@ flowchart LR
 ## Dependencies
 
 - Browser support: `URLPattern` (Chromium 95+, Firefox 120+, Safari 17+); no polyfill required.
-- Store actions for new views (home, docs, playroom, tokens, icons).
+- Store actions for new views (home, docs, tokens, icons).
 
 ## Risks
 

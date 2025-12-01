@@ -1,17 +1,5 @@
-import {
-  getDocsMetadata,
-  getIconMetadata,
-  getSelectedStory,
-  getStories,
-  getTokenMetadata,
-} from "@store";
-import {
-  buildDocsPath,
-  buildIconsPath,
-  buildStoryURL,
-  buildTokensPath,
-  getStatusTooltip,
-} from "@utils";
+import { getSelectedStory, getStories } from "@store";
+import { buildStoryURL, getStatusTooltip } from "@utils";
 import { html, LitElement } from "lit";
 import "@design-system/sidebar.js";
 import "@design-system/nav-group.js";
@@ -19,18 +7,13 @@ import "@design-system/badge.js";
 import "@design-system/link.js";
 import "@design-system/search-input.js";
 import "./fable-theme-toggle.js";
+import { AUTO_RECIPES_STORY_NAME } from "../config/recipes.js";
 import { navigateTo } from "../router.js";
 
-/**
- * Story Navigator - Left sidebar with navigation
- */
 export class FableStoryNavigator extends LitElement {
   static properties = {
     _stories: { state: true },
     _selected: { state: true },
-    _docs: { state: true },
-    _tokens: { state: true },
-    _icons: { state: true },
     _query: { state: true },
   };
 
@@ -38,15 +21,8 @@ export class FableStoryNavigator extends LitElement {
     super();
     this._stories = getStories();
     this._selected = getSelectedStory();
-    this._docs = getDocsMetadata();
-    this._tokens = getTokenMetadata();
-    this._icons = getIconMetadata();
     this._query = "";
     this._handleStateChange = this._handleStateChange.bind(this);
-  }
-
-  createRenderRoot() {
-    return this;
   }
 
   connectedCallback() {
@@ -65,11 +41,6 @@ export class FableStoryNavigator extends LitElement {
       this._stories = getStories();
       this._selected = getSelectedStory();
     }
-    if (key === "metadata") {
-      this._docs = getDocsMetadata();
-      this._tokens = getTokenMetadata();
-      this._icons = getIconMetadata();
-    }
     this.requestUpdate();
   }
 
@@ -87,168 +58,39 @@ export class FableStoryNavigator extends LitElement {
     return buildStoryURL(this._stories, groupIndex, storyName, group.meta?.args || {});
   }
 
-  _handleStoryClick(e, groupIndex, name) {
-    e.preventDefault();
-    navigateTo(this._getStoryHref(groupIndex, name));
-  }
-
-  _handleDocsClick(e, doc) {
-    e.preventDefault();
-    navigateTo(buildDocsPath(doc.section, doc.slug));
-  }
-
-  _handleTokenClick(e, token) {
-    e.preventDefault();
-    navigateTo(buildTokensPath(token.id));
-  }
-
-  _handleIconClick(e, icon) {
-    e.preventDefault();
-    navigateTo(buildIconsPath(icon.id));
-  }
-
-  _handleSearchInput(event) {
-    this._query = event.target.value;
-  }
-
-  _handleHomeClick(e) {
-    e.preventDefault();
-    navigateTo("/");
-  }
-
-  _matchesQuery(text, query) {
-    return text?.toLowerCase().includes(query);
+  _handleStoryClick(event, groupIndex, name) {
+    event.preventDefault();
+    const href = this._getStoryHref(groupIndex, name);
+    navigateTo(href);
   }
 
   _filterStories() {
     const query = this._query.trim().toLowerCase();
-    if (!query) {
-      return this._stories.map((group, groupIndex) => ({
+    return this._stories
+      .map((group, groupIndex) => ({
         group,
         groupIndex,
-        stories: Object.keys(group.stories),
-      }));
+        stories: this._resolveStoryNames(group),
+      }))
+      .filter(({ group }) =>
+        query
+          ? `${group.meta?.title || ""} ${group.meta?.taxonomy?.group || ""}`
+              .toLowerCase()
+              .includes(query)
+          : true
+      );
+  }
+
+  _resolveStoryNames(group) {
+    const storyNames = Object.keys(group.stories || {});
+    if (storyNames.includes(AUTO_RECIPES_STORY_NAME)) {
+      return [AUTO_RECIPES_STORY_NAME];
     }
-
-    const filtered = [];
-    this._stories.forEach((group, groupIndex) => {
-      const storyNames = Object.keys(group.stories);
-      const groupMatches =
-        this._matchesQuery(group.meta?.title, query) ||
-        group.meta?.taxonomy?.tags?.some((tag) => this._matchesQuery(tag, query));
-      const filteredStories = storyNames.filter((name) => this._matchesQuery(name, query));
-
-      if (groupMatches || filteredStories.length) {
-        filtered.push({
-          group,
-          groupIndex,
-          stories: groupMatches ? storyNames : filteredStories,
-        });
-      }
-    });
-
-    return filtered;
+    return storyNames.slice(0, 1);
   }
 
-  _filterList(items = []) {
-    const query = this._query.trim().toLowerCase();
-    if (!query) return items;
-    return items.filter((item) => {
-      const fields = [item.title, item.description, item.section, ...(item.taxonomy?.tags || [])]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-      return fields.includes(query);
-    });
-  }
-
-  _renderDocsSection() {
-    const docs = this._filterList(this._docs);
-    if (!docs?.length) return null;
-
-    const sections = docs.reduce((acc, doc) => {
-      const key = doc.section || "general";
-      if (!acc.has(key)) acc.set(key, []);
-      acc.get(key).push(doc);
-      return acc;
-    }, new Map());
-
-    return html`
-      <section class="navigator-section">
-        <h2 class="navigator-heading">Docs</h2>
-        ${[...sections.entries()].map(
-          ([section, docs]) => html`
-            <fable-nav-group title=${section}>
-              ${docs.map(
-                (doc) => html`
-                  <fable-link
-                    href=${buildDocsPath(doc.section, doc.slug)}
-                    data-doc=${doc.id}
-                    @click=${(e) => this._handleDocsClick(e, doc)}
-                  >
-                    ${doc.title}
-                  </fable-link>
-                `
-              )}
-            </fable-nav-group>
-          `
-        )}
-      </section>
-    `;
-  }
-
-  _renderTokensSection() {
-    const tokens = this._filterList(this._tokens);
-    if (!tokens?.length) return null;
-    const groups = tokens.reduce((acc, token) => {
-      const key = token.taxonomy?.group || "Tokens";
-      if (!acc.has(key)) acc.set(key, []);
-      acc.get(key).push(token);
-      return acc;
-    }, new Map());
-
-    return html`
-      <section class="navigator-section">
-        <h2 class="navigator-heading">Tokens</h2>
-        ${[...groups.entries()].map(
-          ([group, tokens]) => html`
-            <fable-nav-group title=${group}>
-              ${tokens.map(
-                (token) => html`
-                  <fable-link
-                    href=${buildTokensPath(token.id)}
-                    @click=${(e) => this._handleTokenClick(e, token)}
-                  >
-                    ${token.title}
-                  </fable-link>
-                `
-              )}
-            </fable-nav-group>
-          `
-        )}
-      </section>
-    `;
-  }
-
-  _renderIconsSection() {
-    const icons = this._filterList(this._icons);
-    if (!icons?.length) return null;
-    return html`
-      <section class="navigator-section">
-        <h2 class="navigator-heading">Icons</h2>
-        <fable-nav-group title="Gallery">
-          ${icons.map(
-            (icon) => html`
-              <fable-link
-                href=${buildIconsPath(icon.id)}
-                @click=${(e) => this._handleIconClick(e, icon)}
-                >${icon.title}</fable-link
-              >
-            `
-          )}
-        </fable-nav-group>
-      </section>
-    `;
+  _handleSearchInput(event) {
+    this._query = event.target.value;
   }
 
   render() {
@@ -257,18 +99,12 @@ export class FableStoryNavigator extends LitElement {
       <fable-sidebar>
         <div class="navigator-search">
           <fable-search-input
-            placeholder="Search components, docs, tokens"
+            placeholder="Search components"
             .value=${this._query}
             @input=${this._handleSearchInput}
           ></fable-search-input>
           <fable-theme-toggle></fable-theme-toggle>
         </div>
-        <section class="navigator-section">
-          <h2 class="navigator-heading">Overview</h2>
-          <fable-link href="/" @click=${this._handleHomeClick}
-            >Homepage</fable-link
-          >
-        </section>
         <section class="navigator-section">
           <h2 class="navigator-heading">Components</h2>
           ${
@@ -276,37 +112,34 @@ export class FableStoryNavigator extends LitElement {
               ? html`<p>No components match "${this._query}".</p>`
               : filteredStories.map(
                   ({ group, groupIndex, stories }) => html`
-                  <fable-nav-group title=${group.meta.title}>
-                    ${
-                      group.meta?.taxonomy?.status
-                        ? html`<fable-badge
-                          slot="title"
-                          variant=${group.meta.taxonomy.status}
-                          size="condensed"
-                          tooltip=${getStatusTooltip(group.meta.taxonomy.status)}
-                          >${group.meta.taxonomy.status}</fable-badge
-                        >`
-                        : ""
-                    }
-                    ${stories.map(
-                      (name) => html`
-                        <fable-link
-                          href=${this._getStoryHref(groupIndex, name)}
-                          ?active=${this._isActiveStory(groupIndex, name)}
-                          @click=${(e) => this._handleStoryClick(e, groupIndex, name)}
-                        >
-                          ${name}
-                        </fable-link>
-                      `
-                    )}
-                  </fable-nav-group>
-                `
+                    <fable-nav-group title=${group.meta.title}>
+                      ${
+                        group.meta?.taxonomy?.status
+                          ? html`<fable-badge
+                              slot="title"
+                              variant=${group.meta.taxonomy.status}
+                              size="condensed"
+                              tooltip=${getStatusTooltip(group.meta.taxonomy.status)}
+                              >${group.meta.taxonomy.status}</fable-badge
+                            >`
+                          : ""
+                      }
+                      ${stories.map(
+                        (name) => html`
+                          <fable-link
+                            href=${this._getStoryHref(groupIndex, name)}
+                            ?active=${this._isActiveStory(groupIndex, name)}
+                            @click=${(e) => this._handleStoryClick(e, groupIndex, name)}
+                          >
+                            ${name}
+                          </fable-link>
+                        `
+                      )}
+                    </fable-nav-group>
+                  `
                 )
           }
         </section>
-
-        ${this._renderDocsSection()} ${this._renderTokensSection()}
-        ${this._renderIconsSection()}
       </fable-sidebar>
     `;
   }

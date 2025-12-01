@@ -2,10 +2,10 @@
 
 | Field | Value |
 | ----- | ----- |
-| **Status** | `Active` |
+| **Status** | `Done` |
 | **Owner** | `codex` |
 | **Start Date** | `2025-11-29` |
-| **Last Update** | `2025-11-29 18:05 PT` |
+| **Last Update** | `2025-11-30 23:30 EST` |
 | **Related Work** | `docs/specs/playroom.md`, `src/components/`, `src/playroom/` |
 | **Links** | `git rev-parse --short HEAD` |
 
@@ -36,6 +36,7 @@ Update this checklist as tasks evolve.
 - `2025-11-29 16:00 PT` — **Technical Specifications**: Designed complete technical architecture including security model (sandboxed iframe), performance optimizations (lazy loading, debounced updates), and integration points with existing Fable systems (metadata, store, router).
 - `2025-11-29 16:00 PT` — **Implementation Plan**: Created detailed implementation roadmap with weekly phases, specific deliverables, and success criteria for each phase.
 - `2025-11-29 18:05 PT` — **Phase 1 Progress**: Hooked up Monaco editor ↔ palette ↔ preview loop, fixed DSL parser to emit node arrays, added palette insert plumbing, and shipped a working inline preview renderer so playroom loads and reflects code edits in real time (iframe sandboxing deferred to later pass).
+- `2025-11-30 23:30 EST` — **Archived**: Playroom composer was removed from the product; code and documentation references were deleted so this initiative is permanently closed.
 
 ## Current Risks / Blockers
 
@@ -60,4 +61,4 @@ Update this checklist as tasks evolve.
 
 ## Outcome (fill in when Done)
 
-- Result summary + links to merged PRs, demos, or docs.
+- Playroom composer removed from scope; related code paths deleted in favor of the new recipes story flow.

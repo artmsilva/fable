@@ -14,7 +14,9 @@ if (typeof globalThis.URLPattern === "undefined") {
       const normalizedPath =
         rawPath === "/"
           ? "/"
-          : rawPath.endsWith("/") && rawPath !== "/" ? rawPath.slice(0, -1) : rawPath;
+          : rawPath.endsWith("/") && rawPath !== "/"
+            ? rawPath.slice(0, -1)
+            : rawPath;
       if (this.pathname === "/" && normalizedPath === "/") {
         return { pathname: { groups: {} } };
       }
@@ -54,30 +56,6 @@ test("matches component route with trailing slash", () => {
   const route = matchRoutePath("/components/button/primary/");
   assert.equal(route.name, "component");
   assert.deepEqual(route.params, { group: "button", story: "primary" });
-});
-
-test("matches docs route", () => {
-  const route = matchRoutePath("/docs/foundation/color");
-  assert.equal(route.name, "docs");
-  assert.deepEqual(route.params, { section: "foundation", slug: "color" });
-});
-
-test("matches playroom route", () => {
-  assert.equal(matchRoutePath("/playroom").name, "playroom");
-});
-
-test("matches tokens route with optional category", () => {
-  assert.equal(matchRoutePath("/tokens").name, "tokens");
-  const withCategory = matchRoutePath("/tokens/primitives");
-  assert.equal(withCategory.name, "tokens");
-  assert.deepEqual(withCategory.params, { category: "primitives" });
-});
-
-test("matches icons route", () => {
-  assert.equal(matchRoutePath("/icons").name, "icons");
-  const iconDetail = matchRoutePath("/icons/arrow-left");
-  assert.equal(iconDetail.name, "icons");
-  assert.deepEqual(iconDetail.params, { iconId: "arrow-left" });
 });
 
 test("returns not-found for unknown paths", () => {

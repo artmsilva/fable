@@ -6,7 +6,7 @@
 
 ## Context
 
-Upcoming features (permutations, docs stories, homepage discovery, taxonomy + search, playroom, tokens, icons) all require reliable metadata about every entity in the system. Historically, component stories exposed a loose `meta` object that only included `title`, `component`, and `args`. Additional metadata (tags, status, timestamps, docs references) is scattered or missing, making it difficult to deliver the new discovery and authoring experiences without duplicating logic.
+Upcoming features (recipes, docs stories, homepage discovery, taxonomy + search, tokens, icons) all require reliable metadata about every entity in the system. Historically, component stories exposed a loose `meta` object that only included `title`, `component`, and `args`. Additional metadata (tags, status, timestamps, docs references) is scattered or missing, making it difficult to deliver the new discovery and authoring experiences without duplicating logic.
 
 ## Decision
 
@@ -42,7 +42,7 @@ interface ComponentStoryMeta extends BaseMeta {
   storyGroup: string; // e.g., "Button"
   args?: Record<string, unknown>;
   slots?: Record<string, unknown>;
-  permutations?: {
+  recipes?: {
     axes: Array<{
       name: string;
       label?: string;
@@ -88,7 +88,7 @@ interface IconMeta extends BaseMeta {
 - Component stories continue to export `meta` objects, but now they must satisfy `ComponentStoryMeta`.
 - Docs entries can live as `.md` files with frontmatter matching `DocsMeta`.
 - Tokens and icons reside in JSON manifests (`design-system/tokens.json`, `design-system/icons.json`) that align with `TokenMeta` and `IconMeta`.
-- The dev server loads all metadata into a centralized registry (`src/config/metadata-registry.js`) used by the store, router, search index, and playroom palette.
+- The dev server loads all metadata into a centralized registry (`src/config/metadata-registry.js`) used by the store, router, search index, and discovery tooling.
 
 ### Validation & Tooling
 
@@ -101,7 +101,7 @@ interface IconMeta extends BaseMeta {
 
 ### Positive
 
-- Shared schema allows every feature (search, permutations, docs, home, playroom) to consume metadata consistently.
+- Shared schema allows every feature (search, recipes, docs, home) to consume metadata consistently.
 - Validation prevents missing fields from reaching production, raising reliability.
 - Story authors get autocomplete and type checking in editors via exported TypeScript types.
 
@@ -114,4 +114,4 @@ interface IconMeta extends BaseMeta {
 ## Related Work
 
 - `spec.md` (Cross-Cutting Considerations) references this schema as a dependency for new features.
-- Feature-specific specs (permutations, docs, homepage, search, playroom, tokens, icons) depend on this metadata registry for taxonomy, timestamps, and entity lookups.
+- Feature-specific specs (recipes, docs, homepage, search, tokens, icons) depend on this metadata registry for taxonomy, timestamps, and entity lookups.

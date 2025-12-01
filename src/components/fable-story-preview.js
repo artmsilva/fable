@@ -1,10 +1,10 @@
 import { PROJECT_NAME } from "@config";
 import {
   getCurrentArgs,
-  getCurrentPermutationBlueprint,
+  getCurrentRecipeBlueprint,
   getCurrentSlots,
   getProcessedSlots,
-  getSelectedPermutation,
+  getSelectedRecipe,
   getSelectedStory,
   getStories,
   getView,
@@ -18,8 +18,8 @@ import "@design-system/badge.js";
 import "@design-system/icon-button.js";
 import "@design-system/docs-page.js";
 import "@design-system/stack.js";
-import "@design-system/button.js";
-import "./fable-permutations-view.js";
+import "./fable-recipes-view.js";
+import { AUTO_RECIPES_STORY_TYPE } from "../config/recipes.js";
 
 /**
  * Story Preview - Center preview area with header
@@ -31,9 +31,8 @@ export class FableStoryPreview extends LitElement {
     _args: { state: true },
     _slots: { state: true },
     _view: { state: true },
-    _permutationBlueprint: { state: true },
-    _permutationSelection: { state: true },
-    _activeTab: { state: true },
+    _recipeBlueprint: { state: true },
+    _recipeSelection: { state: true },
   };
 
   constructor() {
@@ -43,9 +42,8 @@ export class FableStoryPreview extends LitElement {
     this._args = getCurrentArgs();
     this._slots = getCurrentSlots();
     this._view = getView();
-    this._permutationBlueprint = getCurrentPermutationBlueprint();
-    this._permutationSelection = getSelectedPermutation();
-    this._activeTab = "preview";
+    this._recipeBlueprint = getCurrentRecipeBlueprint();
+    this._recipeSelection = getSelectedRecipe();
     this._handleStateChange = this._handleStateChange.bind(this);
   }
 
@@ -70,16 +68,15 @@ export class FableStoryPreview extends LitElement {
       this._selected = getSelectedStory();
       this._args = getCurrentArgs();
       this._slots = getCurrentSlots();
-      this._permutationBlueprint = getCurrentPermutationBlueprint();
-      this._permutationSelection = getSelectedPermutation();
-      this._activeTab = "preview";
+      this._recipeBlueprint = getCurrentRecipeBlueprint();
+      this._recipeSelection = getSelectedRecipe();
       this.requestUpdate();
     }
     if (key === "view") {
       this._view = getView();
     }
-    if (key === "selectedPermutation") {
-      this._permutationSelection = getSelectedPermutation();
+    if (key === "selectedRecipe") {
+      this._recipeSelection = getSelectedRecipe();
       this.requestUpdate();
     }
   }
@@ -87,9 +84,31 @@ export class FableStoryPreview extends LitElement {
   _handleSourceClick() {
     toggleSourceDrawer();
   }
+  _isAutoRecipesStory(story) {
+    return story?.type === AUTO_RECIPES_STORY_TYPE;
+  }
 
-  _setActiveTab(tab) {
-    this._activeTab = tab;
+  _isRenderableStoryEntry(story) {
+    if (!story) return false;
+    if (this._isAutoRecipesStory(story)) return false;
+    if (story?.type === "docs") return false;
+    if (typeof story === "function") return true;
+    if (typeof story?.render === "function") return true;
+    return false;
+  }
+
+  _getBaseStoryRenderer(group) {
+    if (!group?.stories) return null;
+    for (const entry of Object.values(group.stories)) {
+      if (!this._isRenderableStoryEntry(entry)) continue;
+      if (typeof entry === "function") {
+        return entry;
+      }
+      if (typeof entry?.render === "function") {
+        return entry.render.bind(entry);
+      }
+    }
+    return null;
   }
 
   render() {
@@ -107,6 +126,7 @@ export class FableStoryPreview extends LitElement {
     const story = group.stories[this._selected.name];
     const status = group.meta?.status;
     const isDocsStory = group.meta?.type === "docs" || story?.type === "docs";
+    const isRecipesStory = this._isAutoRecipesStory(story);
 
     if (isDocsStory) {
       const docTitle = story?.title || group.meta?.title || this._selected.name;
@@ -126,18 +146,22 @@ export class FableStoryPreview extends LitElement {
       `;
     }
 
+    if (isRecipesStory) {
+      return html`
+        <div class="preview-card">
+          <fable-recipes-view
+            .blueprint=${this._recipeBlueprint}
+            .selection=${this._recipeSelection}
+            .renderStory=${this._getBaseStoryRenderer(group)}
+            .baseSlots=${group.meta?.slots || {}}
+          ></fable-recipes-view>
+        </div>
+      `;
+    }
+
     // Support both function and object format
     const storyFn = typeof story === "function" ? story : story.render;
     const processedSlots = getProcessedSlots();
-
-    const hasPermutations = Boolean(this._permutationBlueprint?.axes?.length);
-    const activeTab = hasPermutations ? this._activeTab : "preview";
-
-    const previewCanvas = html`
-      <fable-preview>
-        <div class="story-area">${storyFn(this._args, processedSlots)}</div>
-      </fable-preview>
-    `;
 
     return html`
       <div class="preview-card">
@@ -161,38 +185,9 @@ export class FableStoryPreview extends LitElement {
             </fable-icon-button>
           </div>
         </fable-header>
-        ${
-          hasPermutations
-            ? html`
-              <fable-stack align-items="start">
-                <div class="preview-tab-row">
-                  <fable-button
-                    variant=${activeTab === "preview" ? "primary" : "secondary"}
-                    @click=${() => this._setActiveTab("preview")}
-                  >
-                    Preview
-                  </fable-button>
-                  <fable-button
-                    variant=${activeTab === "permutations" ? "primary" : "secondary"}
-                    @click=${() => this._setActiveTab("permutations")}
-                  >
-                    Permutations
-                  </fable-button>
-                </div>
-              </fable-stack>
-            `
-            : ""
-        }
-        ${
-          activeTab === "permutations" && hasPermutations
-            ? html`
-              <fable-permutations-view
-                .blueprint=${this._permutationBlueprint}
-                .selection=${this._permutationSelection}
-              ></fable-permutations-view>
-            `
-            : previewCanvas
-        }
+        <fable-preview>
+          <div class="story-area">${storyFn(this._args, processedSlots)}</div>
+        </fable-preview>
       </div>
     `;
   }

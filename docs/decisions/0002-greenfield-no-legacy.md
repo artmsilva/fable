@@ -6,7 +6,7 @@
 
 ## Context
 
-Fable is currently a sandbox for rapid experimentation. Earlier planning documents referenced legacy URL formats, metadata drift from past prototypes, and general backward compatibility concerns. Maintaining compatibility with older story schemas or URLs slows iteration and complicates the upcoming feature work (router rewrite, metadata overhaul, playroom). Stakeholders confirmed that the codebase is effectively greenfield and experimentation speed is the priority.
+Fable is currently a sandbox for rapid experimentation. Earlier planning documents referenced legacy URL formats, metadata drift from past prototypes, and general backward compatibility concerns. Maintaining compatibility with older story schemas or URLs slows iteration and complicates the upcoming feature work (router rewrite, metadata overhaul). Stakeholders confirmed that the codebase is effectively greenfield and experimentation speed is the priority.
 
 ## Decision
 
