@@ -1,37 +1,31 @@
-# Fable Spec v3 — Fresh Start
+# Fable Spec v3 — Clean Slate Brief
 
-This living doc captures the **current surface**, the adjacent investments that still remain, and the planned rewrite we’re calling “Spec v3.” Treat it as the temporary source of truth until the new spec ships.
+This document is the only source of truth for any agent landing on the future rewrite. Assume the current repository is empty: there are no stories, navigators, docs pages, or token/ icon viewers yet. Your job is to build Spec v3 from the ground up.
 
-## Current Surface (Live)
+## Intent
 
-1. **Stories + Recipes**  
-   - Every component still exports `meta` + `stories` objects that feed the registry, navigator, and auto-recipe generator.  
-   - The preview panel renders whichever story you pick; the Recipes story is synthetic and runs the auto-inferred grid with live previews.
-2. **Navigator-only flows**  
-   - The sidebar is now just components: it finds the first story per group and links directly to the component URL. Search filters the component title/taxonomy tags.  
-   - No docs/tokens/icons panes remain; their metadata still exists but the UI no longer surfaces it.
-3. **Router**  
-   - `URLPattern` now only handles `/components/:group/:story` plus the home redirect. The router boots by selecting the first available story if the path doesn’t match anything else.
-4. **Controls panel**  
-   - Shown unless the selected story is a synthetic “Recipes” story; when recipes are active the panel hides so screenshots can focus on the grid.
-5. **Tokens detail experiment**  
-   - Token metadata infrastructure remained while the dedicated view/layout was purged; the detail work lives in the repo for reference but is not currently wired into the shell.
+1. **Recipes as the only experience** – Every component is surfaced through its inferred recipes. Agents should design a preview shell that renders the auto-generated grid, highlights the currently selected recipe (with confidence/signals), and hides any auxiliary controls so the grid itself can be captured for QA.
+2. **Minimal navigator** – Build a slim sidebar that lists component families (lettered/taxonomy groups optional), exposes a search over component names/tags, and focuses navigation on the recipes per component. No docs/tokens/icons navigation needs to exist in this spec.
+3. **Single router** – Support exactly one route pattern: `/components/:group/:story`. Include a fallback that loads the first component when nothing matches, but there is no concept of `/docs`, `/tokens`, or `/icons`.
 
-## Outstanding Frictions
+## Metadata contract
 
-- **Handcrafted stories still exist**—they’re registered primarily for metadata, not UX. With the v3 rewrite we expect to drop manual exports and rely solely on compiled recipes + edge-case test cases documented in future specs.  
-- **Leftover playroom references**: The legacy playroom shell stays in the app because it’s the current anchor for development, but it’s slated for removal once v3 lands.  
-- **Metadata pollution**: Components still require `meta.args`/`meta.storyGroup` and even the tokens/docs manifests; the future spec should clarify what can be dropped vs. what needs preservation for backward compatibility.
+- Each component needs a minimal metadata record: `id`, `title`, `taxonomy` (group/tags/status), `args` defaults, and the recipe hints (enum/boolean derivations).  
+- No docs/tokens/icons manifests are required—if a future feature needs them, it gets documented in a follow-up spec (not here).  
+- The metadata format should explicitly call out any edge-case test cases or open bugs so they can be surfaced alongside the recipes view.
 
-## Spec v3 Vision
+## Doc/test-case format
 
-1. **Recipes-first surface** – Build previews purely from the auto-generated recipe blueprint. Each component story can document edge cases/bugs in a test/spec sheet rather than hand-rolled rendering functions.  
-2. **Simplified router** – Path-only navigation stays, but we’ll create a lightweight doc spec that lists canonical permutations for QA, not a navigation hierarchy.  
-3. **Doc/test cases** – Introduce a new “v3 doc” format (markdown + metadata) that lists blockers, edge cases, and regression notes per component. These documents will also serve as the primary QA reference once the handbook rewrites.  
-4. **Metadata cleanup** – Rationalize the schema so tokens/docs metadata are optional in the MVP; focus on what the new spec needs (e.g., `meta.args`, `recipeHints`, taxonomy tags).  
+1. Create a new Markdown-based spec per component that lists:
+   - Edge cases or regressions observed while exercising the recipes grid.  
+   - Steps to reproduce, including props/recipes combinations, and whether the case is blocked or deferred.  
+   - Any additional notes for the QA team (visual anomalies, performance concerns, accessibility issues).  
+2. Link these specs from the navigator cards/titles so agents can quickly reference “what else to test.”
 
-## Next Steps
+## Implementation expectations
 
-- Finalize the v3 spec doc (this placeholder is the staging ground).  
-- Once v3 is approved, delete the legacy story registry, re-wire the navigator to the new doc/test format, and drop the playroom shell entirely.  
-- Keep this page in the repo until the rewrite ships so contributors have a concise map of what’s live vs. what we’re discarding.
+- Build the recipes layout first: cards showing signals, axis values, and previews.  
+- Layer in the navigator, router, and metadata loader so the shell can start picking a component and rendering its recipes.  
+- As soon as the recipes view works, document its edge cases in the new Markdown specs and treat those docs as the living test cases moving forward.
+
+Keep this brief in the repository until Spec v3 ships; once the rewrite is complete, this doc can serve as the “mission statement” for the next phase.
