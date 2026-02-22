@@ -11,6 +11,12 @@
   <a href="https://artmsilva.github.io/fable/">Live Demo</a>
 </p>
 
+## Screenshots
+
+| Light | Dark |
+|-------|------|
+| ![Light mode](docs/screenshots/light-mode.png) | ![Dark mode](docs/screenshots/dark-mode.png) |
+
 ## Monorepo Structure
 
 ```
