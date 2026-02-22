@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+  <head>
+    <script>
+      sessionStorage.setItem(
+        "__FABLE_REDIRECT__",
+        location.pathname + location.search + location.hash,
+      );
+      // Redirect to the base path (first path segment for GitHub Pages subpath deploys)
+      var segments = location.pathname.split("/").filter(Boolean);
+      var base = segments.length > 0 ? "/" + segments[0] + "/" : "/";
+      location.replace(base);
+    </script>
+  </head>
+</html>
