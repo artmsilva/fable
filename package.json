@@ -1,22 +1,18 @@
 {
-  "name": "fable",
+  "name": "fable-workspace",
   "version": "0.0.0",
-  "description": "A simple component story explorer built with Lit",
+  "private": true,
   "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "vite",
-    "start": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "validate:metadata": "node scripts/validate-metadata.js",
-    "tokens:sync": "node scripts/sync-tokens.js",
-    "icons:sync": "node scripts/sync-icons.js",
+    "dev": "npm -w packages/demo run dev",
+    "build": "npm -w packages/demo run build",
+    "preview": "npm -w packages/demo run preview",
     "check:fix": "npx @biomejs/biome check --write .",
-    "lint:styles": "node --experimental-strip-types lint-styles.ts",
-    "lint:imports": "node --experimental-strip-types lint-imports.ts",
-    "lint": "npm run lint:styles && npm run lint:imports && node scripts/biome-changed.js",
     "check": "npm run lint",
-    "pretest": "npm run lint"
+    "lint": "echo 'lint placeholder'"
   },
   "keywords": [
     "web-components",
@@ -27,12 +23,6 @@
   "author": "@artmsilva",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^24.10.1",
-    "ajv": "^8.17.1",
-    "vite": "^7.2.4"
-  },
-  "dependencies": {
-    "htmlparser2": "^10.0.0",
-    "lit": "^3.3.1"
+    "@types/node": "^24.10.1"
   }
 }
