@@ -36,13 +36,19 @@ import { fable } from "fable-workbench/plugin";
 export default {
   root: path.resolve(import.meta.dirname, "src"),
   base: process.env.FABLE_BASE_PATH || "/",
-  plugins: [fable()],
+  plugins: [fable({ showBuiltins: true })],
   build: {
     outDir: path.resolve(import.meta.dirname, "dist"),
     emptyOutDir: true,
   },
 };
 ```
+
+#### Plugin Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `showBuiltins` | `boolean` | `false` | Show Fable's built-in UI component stories (button, card, sidebar, etc.) in the navigator. Useful for exploring the workbench's own design system. |
 
 ### 3. Bootstrap
 
@@ -105,6 +111,33 @@ class MyButton extends LitElement {
 
 define("my-button", MyButton);
 ```
+
+### Custom Theming
+
+Override the workbench's look by loading a CSS file after the base styles. Every custom property is optional — only set the ones you want to change.
+
+```js
+// src/main.js
+import "fable-workbench/style.css";
+import "./theme.css"; // your overrides
+import "fable-workbench";
+```
+
+```css
+/* src/theme.css */
+:root {
+  --font-stack: "Inter", system-ui, sans-serif;
+  --primary-color: #0369a1;
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --border-color: #cbd5e1;
+  --shadow-color: rgba(15, 23, 42, 0.06);
+}
+```
+
+See `packages/demo/src/theme.css` for a full example with dark mode support.
 
 ### Environment Variables
 
