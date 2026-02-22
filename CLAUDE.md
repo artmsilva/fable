@@ -4,74 +4,76 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What Is Fable
 
-Design-system workbench built with Lit 3 and Vite. Ships a story explorer, docs surface, and tokens/icons browser. Live demo: https://artmsilva.github.io/fable/
+Design-system workbench shipped as a reusable Vite plugin (`fable-workbench`). Built with Lit 3 and Vite 7. Live demo: https://artmsilva.github.io/fable/
+
+## Monorepo Layout
+
+```
+packages/
+  fable/            # Core library + Vite plugin (npm name: fable-workbench)
+    src/             # App shell, router, store, define helper, utilities
+    ui/              # Built-in UI primitives (button, card, sidebar, etc.)
+  demo/             # Example consumer app (deployed to GitHub Pages)
+```
+
+Root `package.json` uses npm workspaces. Scripts delegate to `packages/demo`.
 
 ## Commands
 
 ```bash
-npm run dev              # Vite dev server with HMR at :3000
-npm run build            # Static export to dist/
-npm run check            # Lint pipeline: style linter + import linter + Biome (changed files only)
-npm run check:fix        # Auto-fix Biome issues
-npm run validate:metadata  # Validate metadata against config/metadata.schema.json
-npm run tokens:sync      # Regenerate CSS vars + data from design-system/tokens.json
-npm run icons:sync       # Rebuild icon manifest from design-system/icons-src/ SVGs
+npm run dev              # Vite dev server with HMR at :3000 (runs demo)
+npm run build            # Static export to packages/demo/dist/
 ```
-
-Run `npm run check` before committing. Add `npm run validate:metadata` when touching `src/metadata/**` or `design-system/`.
 
 ## Architecture
 
 **Stack**: Vanilla JS (ES modules) + Lit 3 + Vite 7. No transpiler beyond Vite. Biome for linting/formatting (no ESLint/Prettier).
 
-**Three-pane layout** in `src/app.js`: navigator (left) -> preview (center) -> controls (right).
+**Vite plugin** (`packages/fable/src/plugin.js`): sets up resolve aliases so consumers import `fable-workbench`, `fable-workbench/plugin`, and `fable-workbench/style.css`.
 
-**State**: Singleton store in `src/store/app-store.js` with exported helper functions. Components listen for `"state-changed"` custom events on `window`. No Redux/MobX.
+**Package exports** (`packages/fable/package.json`):
+- `.` -> `src/index.js` (boots the app shell + exports `define`)
+- `./plugin` -> `src/plugin.js` (Vite plugin)
+- `./style.css` -> `src/style.css`
 
-**Routing**: URLPattern-based router in `src/router.js`. Story URLs: `/components/:group/:story?prop=value&recipe=axis.value`. Base path from `FABLE_BASE_PATH` env var (GitHub Pages support).
+**Three-pane layout** in `packages/fable/src/app.js`: navigator (left) -> preview (center) -> controls (right).
 
-**Module aliases** (defined in `config/import-map.json`, resolved by `plugins/import-map-plugin.ts`):
-- `@design-system` / `@design-system/*` — primitives and stories
-- `@store` — app state
-- `@utils` — utility functions
-- `@config` — project constants
-- `@metadata` — component/docs/tokens/icons registry
+**State**: Singleton store in `packages/fable/src/store/app-store.js` with exported helper functions. Components listen for `"state-changed"` custom events on `window`. No Redux/MobX.
+
+**Routing**: URLPattern-based router in `packages/fable/src/router.js`. Story URLs: `/components/:group?prop=value&recipe=axis.value`. Base path lazily resolved from `window.__FABLE_BASE_PATH__` (set by `app.js` from Vite's `import.meta.env.BASE_URL`).
+
+**Component registration**: `define(tag, Class)` in `packages/fable/src/define.js` registers a custom element + extracts metadata (title, args, argTypes, stories, taxonomy) from static class fields.
 
 ## Key Conventions
 
-### Import Rules (enforced by `lint-imports.ts`)
-App code (`src/components/`, `src/store/`, `src/utils/`) must use `@`-prefixed aliases for cross-module imports. Relative imports are only allowed within `src/design-system/`.
-
-### Style Boundary (enforced by `lint-styles.ts`)
-Only `src/design-system/` components may have `static styles = css\`...\``. App shell components in `src/components/` must not define styles — use design system components instead. Add `@allow-styles` comment to opt out in exceptional cases. No inline `style=` attributes or `this.style` mutations in app components.
-
-### Component Naming
-Design system primitives: no prefix (e.g., `fable-button`). App shell components: `fable-` prefix (e.g., `fable-story-navigator`).
+### Consumer API
+Consumers create a Vite app, add `fable()` plugin, then `import "fable-workbench"` and use `define()` to register components with stories. See `packages/demo/` for a minimal example.
 
 ### Story Authoring
-1. Create component in `src/design-system/<name>.js`
-2. Define `meta` via `getComponentStoryMeta()` from `src/metadata/components.js`
-3. Export `stories` object (functions or `{ args, render }` format)
-4. Push `{ meta, stories }` to `window[STORIES_KEY]` (from `@config`)
-5. Import the component in `src/design-system/index.js`
+Components declare stories via static fields on the class:
+- `static title`, `static description`, `static status`
+- `static args`, `static argTypes`, `static slots`
+- `static stories = { StoryName: (args) => html\`...\` }`
+- `static taxonomy = { group, category, tags }`
+
+Then call `define("my-tag", MyClass)` to register.
 
 ### Biome Formatting
 Double quotes, semicolons, 2-space indent, 100-char line width, ES5 trailing commas.
 
 ## Greenfield Mindset
 
-Per ADR 0002 (`docs/decisions/0002-greenfield-no-legacy.md`): no legacy URL/schema backward compatibility required. Breaking old URLs or meta schemas is fine — keep current code working and document changes.
-
-## Progress Tracking
-
-Every user request must have a thread log under `ops/threads/`. Copy `ops/threads/TEMPLATE.md`, fill metadata, and register in `ops/threads/README.md`. Update timeline/status when pushing code or hitting blockers.
+Per ADR 0002 (`docs/decisions/0002-greenfield-no-legacy.md`): no legacy URL/schema backward compatibility required. Breaking old URLs or meta schemas is fine -- keep current code working and document changes.
 
 ## Key Paths
 
-- `docs/spec.md` — feature specifications
-- `docs/decisions/` — ADRs (metadata schema, greenfield, Vite adoption)
-- `docs/specs/` — feature deep dives
-- `config/metadata.schema.json` — validation schema for all metadata
-- `design-system/tokens.json` — token source (colors, spacing, typography)
-- `src/metadata/generated/` — auto-generated data files (do not edit manually)
-- `dist/` — build output (do not edit manually)
+- `packages/fable/src/plugin.js` -- Vite plugin entry
+- `packages/fable/src/define.js` -- component registration API
+- `packages/fable/src/app.js` -- app shell orchestration
+- `packages/fable/src/router.js` -- URLPattern router
+- `packages/fable/src/store/app-store.js` -- global state
+- `packages/fable/ui/` -- built-in UI primitives
+- `packages/demo/` -- example consumer app
+- `docs/decisions/` -- ADRs
+- `docs/specs/` -- feature deep dives
+- `.github/workflows/static.yml` -- GitHub Pages deploy
