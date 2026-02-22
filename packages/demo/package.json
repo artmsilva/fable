@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "fable": "*"
+    "fable-workbench": "*"
   },
   "devDependencies": {
     "vite": "^7.2.4"
