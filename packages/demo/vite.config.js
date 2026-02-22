@@ -1,5 +1,5 @@
 import path from "node:path";
-import { fable } from "fable/plugin";
+import { fable } from "fable-workbench/plugin";
 
 export default {
   root: path.resolve(import.meta.dirname, "src"),
