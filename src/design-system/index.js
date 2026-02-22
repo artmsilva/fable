@@ -6,6 +6,7 @@
  */
 
 export * from "./activity-feed.js";
+export * from "./attributes-table.js";
 // Display Components
 export * from "./badge.js";
 // Form Components
@@ -19,6 +20,7 @@ export * from "./docs-page.js";
 export * from "./drawer.js";
 export * from "./filter-chips.js";
 export * from "./header.js";
+export * from "./heading.js";
 export * from "./hero-banner.js";
 export * from "./highlight-cards.js";
 export * from "./icon-button.js";
@@ -39,6 +41,7 @@ export * from "./token-detail.js";
 export * from "./token-groups.js";
 
 // Import side effects to register custom elements
+import "./attributes-table.js";
 import "./button.js";
 import "./input.js";
 import "./textarea.js";
@@ -50,6 +53,7 @@ import "./card.js";
 import "./stack.js";
 import "./sidebar.js";
 import "./header.js";
+import "./heading.js";
 import "./preview.js";
 import "./drawer.js";
 import "./badge.js";

@@ -1,11 +1,12 @@
 /* Generated from design-system/tokens.json */
 :root {
-  --primary-color: #5b3cc4; /* Primary Color */
-  --accent-color: #1fb6ff; /* Accent Color */
-  --bg-primary: #ffffff; /* Surface Color */
-  --bg-primary-dark: #111827; /* Surface Color (Dark) */
+  --primary-color: #c4622d; /* Primary Color — burnt sienna */
+  --accent-color: #c4622d; /* Accent Color */
+  --bg-primary: #fdfaf5; /* Surface Color — warm ivory */
+  --bg-primary-dark: #1c1917; /* Surface Color (Dark) — warm near-black */
   --space-4: 16px; /* Space / 4 */
   --space-6: 24px; /* Space / 6 */
-  --font-stack: "Inter", "Segoe UI", system-ui, -apple-system; /* Font Body */
-  --radius: 12px; /* Radius / 3 */
+  --font-stack: "Geist Mono", "SF Mono", ui-monospace, monospace; /* Font Body */
+  --font-display: "DM Serif Display", Georgia, serif; /* Font Display */
+  --radius: 8px; /* Radius / 3 */
 }

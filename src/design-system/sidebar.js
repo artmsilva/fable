@@ -4,6 +4,8 @@ import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableSidebar extends LitElement {
   static status = "stable";
+  static description = "Navigation sidebar shell component for story explorer.";
+  static taxonomy = { group: "Layout", tags: ["sidebar", "navigation"] };
 
   static properties = {
     position: { type: String, reflect: true, enum: ["left", "right"] },
@@ -17,7 +19,7 @@ class FableSidebar extends LitElement {
       display: block;
       height: 100vh;
       overflow-y: auto;
-      
+
       padding-inline: var(--space-4);
 
       margin-bottom: 16px;
@@ -25,6 +27,19 @@ class FableSidebar extends LitElement {
     :host([position="right"]) {
       border-right: none;
       border-left: 1px solid var(--border-color);
+    }
+    :host::-webkit-scrollbar {
+      width: 6px;
+    }
+    :host::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    :host::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 3px;
+    }
+    :host::-webkit-scrollbar-thumb:hover {
+      background: var(--secondary-color);
     }
   `;
 

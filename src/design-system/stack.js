@@ -4,6 +4,8 @@ import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableStack extends LitElement {
   static status = "stable";
+  static description = "Layout helper arranging children vertically with gaps.";
+  static taxonomy = { group: "Layout", tags: ["stack", "layout"] };
 
   static properties = {
     alignItems: {
@@ -11,6 +13,11 @@ class FableStack extends LitElement {
       reflect: true,
       attribute: "align-items",
       enum: ["start", "center", "end", "stretch"],
+    },
+    direction: {
+      type: String,
+      reflect: true,
+      enum: ["column", "row"],
     },
   };
 
@@ -20,6 +27,9 @@ class FableStack extends LitElement {
       flex-direction: column;
       gap: var(--space-4);
       align-items: stretch;
+    }
+    :host([direction="row"]) {
+      flex-direction: row;
     }
     :host([align-items="start"]) {
       align-items: flex-start;
@@ -38,6 +48,7 @@ class FableStack extends LitElement {
   constructor() {
     super();
     this.alignItems = "stretch";
+    this.direction = "column";
   }
 
   render() {

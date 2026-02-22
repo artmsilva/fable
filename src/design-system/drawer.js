@@ -5,6 +5,8 @@ import "./icon-button.js";
 
 class FableDrawer extends LitElement {
   static status = "stable";
+  static description = "Anchored overlay for navigation or contextual content.";
+  static taxonomy = { group: "Navigation", tags: ["drawer", "overlay"] };
 
   static properties = {
     open: { type: Boolean, reflect: true },

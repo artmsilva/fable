@@ -4,6 +4,8 @@ import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableCheckbox extends LitElement {
   static status = "beta";
+  static description = "Form input representing binary selection with label.";
+  static taxonomy = { group: "Inputs", tags: ["checkbox", "form"] };
 
   static properties = {
     label: { type: String },

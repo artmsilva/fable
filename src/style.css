@@ -21,32 +21,32 @@
   initial-value: 1;
 }
 
-/* base theme */
+/* base theme — Artisan Instrument */
 :root {
-  --primary-color: #007bff;
-  --secondary-color: #6c757d;
+  --primary-color: #c4622d; /* burnt sienna */
+  --secondary-color: #6b5f52; /* warm medium brown */
 
   /* light theme colors */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f5f5f5;
-  --text-primary: #1a1a1a;
-  --text-secondary: #6c757d;
-  --border-color: #e0e0e0;
-  --shadow-color: rgba(0, 0, 0, 0.1);
+  --bg-primary: #fdfaf5; /* warm ivory */
+  --bg-secondary: #f0ead6; /* warmer ivory — sidebars */
+  --text-primary: #1c1917; /* warm near-black */
+  --text-secondary: #6b5f52; /* warm muted */
+  --border-color: #d6cdb8; /* warm tan */
+  --shadow-color: rgba(28, 25, 23, 0.08);
 
   color-scheme: light;
 }
 
 /* dark theme */
 :root[data-theme="dark"] {
-  --primary-color: #4dabf7;
-  --secondary-color: #909296;
-  --bg-primary: #1a1a1a;
-  --bg-secondary: #2d2d2d;
-  --text-primary: #e0e0e0;
-  --text-secondary: #a0a0a0;
-  --border-color: #404040;
-  --shadow-color: rgba(0, 0, 0, 0.3);
+  --primary-color: #e8845a; /* lighter sienna for dark contrast */
+  --secondary-color: #9e8e7e;
+  --bg-primary: #1c1917; /* warm near-black */
+  --bg-secondary: #28231f; /* slightly lighter warm dark */
+  --text-primary: #f0ead6; /* warm cream */
+  --text-secondary: #9e8e7e; /* warm muted */
+  --border-color: #3d3530; /* warm dark border */
+  --shadow-color: rgba(0, 0, 0, 0.35);
 
   color-scheme: dark;
 }
@@ -54,14 +54,14 @@
 /* respect system preference if no manual selection */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
-    --primary-color: #4dabf7;
-    --secondary-color: #909296;
-    --bg-primary: #1a1a1a;
-    --bg-secondary: #2d2d2d;
-    --text-primary: #e0e0e0;
-    --text-secondary: #a0a0a0;
-    --border-color: #404040;
-    --shadow-color: rgba(0, 0, 0, 0.3);
+    --primary-color: #e8845a;
+    --secondary-color: #9e8e7e;
+    --bg-primary: #1c1917;
+    --bg-secondary: #28231f;
+    --text-primary: #f0ead6;
+    --text-secondary: #9e8e7e;
+    --border-color: #3d3530;
+    --shadow-color: rgba(0, 0, 0, 0.35);
 
     color-scheme: dark;
   }
@@ -101,11 +101,11 @@
 }
 
 :root {
-  --color-background: var(--bg-primary, #ffffff);
-  --color-background-secondary: var(--bg-secondary, #f5f5f5);
-  --color-text: var(--text-primary, #1a1a1a);
-  --color-text-secondary: var(--text-secondary, #6c757d);
-  --color-primary: var(--primary-color, #5b3cc4);
+  --color-background: var(--bg-primary, #fdfaf5);
+  --color-background-secondary: var(--bg-secondary, #f0ead6);
+  --color-text: var(--text-primary, #1c1917);
+  --color-text-secondary: var(--text-secondary, #6b5f52);
+  --color-primary: var(--primary-color, #c4622d);
   --color-primary-text: #ffffff;
   --color-warning-background: #fff4e5;
   --color-warning-text: #b54708;
@@ -121,108 +121,29 @@
 
 body {
   margin: 0;
-  font-family: var(--font-stack, "Inter", "Segoe UI", system-ui, -apple-system, sans-serif);
+  font-family: var(--font-stack, "Geist Mono", "SF Mono", ui-monospace, monospace);
   background: var(--color-background);
   color: var(--color-text);
 }
 
-/* App component styles (design-system components now encapsulate home view visuals) */
-fable-home-view {
-  display: block;
-  height: 100%;
-  color: var(--text-primary);
-  background: var(--bg-primary);
+/* custom scrollbar — light DOM baseline */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
-
-.home-view {
-  height: 100%;
-  overflow-y: auto;
-  padding: var(--space-6, 32px);
-  box-sizing: border-box;
+::-webkit-scrollbar-track {
+  background: transparent;
 }
-
-.home-grid {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5, 24px);
-  max-width: 1100px;
-  margin: 0 auto;
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
 }
-
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3, 12px);
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.section-title {
-  margin: 0;
-  font-size: 1.2rem;
-}
-
-.two-column {
-  display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(260px, 1fr);
-  gap: var(--space-4, 18px);
-  align-items: start;
-}
-
-.spotlight-card {
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: var(--space-4, 16px);
-  background: var(--bg-secondary);
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-color);
 }
 
 fable-story-navigator {
   display: contents;
-}
-
-fable-controls-panel,
-fable-source-drawer,
-fable-theme-toggle {
-  display: contents;
-}
-
-fable-story-navigator fable-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-fable-story-navigator .navigator-search {
-  position: sticky;
-  top: 0;
-  background: var(--bg-secondary, #f5f5f5);
-  padding: var(--space-2) 0;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: var(--space-2, 8px);
-}
-
-fable-story-navigator .navigator-search fable-search-input {
-  flex: 1;
-}
-
-fable-story-navigator .navigator-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-fable-story-navigator .navigator-heading {
-  margin: 0;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted, var(--text-secondary));
 }
 
 fable-story-preview {
@@ -230,38 +151,118 @@ fable-story-preview {
   height: 100%;
 }
 
-fable-story-preview .preview-card {
+/* ── Navigator section ──────────────────────────────────────────── */
+
+.navigator-section {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  width: 100%;
-  box-sizing: border-box;
-  padding: var(--space-4, 16px);
-  gap: var(--space-4, 16px);
+  gap: 2px;
+  margin-top: var(--space-3);
 }
 
+/* ── Unified component page ─────────────────────────────────────── */
+
+.component-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--space-6, 24px) clamp(var(--space-6), 4vw, 48px);
+  gap: 0;
+  max-width: 1000px;
+}
+
+.component-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 12px);
+  padding-top: var(--space-6, 24px);
+}
+
+/* Subtle divider between sections */
+.component-section + .component-section {
+  border-top: 1px solid var(--border-color);
+  margin-top: var(--space-6, 24px);
+}
+
+/* Hero gets extra bottom space, no top border */
+.component-hero {
+  padding-top: 0;
+  padding-bottom: var(--space-3, 12px);
+}
+.component-hero + .component-section {
+  border-top: none;
+  margin-top: 0;
+}
+
+.component-hero__title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 12px);
+}
+
+.component-hero__description {
+  margin: 0;
+  color: var(--text-secondary);
+  max-width: 70ch;
+  line-height: 1.6;
+}
+
+/* Section label — quiet, uppercase, separates content blocks */
+.section-label {
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+/* Live preview area */
 fable-story-preview fable-preview {
-  flex: 1;
-  min-height: 0;
+  min-height: 100px;
 }
 
 fable-story-preview .story-area {
   width: 100%;
-  height: 100%;
 }
 
-fable-story-preview .preview-meta {
+/* Story gallery grid */
+.story-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-5, 20px);
+}
+
+.story-gallery__item {
   display: flex;
-  gap: var(--space-2);
-  align-items: center;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
 }
 
-fable-story-preview .preview-tab-row {
-  display: flex;
-  gap: var(--space-2);
-  flex-wrap: wrap;
+.story-gallery__item fable-preview {
+  min-height: 140px;
 }
 
+/* Docs section within component page */
+.component-docs {
+  line-height: 1.7;
+}
+.component-docs h1,
+.component-docs h2,
+.component-docs h3 {
+  color: var(--text-primary);
+  margin-top: var(--space-5, 20px);
+  margin-bottom: var(--space-2, 8px);
+}
+.component-docs p {
+  margin: 0 0 var(--space-3, 16px);
+}
+.component-docs ul {
+  padding-left: var(--space-5, 24px);
+  margin: 0 0 var(--space-3, 16px);
+}
+
+/* Recipes styles (used by fable-recipes-view in light DOM) */
 .recipes-panel__header {
   display: flex;
   flex-direction: column;
@@ -271,10 +272,9 @@ fable-story-preview .preview-tab-row {
 
 .recipes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: var(--space-4);
   align-items: stretch;
-  grid-auto-rows: minmax(420px, 1fr);
 }
 
 .recipes-grid__item {
@@ -311,7 +311,7 @@ fable-story-preview .preview-tab-row {
 }
 
 .recipes-card__preview fable-preview {
-  min-height: 220px;
+  min-height: 180px;
   height: 100%;
   flex: 1 1 auto;
 }

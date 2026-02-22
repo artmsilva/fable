@@ -4,6 +4,8 @@ import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableHeader extends LitElement {
   static status = "stable";
+  static description = "Top-level header providing product name and controls.";
+  static taxonomy = { group: "Layout", tags: ["header", "navigation"] };
 
   static properties = {
     align: { type: String, reflect: true, enum: ["start", "center", "end"] },

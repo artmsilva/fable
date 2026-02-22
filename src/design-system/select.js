@@ -33,6 +33,8 @@ customElements.define("fable-select-option", FableSelectOption);
 
 class FableSelect extends LitElement {
   static status = "beta";
+  static description = "Form select dropdown with label and helper slot.";
+  static taxonomy = { group: "Inputs", tags: ["select", "form"] };
 
   static properties = {
     label: { type: String },
@@ -182,7 +184,6 @@ Avoid using Select for yes/no decisions; a checkbox or switch is clearer.
 
 const stories = {
   Docs: {
-    type: "docs",
     title: "Select",
     description: "Guidance for single-select dropdowns.",
     content: docsContent,

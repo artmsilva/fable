@@ -28,20 +28,16 @@ class URLManager {
     };
   }
 
-  findStoryBySlugs(stories, componentSlug, storySlug) {
-    if (!stories.length || !componentSlug || !storySlug) return null;
+  findStoryBySlugs(stories, componentSlug) {
+    if (!stories.length || !componentSlug) return null;
 
     for (let gi = 0; gi < stories.length; gi++) {
       const group = stories[gi];
       const groupSlug = this.slugify(group.meta.title);
       if (groupSlug !== componentSlug) continue;
 
-      const storyNames = Object.keys(group.stories);
-      for (const name of storyNames) {
-        if (this.slugify(name) === storySlug) {
-          return { groupIndex: gi, name };
-        }
-      }
+      const firstName = Object.keys(group.stories)[0];
+      if (firstName) return { groupIndex: gi, name: firstName };
     }
 
     return null;
@@ -70,16 +66,15 @@ class URLManager {
     return { args: result, recipe };
   }
 
-  buildStoryPath(stories, groupIndex, storyName) {
+  buildStoryPath(stories, groupIndex) {
     const group = stories[groupIndex];
     if (!group) return "/";
     const componentSlug = this.slugify(group.meta.title);
-    const storySlug = this.slugify(storyName);
-    return `/components/${componentSlug}/${storySlug}`;
+    return `/components/${componentSlug}`;
   }
 
   buildStoryURL(stories, groupIndex, storyName, args = {}, options = {}) {
-    const path = this.buildStoryPath(stories, groupIndex, storyName);
+    const path = this.buildStoryPath(stories, groupIndex);
     const params = new URLSearchParams();
 
     Object.entries(args || {}).forEach(([key, value]) => {
@@ -160,13 +155,12 @@ const urlManager = new URLManager();
 // Export methods
 export const slugify = (text) => urlManager.slugify(text);
 export const getDefaultStory = (stories) => urlManager.getDefaultStory(stories);
-export const findStoryBySlugs = (stories, componentSlug, storySlug) =>
-  urlManager.findStoryBySlugs(stories, componentSlug, storySlug);
-export const parseArgsFromSearch = (searchParams) => urlManager.parseArgs(searchParams);
+export const findStoryBySlugs = (stories, componentSlug) =>
+  urlManager.findStoryBySlugs(stories, componentSlug);
 export const parseStorySearchParams = (searchParams) =>
   urlManager.parseStorySearchParams(searchParams);
-export const buildStoryPath = (stories, groupIndex, storyName) =>
-  urlManager.buildStoryPath(stories, groupIndex, storyName);
+export const buildStoryPath = (stories, groupIndex) =>
+  urlManager.buildStoryPath(stories, groupIndex);
 export const buildStoryURL = (stories, groupIndex, storyName, args, options) =>
   urlManager.buildStoryURL(stories, groupIndex, storyName, args, options);
 export const buildDocsPath = (section, slug) => urlManager.buildDocsPath(section, slug);

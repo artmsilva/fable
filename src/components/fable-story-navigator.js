@@ -4,10 +4,10 @@ import { html, LitElement } from "lit";
 import "@design-system/sidebar.js";
 import "@design-system/nav-group.js";
 import "@design-system/badge.js";
-import "@design-system/link.js";
 import "@design-system/search-input.js";
+import "@design-system/heading.js";
+import "@design-system/stack.js";
 import "./fable-theme-toggle.js";
-import { AUTO_RECIPES_STORY_NAME } from "../config/recipes.js";
 import { navigateTo } from "../router.js";
 
 export class FableStoryNavigator extends LitElement {
@@ -44,49 +44,38 @@ export class FableStoryNavigator extends LitElement {
     this.requestUpdate();
   }
 
-  _isActiveStory(groupIndex, storyName) {
-    return (
-      this._selected &&
-      this._selected.groupIndex === groupIndex &&
-      this._selected.name === storyName
-    );
+  _isActiveGroup(groupIndex) {
+    return this._selected?.groupIndex === groupIndex;
   }
 
-  _getStoryHref(groupIndex, storyName) {
+  _getFirstStoryName(group) {
+    return Object.keys(group.stories || {})[0] || "default";
+  }
+
+  _getGroupHref(groupIndex) {
     const group = this._stories[groupIndex];
     if (!group) return "#";
-    return buildStoryURL(this._stories, groupIndex, storyName, group.meta?.args || {});
+    const firstName = this._getFirstStoryName(group);
+    return buildStoryURL(this._stories, groupIndex, firstName, group.meta?.args || {});
   }
 
-  _handleStoryClick(event, groupIndex, name) {
+  _handleGroupClick(event, groupIndex) {
     event.preventDefault();
-    const href = this._getStoryHref(groupIndex, name);
+    const href = this._getGroupHref(groupIndex);
     navigateTo(href);
   }
 
   _filterStories() {
     const query = this._query.trim().toLowerCase();
     return this._stories
-      .map((group, groupIndex) => ({
-        group,
-        groupIndex,
-        stories: this._resolveStoryNames(group),
-      }))
+      .map((group, groupIndex) => ({ group, groupIndex }))
       .filter(({ group }) =>
         query
           ? `${group.meta?.title || ""} ${group.meta?.taxonomy?.group || ""}`
               .toLowerCase()
               .includes(query)
-          : true
+          : true,
       );
-  }
-
-  _resolveStoryNames(group) {
-    const storyNames = Object.keys(group.stories || {});
-    if (storyNames.includes(AUTO_RECIPES_STORY_NAME)) {
-      return [AUTO_RECIPES_STORY_NAME];
-    }
-    return storyNames.slice(0, 1);
   }
 
   _handleSearchInput(event) {
@@ -94,51 +83,38 @@ export class FableStoryNavigator extends LitElement {
   }
 
   render() {
-    const filteredStories = this._filterStories();
+    const filtered = this._filterStories();
     return html`
       <fable-sidebar>
-        <div class="navigator-search">
+        <fable-stack direction="row" align-items="center" style="gap: var(--space-2)">
           <fable-search-input
             placeholder="Search components"
             .value=${this._query}
             @input=${this._handleSearchInput}
           ></fable-search-input>
           <fable-theme-toggle></fable-theme-toggle>
-        </div>
+        </fable-stack>
         <section class="navigator-section">
-          <h2 class="navigator-heading">Components</h2>
-          ${
-            filteredStories.length === 0
-              ? html`<p>No components match "${this._query}".</p>`
-              : filteredStories.map(
-                  ({ group, groupIndex, stories }) => html`
-                    <fable-nav-group title=${group.meta.title}>
-                      ${
-                        group.meta?.taxonomy?.status
-                          ? html`<fable-badge
-                              slot="title"
-                              variant=${group.meta.taxonomy.status}
-                              size="condensed"
-                              tooltip=${getStatusTooltip(group.meta.taxonomy.status)}
-                              >${group.meta.taxonomy.status}</fable-badge
-                            >`
-                          : ""
-                      }
-                      ${stories.map(
-                        (name) => html`
-                          <fable-link
-                            href=${this._getStoryHref(groupIndex, name)}
-                            ?active=${this._isActiveStory(groupIndex, name)}
-                            @click=${(e) => this._handleStoryClick(e, groupIndex, name)}
-                          >
-                            ${name}
-                          </fable-link>
-                        `
-                      )}
-                    </fable-nav-group>
-                  `
-                )
-          }
+          ${filtered.length === 0
+            ? html`<p>No components match "${this._query}".</p>`
+            : filtered.map(
+                ({ group, groupIndex }) => html`
+                  <fable-nav-group
+                    title=${group.meta.title}
+                    class=${this._isActiveGroup(groupIndex) ? "is-active" : ""}
+                    @click=${(e) => this._handleGroupClick(e, groupIndex)}
+                  >
+                    ${group.meta?.taxonomy?.status
+                      ? html`<fable-badge
+                          slot="title"
+                          variant=${group.meta.taxonomy.status}
+                          size="condensed"
+                          tooltip=${getStatusTooltip(group.meta.taxonomy.status)}
+                        >${group.meta.taxonomy.status}</fable-badge>`
+                      : ""}
+                  </fable-nav-group>
+                `,
+              )}
         </section>
       </fable-sidebar>
     `;

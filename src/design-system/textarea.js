@@ -4,6 +4,8 @@ import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableTextarea extends LitElement {
   static status = "beta";
+  static description = "Multi-line text input with label and helper.";
+  static taxonomy = { group: "Inputs", tags: ["textarea", "form"] };
 
   static properties = {
     label: { type: String },

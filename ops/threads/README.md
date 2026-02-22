@@ -20,5 +20,8 @@ This index lists every active or archived user thread so agents can see who owns
 | [2025-11-29-readme-refresh](ops/threads/2025-11-29-readme-refresh.md) | codex | Done | 2025-11-30 | Refresh README to match current architecture, views, metadata, and tooling. |
 | [2025-11-30-gh-pages-404](ops/threads/2025-11-30-gh-pages-404.md) | codex | Done | 2025-11-30 | Fix GitHub Pages deep-link 404 by redirecting to SPA with preserved path. |
 | [2025-11-30-backlog-roadmap-props](ops/threads/2025-11-30-backlog-roadmap-props.md) | codex | Done | 2025-11-30 | Draft backlog/roadmap transparency spec + component props registry blueprint. |
-| [2025-11-30-recipes-view](ops/threads/2025-11-30-recipes-view.md) | codex | Active | 2025-11-30 | Simplify recipes story to list every inferred recipe for visual regression capture. |
+| [2025-11-30-recipes-view](ops/threads/2025-11-30-recipes-view.md) | codex | Done | 2025-11-30 | Simplify recipes story to list every inferred recipe for visual regression capture. |
+| [2026-02-22-visual-design-refresh](ops/threads/2026-02-22-visual-design-refresh.md) | claude | Done | 2026-02-22 | Replace Inter+Bootstrap-blue with Artisan Instrument aesthetic: warm palette + DM Serif + Geist Mono. |
+| [2026-02-22-dead-code-cleanup](ops/threads/2026-02-22-dead-code-cleanup.md) | claude | Done | 2026-02-22 | Remove dead exports, CSS, and orphaned files from homepage removal and past refactors. |
+| [2026-02-22-unified-component-page](ops/threads/2026-02-22-unified-component-page.md) | claude | Active | 2026-02-22 | Replace 3-column layout with unified scrollable component page; Navigation API router; dynamic class-based metadata. |
 | _(Add new rows here)_ | – | – | – | Copy `ops/threads/TEMPLATE.md` to start tracking another thread. |

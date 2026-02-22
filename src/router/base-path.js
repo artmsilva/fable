@@ -23,8 +23,6 @@ const ensureLeadingSlash = (path = "/") => {
   return path || "/";
 };
 
-export const getBasePath = () => BASE_PATH;
-
 export const stripBasePath = (pathname) => {
   const normalized = ensureLeadingSlash(pathname || "/");
   if (BASE_PATH === "/" || !normalized.startsWith(BASE_PATH)) {

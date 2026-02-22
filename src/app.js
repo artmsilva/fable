@@ -7,13 +7,11 @@ if (typeof window !== "undefined") {
   }
 }
 import "./utils/custom-element-hmr.js";
-import { AUTO_RECIPES_STORY_TYPE } from "./config/recipes.js";
 import { STORIES_KEY } from "./config.js";
 import { initRouter, navigateTo, subscribeToRouter } from "./router.js";
 import {
-  getCurrentArgs,
-  getSelectedStory,
   getStories,
+  getTheme,
   getView,
   selectStory,
   setStories,
@@ -21,18 +19,19 @@ import {
   setView,
 } from "./store/app-store.js";
 import { processStories } from "./utils/story-processor.js";
-import { findStoryBySlugs, getDefaultStory, parseStorySearchParams } from "./utils/url-manager.js";
+import {
+  buildStoryPath,
+  findStoryBySlugs,
+  getDefaultStory,
+  parseStorySearchParams,
+} from "./utils/url-manager.js";
 
 // Import all design system components via barrel file
 import "@design-system";
 
-// Import new composed components
+// Import composed components
 import "./components/fable-story-navigator.js";
 import "./components/fable-story-preview.js";
-import "./components/fable-controls-panel.js";
-import "./components/fable-source-drawer.js";
-// Removed docs/tokens/icons/home views
-// Playroom feature removed
 
 /**
  * Main Fable App - Orchestrates the composed components
@@ -41,7 +40,6 @@ import "./components/fable-source-drawer.js";
 class FableApp extends LitElement {
   static properties = {
     _currentView: { state: true },
-    _isRecipeStory: { state: true },
   };
 
   static styles = css`
@@ -50,7 +48,7 @@ class FableApp extends LitElement {
     }
     main {
       display: grid;
-      grid-template-columns: 300px 1fr 300px;
+      grid-template-columns: 300px 1fr;
       height: 100vh;
       overflow: hidden;
       gap: var(--space-4);
@@ -58,9 +56,21 @@ class FableApp extends LitElement {
     }
     .view-host {
       position: relative;
-      border-right: 1px solid var(--border-color);
       overflow-y: auto;
       height: 100vh;
+    }
+    .view-host::-webkit-scrollbar {
+      width: 6px;
+    }
+    .view-host::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .view-host::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 3px;
+    }
+    .view-host::-webkit-scrollbar-thumb:hover {
+      background: var(--secondary-color);
     }
     .view-host > :not(.active) {
       opacity: 0;
@@ -77,7 +87,6 @@ class FableApp extends LitElement {
     this._unsubscribeRouter = null;
     this._handleStoreChange = this._handleStoreChange.bind(this);
     this._currentView = getView();
-    this._isRecipeStory = this._computeIsRecipeStory();
     this._initializeApp();
   }
 
@@ -101,18 +110,10 @@ class FableApp extends LitElement {
     if (key === "view") {
       this._currentView = getView();
     }
-    if (key === "selectedStory" || key === "stories") {
-      this._isRecipeStory = this._computeIsRecipeStory();
+    if (key === "selectedStory") {
+      const host = this.shadowRoot?.querySelector(".view-host");
+      if (host) host.scrollTop = 0;
     }
-  }
-
-  _computeIsRecipeStory() {
-    const selected = getSelectedStory();
-    if (!selected) return false;
-    const stories = getStories();
-    const group = stories[selected.groupIndex];
-    const story = group?.stories?.[selected.name];
-    return story?.type === AUTO_RECIPES_STORY_TYPE;
   }
 
   _initializeApp() {
@@ -121,8 +122,8 @@ class FableApp extends LitElement {
     const processed = processStories(rawStories);
     setStories(processed);
 
-    // Initialize theme
-    setTheme(getStories().length > 0 ? getCurrentArgs().theme || "light" : "light");
+    // Apply the initial theme — store already resolves localStorage + prefers-color-scheme
+    setTheme(getTheme());
 
     // Router setup
     this._setupRouter();
@@ -143,7 +144,7 @@ class FableApp extends LitElement {
     if (!storiesData.length) return;
 
     if (route.name === "component") {
-      const match = findStoryBySlugs(storiesData, route.params.group, route.params.story);
+      const match = findStoryBySlugs(storiesData, route.params.group);
       if (match) {
         const { args, recipe } = parseStorySearchParams(route.searchParams);
         selectStory(match.groupIndex, match.name, {
@@ -160,7 +161,7 @@ class FableApp extends LitElement {
     const defaultStory = getDefaultStory(storiesData);
     if (defaultStory) {
       selectStory(defaultStory.groupIndex, defaultStory.name, { syncURL: false });
-      const path = `/components/${defaultStory.groupIndex}/${defaultStory.name}`;
+      const path = buildStoryPath(storiesData, defaultStory.groupIndex);
       navigateTo(path, { replace: true });
       setView({ name: "component", params: {} });
     } else {
@@ -173,13 +174,10 @@ class FableApp extends LitElement {
   }
 
   render() {
-    const hideControls = this._currentView?.name === "component" && this._isRecipeStory === true;
     return html`
       <main>
         <fable-story-navigator></fable-story-navigator>
         <div class="view-host">${this._renderActiveView()}</div>
-        ${hideControls ? "" : html`<fable-controls-panel></fable-controls-panel>`}
-        <fable-source-drawer></fable-source-drawer>
       </main>
     `;
   }
@@ -189,7 +187,10 @@ customElements.define("fable-app", FableApp);
 
 // Initialize app
 const root = document.getElementById("root");
-if (root) root.innerHTML = "<fable-app></fable-app>";
+if (root) {
+  root.textContent = "";
+  root.appendChild(document.createElement("fable-app"));
+}
 
 if (import.meta.hot) {
   const componentModules = Object.keys(import.meta.glob("./components/*.js"));

@@ -4,9 +4,12 @@ import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableCodeBlock extends LitElement {
   static status = "stable";
+  static description = "Pre-styled code snippet block with copy affordance.";
+  static taxonomy = { group: "Foundations", tags: ["code", "docs"] };
 
   static properties = {
     language: { type: String },
+    code: { type: String },
     _content: { state: true },
   };
 
@@ -37,11 +40,18 @@ class FableCodeBlock extends LitElement {
   constructor() {
     super();
     this.language = "";
+    this.code = "";
     this._content = "";
   }
 
+  willUpdate(changed) {
+    if (changed.has("code") && this.code) {
+      this._content = this._normalizeCode(this.code);
+    }
+  }
+
   firstUpdated() {
-    this._captureContent();
+    if (!this.code) this._captureContent();
   }
 
   _captureContent() {
@@ -103,7 +113,6 @@ Use Code Block to display code snippets with the built-in syntax highlighting.
 
 const stories = {
   Docs: {
-    type: "docs",
     title: "Code Block",
     description: "Guidance for code snippet display with syntax highlighting.",
     content: docsContent,

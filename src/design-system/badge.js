@@ -4,6 +4,8 @@ import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableBadge extends LitElement {
   static status = "stable";
+  static description = "Inline status indicator with tone-aware variants.";
+  static taxonomy = { group: "Feedback", tags: ["badge", "status"] };
 
   static properties = {
     variant: {
@@ -24,42 +26,40 @@ class FableBadge extends LitElement {
       display: inline-block;
     }
     .badge {
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 600;
+      padding: 2px 5px;
+      border-radius: 2px;
+      font-size: 0.6rem;
+      font-weight: 500;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.08em;
       cursor: help;
       position: relative;
       font-family: var(--font-stack);
       display: inline-block;
+      border: 1px solid currentColor;
+      background: transparent;
+      line-height: 1.4;
     }
     :host([size="condensed"]) .badge {
-      padding: 2px 6px;
-      font-size: 0.625rem;
-      border-radius: 8px;
-      letter-spacing: 0.3px;
+      padding: 1px 3px;
+      font-size: 0.55rem;
+      letter-spacing: 0.06em;
     }
     :host([variant="alpha"]) .badge {
-      background: #ff4444;
-      color: white;
+      color: #b83232;
     }
     :host([variant="beta"]) .badge {
-      background: #ff9800;
-      color: white;
+      color: var(--primary-color, #c4622d);
     }
     :host([variant="stable"]) .badge {
-      background: #4caf50;
-      color: white;
+      color: var(--text-secondary, #6b5f52);
     }
     :host([variant="deprecated"]) .badge {
-      background: #9e9e9e;
-      color: white;
+      color: var(--text-secondary, #9e8e7e);
+      opacity: 0.6;
     }
     :host([variant="info"]) .badge {
-      background: var(--primary-color);
-      color: white;
+      color: var(--primary-color, #c4622d);
     }
     .badge::after {
       content: attr(data-tooltip);
@@ -69,7 +69,7 @@ class FableBadge extends LitElement {
       padding: 6px 10px;
       border-radius: 4px;
       border: 1px solid var(--border-color);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       font-size: 0.75rem;
       font-weight: normal;
       text-transform: none;
@@ -82,10 +82,6 @@ class FableBadge extends LitElement {
       margin-left: 8px;
     }
     .badge:hover::after {
-      opacity: 1;
-    }
-    .badge:hover::after,
-    .badge:hover::before {
       opacity: 1;
     }
   `;
@@ -147,7 +143,6 @@ Avoid using badges as buttons or links; they should be informational only.
 
 const stories = {
   Docs: {
-    type: "docs",
     title: "Badge",
     description: "Status badge usage and variant guidance.",
     content: docsContent,

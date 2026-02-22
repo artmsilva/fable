@@ -24,6 +24,7 @@ import "@design-system/button.js";
 import "@design-system/token-detail.js";
 import "@design-system/doc-toc.js";
 import "@design-system/icon-detail.js";
+import "@design-system/heading.js";
 
 /**
  * Controls Panel - Right sidebar with story controls
@@ -67,15 +68,7 @@ export class FableControlsPanel extends LitElement {
 
   _handleStateChange(e) {
     const key = e.detail.key;
-    if (
-      [
-        "stories",
-        "selectedStory",
-        "currentArgs",
-        "currentSlots",
-        "lockedArgs",
-      ].includes(key)
-    ) {
+    if (["stories", "selectedStory", "currentArgs", "currentSlots", "lockedArgs"].includes(key)) {
       this._stories = getStories();
       this._selected = getSelectedStory();
       this._args = getCurrentArgs();
@@ -118,9 +111,7 @@ export class FableControlsPanel extends LitElement {
     if (this._view?.name !== "tokens") return null;
     if (!this._tokens?.length) return null;
     const targetId = this._view.params?.tokenId;
-    return (
-      this._tokens.find((token) => token.id === targetId) || this._tokens[0]
-    );
+    return this._tokens.find((token) => token.id === targetId) || this._tokens[0];
   }
 
   _activeIcon() {
@@ -157,9 +148,7 @@ export class FableControlsPanel extends LitElement {
 
     // Get component class to check for enum definitions
     const componentName = group.meta?.component;
-    const componentClass = componentName
-      ? customElements.get(componentName)
-      : null;
+    const componentClass = componentName ? customElements.get(componentName) : null;
 
     // Check for enum in component's static properties
     const propEnum = componentClass?.properties?.[key]?.enum;
@@ -169,14 +158,16 @@ export class FableControlsPanel extends LitElement {
     if ((argType?.control === "select" || propEnum) && enumOptions) {
       return html`
         <fable-stack align-items="start">
-          ${isLocked
-            ? html`<fable-button
+          ${
+            isLocked
+              ? html`<fable-button
                 variant="secondary"
                 @click=${() => this._handleUnlock(key)}
               >
                 🔓 Unlock ${key}
               </fable-button>`
-            : ""}
+              : ""
+          }
           <fable-select
             label=${key}
             .value=${val}
@@ -187,7 +178,7 @@ export class FableControlsPanel extends LitElement {
               (opt) =>
                 html`<fable-select-option value=${opt}
                   >${opt}</fable-select-option
-                >`,
+                >`
             )}
           </fable-select>
         </fable-stack>
@@ -198,14 +189,16 @@ export class FableControlsPanel extends LitElement {
     if (typeof argDefs[key] === "boolean" || typeof val === "boolean") {
       return html`
         <fable-stack align-items="start">
-          ${isLocked
-            ? html`<fable-button
+          ${
+            isLocked
+              ? html`<fable-button
                 variant="secondary"
                 @click=${() => this._handleUnlock(key)}
               >
                 🔓 Unlock ${key}
               </fable-button>`
-            : ""}
+              : ""
+          }
           <fable-checkbox
             label=${key}
             ?checked=${!!val}
@@ -219,14 +212,16 @@ export class FableControlsPanel extends LitElement {
     // Text input (default)
     return html`
       <fable-stack align-items="start">
-        ${isLocked
-          ? html`<fable-button
+        ${
+          isLocked
+            ? html`<fable-button
               variant="secondary"
               @click=${() => this._handleUnlock(key)}
             >
               🔓 Unlock ${key}
             </fable-button>`
-          : ""}
+            : ""
+        }
         <fable-input
           label=${key}
           .value=${val ?? ""}
@@ -243,9 +238,11 @@ export class FableControlsPanel extends LitElement {
       const parsed = doc ? parseMarkdown(doc.content || "") : null;
       return html`
         <fable-sidebar position="right">
-          ${parsed?.toc?.length
-            ? html`<fable-doc-toc .toc=${parsed.toc}></fable-doc-toc>`
-            : html`<p>No headings</p>`}
+          ${
+            parsed?.toc?.length
+              ? html`<fable-doc-toc .toc=${parsed.toc}></fable-doc-toc>`
+              : html`<p>No headings</p>`
+          }
         </fable-sidebar>
       `;
     }
@@ -253,7 +250,7 @@ export class FableControlsPanel extends LitElement {
     if (this._view?.name === "tokens") {
       return html`
         <fable-sidebar position="right">
-          <h3>Token detail</h3>
+          <fable-heading level="3">Token detail</fable-heading>
           <fable-token-detail
             .token=${this._activeToken()}
           ></fable-token-detail>
@@ -264,7 +261,7 @@ export class FableControlsPanel extends LitElement {
     if (this._view?.name === "icons") {
       return html`
         <fable-sidebar position="right">
-          <h3>Icon detail</h3>
+          <fable-heading level="3">Icon detail</fable-heading>
           <fable-icon-detail .icon=${this._activeIcon()}></fable-icon-detail>
         </fable-sidebar>
       `;
@@ -275,9 +272,11 @@ export class FableControlsPanel extends LitElement {
       const parsed = parseMarkdown(docsStory.content);
       return html`
         <fable-sidebar position="right">
-          ${parsed?.toc?.length
-            ? html`<fable-doc-toc .toc=${parsed.toc}></fable-doc-toc>`
-            : html`<p>No headings</p>`}
+          ${
+            parsed?.toc?.length
+              ? html`<fable-doc-toc .toc=${parsed.toc}></fable-doc-toc>`
+              : html`<p>No headings</p>`
+          }
         </fable-sidebar>
       `;
     }
@@ -302,14 +301,13 @@ export class FableControlsPanel extends LitElement {
 
     return html`
       <fable-sidebar position="right">
-        <h3>Controls</h3>
+        <fable-heading level="3" style="margin-bottom: var(--space-2)">Controls</fable-heading>
         <fable-stack>
           ${argKeys.map((k) => this._renderControl(k, group))}
           ${slotKeys.map((k) => {
             const val = this._slots[k] ?? slotDefs[k];
             // Display template result as readable text
-            const displayVal =
-              typeof val === "string" ? val : "[HTML Template]";
+            const displayVal = typeof val === "string" ? val : "[HTML Template]";
             return html`
               <fable-textarea
                 label=${k}

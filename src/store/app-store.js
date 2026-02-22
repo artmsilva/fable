@@ -1,10 +1,5 @@
 import { STORIES_KEY, THEME_STORAGE_KEY } from "@config";
 import { buildStoryURL } from "@utils";
-import {
-  HOMEPAGE_HERO_CONTENT,
-  HOMEPAGE_HIGHLIGHT_CARDS,
-  HOMEPAGE_SPOTLIGHTS,
-} from "../config/homepage-content.js";
 import { getMetadataRegistry } from "../config/metadata-registry.js";
 import { AUTO_RECIPES_STORY_TYPE } from "../config/recipes.js";
 import { navigateTo } from "../router.js";
@@ -358,55 +353,6 @@ class AppStore {
       this._syncURL();
     }
   }
-
-  getRecentComponents(limit = 6) {
-    const components = this.state.metadata.components || [];
-    const sorted = [...components].sort((a, b) => {
-      const aDate = new Date(a.updatedAt || a.createdAt || 0).getTime();
-      const bDate = new Date(b.updatedAt || b.createdAt || 0).getTime();
-      return bDate - aDate;
-    });
-    const slice = sorted.slice(0, limit);
-    return slice.map((meta) => ({
-      ...meta,
-      updatedAt: meta.updatedAt || meta.createdAt,
-      href: this._buildComponentHref(meta.storyGroup),
-    }));
-  }
-
-  getTaxonomyGroups() {
-    const components = this.state.metadata.components || [];
-    const counts = new Map();
-    components.forEach((meta) => {
-      const group = meta.taxonomy?.group || "General";
-      counts.set(group, (counts.get(group) || 0) + 1);
-    });
-    return [...counts.entries()]
-      .map(([group, count]) => ({ id: group, label: group, count }))
-      .sort((a, b) => b.count - a.count);
-  }
-
-  getHeroContent() {
-    const componentsCount = this.state.metadata.components?.length || 0;
-    const docsCount = this.state.metadata.docs?.length || 0;
-    const tokensCount = this.state.metadata.tokens?.length || 0;
-    return {
-      ...HOMEPAGE_HERO_CONTENT,
-      stats: [
-        { label: "Components", value: componentsCount },
-        { label: "Docs", value: docsCount },
-        { label: "Tokens", value: tokensCount },
-      ],
-    };
-  }
-
-  getHighlightCards() {
-    return HOMEPAGE_HIGHLIGHT_CARDS;
-  }
-
-  getSearchSpotlights() {
-    return HOMEPAGE_SPOTLIGHTS;
-  }
 }
 
 // Create and export singleton instance
@@ -415,7 +361,6 @@ const store = new AppStore();
 // Export methods bound to the singleton instance
 export const getStories = () => store.getStories();
 export const getSelectedStory = () => store.getSelectedStory();
-export const getMetadata = () => store.getMetadata();
 export const getComponentMetadata = () => store.getComponentMetadata();
 export const getDocsMetadata = () => store.getDocsMetadata();
 export const getTokenMetadata = () => store.getTokenMetadata();
@@ -436,13 +381,6 @@ export const unlockArg = (key) => store.unlockArg(key);
 export const toggleSourceDrawer = () => store.toggleSourceDrawer();
 export const setTheme = (newTheme) => store.setTheme(newTheme);
 export const toggleTheme = () => store.toggleTheme();
-export const getCurrentStory = () => store.getCurrentStory();
 export const getProcessedSlots = () => store.getProcessedSlots();
 export const getView = () => store.getView();
 export const setView = (view) => store.setView(view);
-export const getHomepageHeroContent = () => store.getHeroContent();
-export const getHomepageHighlightCards = () => store.getHighlightCards();
-export const getHomepageRecentComponents = (limit) => store.getRecentComponents(limit);
-export const getHomepageTaxonomyGroups = () => store.getTaxonomyGroups();
-export const getHomepageSearchSpotlights = () => store.getSearchSpotlights();
-export const selectRecipe = (selection, options) => store.selectRecipe(selection, options);

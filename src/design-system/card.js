@@ -4,6 +4,8 @@ import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableCard extends LitElement {
   static status = "stable";
+  static description = "Surface container with title + body slots for flexible content blocks.";
+  static taxonomy = { group: "Layout", tags: ["card", "layout"] };
 
   static properties = {
     title: { type: String },
@@ -77,7 +79,6 @@ Use cards to separate distinct topics. Keep titles concise and consider adding s
 
 const stories = {
   Docs: {
-    type: "docs",
     title: "Card",
     description: "Usage guidance for Card surfaces.",
     content: docsContent,

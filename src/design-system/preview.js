@@ -4,6 +4,8 @@ import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FablePreview extends LitElement {
   static status = "stable";
+  static description = "Container used to showcase stories with chrome controls.";
+  static taxonomy = { group: "Foundations", tags: ["preview", "docs"] };
 
   static properties = {};
 
@@ -20,6 +22,12 @@ class FablePreview extends LitElement {
       background-color: var(--bg-primary);
       position: relative;
       overflow: auto;
+      border: 1px solid var(--border-color, #d6cdb8);
+      border-radius: var(--radius, 8px);
+      box-shadow:
+        0 1px 3px rgba(28, 25, 23, 0.04),
+        0 4px 16px rgba(28, 25, 23, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
     }
   `;
 
@@ -32,6 +40,7 @@ customElements.define("fable-preview", FablePreview);
 
 // Stories
 const meta = getComponentStoryMeta("preview", {
+  title: "Preview Frame",
   args: {},
 });
 

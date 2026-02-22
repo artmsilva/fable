@@ -4,6 +4,8 @@ import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableButton extends LitElement {
   static status = "alpha";
+  static description = "Pressable action trigger supporting primary and secondary variants.";
+  static taxonomy = { group: "Inputs", tags: ["button", "action"] };
 
   static properties = {
     disabled: { type: Boolean },
@@ -119,7 +121,6 @@ Use the Button component for primary and secondary calls to action. Keep copy sh
 
 const stories = {
   Docs: {
-    type: "docs",
     title: "Button",
     description:
       "Usage, variants, and accessibility guidance for the Button component.",

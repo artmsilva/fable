@@ -4,6 +4,8 @@ import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableLink extends LitElement {
   static status = "stable";
+  static description = "Internal navigation link with active states.";
+  static taxonomy = { group: "Navigation", tags: ["link", "navigation"] };
 
   static properties = {
     href: { type: String },
@@ -84,6 +86,7 @@ customElements.define("fable-link", FableLink);
 
 // Stories
 const meta = getComponentStoryMeta("link", {
+  title: "Navigation Link",
   args: { href: "?story=fable-button/primary" },
   slots: {
     default: "Click me",

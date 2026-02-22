@@ -1,7 +1,14 @@
 import { prependBasePath, stripBasePath } from "./router/base-path.js";
 
+/**
+ * Router built on the Navigation API (window.navigation).
+ * Intercepts same-origin navigations and matches against route definitions.
+ * Exports the same surface as the previous popstate-based router:
+ *   initRouter, subscribeToRouter, navigateTo
+ */
+
 const routeDefinitions = [
-  { name: "component", pattern: new URLPattern({ pathname: "/components/:group/:story" }) },
+  { name: "component", pattern: new URLPattern({ pathname: "/components/:group" }) },
   { name: "home", pattern: new URLPattern({ pathname: "/" }) },
 ];
 
@@ -15,19 +22,13 @@ const normalizePathname = (pathname) => {
   return withLeading.endsWith("/") ? withLeading.slice(0, -1) || "/" : withLeading;
 };
 
-const buildURLForMatching = () => {
-  const { pathname, search, hash } = window.location;
-  const normalizedPath = normalizePathname(stripBasePath(pathname) || "/");
-  return new URL(`${normalizedPath}${search || ""}${hash || ""}`, window.location.origin);
-};
-
 const matchRoute = (url) => {
   for (const def of routeDefinitions) {
-    const exec = def.pattern.exec(url);
-    if (exec) {
+    const result = def.pattern.exec(url);
+    if (result) {
       return {
         name: def.name,
-        params: exec.pathname.groups || {},
+        params: result.pathname.groups || {},
         searchParams: new URLSearchParams(url.search || ""),
       };
     }
@@ -43,24 +44,17 @@ const evaluateRoute = () => {
   if (typeof window === "undefined") {
     return { name: "home", params: {}, searchParams: new URLSearchParams() };
   }
-
-  const url = buildURLForMatching();
+  const { pathname, search, hash } = window.location;
+  const normalizedPath = normalizePathname(stripBasePath(pathname) || "/");
+  const url = new URL(`${normalizedPath}${search || ""}${hash || ""}`, window.location.origin);
   return matchRoute(url);
 };
-
-export const matchRoutePath = (pathname = "/", search = "") => {
-  const normalizedPath = normalizePathname(pathname);
-  const url = new URL(`${normalizedPath}${search || ""}`, "https://example.test");
-  return matchRoute(url);
-};
-
-export const getRouteDefinitions = () => routeDefinitions;
 
 const notify = () => {
   currentRoute = evaluateRoute();
-  listeners.forEach((cb) => {
+  for (const cb of listeners) {
     cb(currentRoute);
-  });
+  }
 };
 
 export const initRouter = () => {
@@ -69,11 +63,22 @@ export const initRouter = () => {
   }
   initialized = true;
   currentRoute = evaluateRoute();
-  window.addEventListener("popstate", notify);
+
+  navigation.addEventListener("navigate", (event) => {
+    if (!event.canIntercept || event.hashChange) return;
+
+    const dest = new URL(event.destination.url);
+    if (dest.origin !== location.origin) return;
+
+    event.intercept({
+      handler() {
+        notify();
+      },
+    });
+  });
+
   return currentRoute;
 };
-
-export const getCurrentRoute = () => currentRoute || evaluateRoute();
 
 export const subscribeToRouter = (callback, { immediate = true } = {}) => {
   listeners.add(callback);
@@ -91,7 +96,7 @@ export const navigateTo = (path, { replace = false } = {}) => {
   const pathname = normalizePathname(pathnamePart || "/");
   const fullPath = prependBasePath(pathname);
   const search = searchPart ? `?${searchPart}` : "";
-  const method = replace ? "replaceState" : "pushState";
-  window.history[method]({}, "", `${fullPath}${search}`);
-  notify();
+  navigation.navigate(`${fullPath}${search}`, {
+    history: replace ? "replace" : "push",
+  });
 };

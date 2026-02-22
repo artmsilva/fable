@@ -4,6 +4,8 @@ import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableNavGroup extends LitElement {
   static status = "stable";
+  static description = "Sidebar accordion used to organize navigation items.";
+  static taxonomy = { group: "Navigation", tags: ["nav", "accordion"] };
 
   static properties = {
     title: { type: String },
@@ -12,7 +14,7 @@ class FableNavGroup extends LitElement {
   static styles = css`
     :host {
       display: block;
-      margin-bottom: 16px;
+      cursor: pointer;
     }
     .nav-group {
       display: flex;
@@ -20,13 +22,23 @@ class FableNavGroup extends LitElement {
       gap: 4px;
     }
     .nav-title {
-      font-weight: 600;
-      margin-bottom: 4px;
+      font-weight: 500;
+      padding: var(--space-2, 8px) var(--space-3, 12px);
+      border-radius: var(--space-1, 4px);
       color: var(--text-primary);
       display: flex;
       align-items: center;
       gap: var(--space-2);
       overflow: visible;
+      transition: background-color 0.15s;
+    }
+    .nav-title:hover {
+      background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+    }
+    :host(.is-active) .nav-title {
+      background: color-mix(in srgb, var(--primary-color) 14%, transparent);
+      color: var(--primary-color);
+      font-weight: 600;
     }
     ::slotted(*) {
       display: block;
@@ -55,6 +67,7 @@ customElements.define("fable-nav-group", FableNavGroup);
 
 // Stories
 const meta = getComponentStoryMeta("nav-group", {
+  title: "Navigation Group",
   args: {
     title: "Components",
   },

@@ -5,6 +5,8 @@ import { getComponentStoryMeta } from "../metadata/components.js";
 
 class FableIconButton extends LitElement {
   static status = "beta";
+  static description = "Circular button for contextual icon-only actions.";
+  static taxonomy = { group: "Inputs", tags: ["icon", "button"] };
 
   static properties = {
     disabled: { type: Boolean },
