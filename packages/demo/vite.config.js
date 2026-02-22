@@ -5,7 +5,7 @@ export default {
   root: path.resolve(import.meta.dirname, "src"),
   publicDir: path.resolve(import.meta.dirname, "public"),
   base: process.env.FABLE_BASE_PATH || "/",
-  plugins: [fable()],
+  plugins: [fable({ showBuiltins: true })],
   build: {
     outDir: path.resolve(import.meta.dirname, "dist"),
     emptyOutDir: true,

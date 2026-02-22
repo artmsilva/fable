@@ -133,8 +133,10 @@ class FableApp extends LitElement {
   }
 
   _initializeApp() {
-    // Load and process stories from the registry
-    const rawStories = getAll();
+    // Load and process stories from the registry, filtering builtins if configured
+    const rawStories = __FABLE_SHOW_BUILTINS__
+      ? getAll()
+      : getAll().filter((s) => !s.meta?.builtin);
     const processed = processStories(rawStories);
     setStories(processed);
 
@@ -201,12 +203,16 @@ class FableApp extends LitElement {
 
 customElements.define("fable-app", FableApp);
 
-// Initialize app
-const root = document.getElementById("root");
-if (root) {
-  root.textContent = "";
-  root.appendChild(document.createElement("fable-app"));
-}
+// Initialize app after all module-level define() calls have run.
+// Consumer components imported after "fable-workbench" in their entry
+// file register during module evaluation, so we defer to a microtask.
+queueMicrotask(() => {
+  const root = document.getElementById("root");
+  if (root) {
+    root.textContent = "";
+    root.appendChild(document.createElement("fable-app"));
+  }
+});
 
 if (import.meta.hot) {
   const componentModules = Object.keys(import.meta.glob("./components/*.js"));

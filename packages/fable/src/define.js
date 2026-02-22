@@ -11,6 +11,7 @@ export function define(tag, Class) {
     id,
     title: Class.title || toTitleCase(id),
     kind: "component-story",
+    builtin: tag.startsWith("fable-"),
     description: Class.description || "",
     component: tag,
     storyGroup: Class.title || toTitleCase(id),

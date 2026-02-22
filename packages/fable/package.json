@@ -3,8 +3,14 @@
   "version": "0.1.0",
   "type": "module",
   "exports": {
-    ".": "./src/index.js",
-    "./plugin": "./src/plugin.js",
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./plugin": {
+      "types": "./src/plugin.d.ts",
+      "default": "./src/plugin.js"
+    },
     "./style.css": "./src/style.css"
   },
   "dependencies": {
