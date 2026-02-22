@@ -2,6 +2,27 @@
   "name": "fable-workbench",
   "version": "0.1.0",
   "type": "module",
+  "description": "Design-system workbench built with Lit 3 and Vite",
+  "license": "MIT",
+  "author": "@artmsilva",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/artmsilva/fable.git",
+    "directory": "packages/fable"
+  },
+  "keywords": [
+    "design-system",
+    "web-components",
+    "lit",
+    "vite",
+    "storybook",
+    "workbench",
+    "component-explorer"
+  ],
+  "files": [
+    "src",
+    "ui"
+  ],
   "exports": {
     ".": {
       "types": "./src/index.d.ts",
