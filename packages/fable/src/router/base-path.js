@@ -16,7 +16,13 @@ const computeBasePath = () => {
   return normalized || "/";
 };
 
-const BASE_PATH = computeBasePath();
+let _basePath;
+const getBasePath = () => {
+  if (_basePath === undefined) {
+    _basePath = computeBasePath();
+  }
+  return _basePath;
+};
 
 const ensureLeadingSlash = (path = "/") => {
   if (!path.startsWith("/")) return `/${path}`;
@@ -25,20 +31,20 @@ const ensureLeadingSlash = (path = "/") => {
 
 export const stripBasePath = (pathname) => {
   const normalized = ensureLeadingSlash(pathname || "/");
-  if (BASE_PATH === "/" || !normalized.startsWith(BASE_PATH)) {
+  if (getBasePath() === "/" || !normalized.startsWith(getBasePath())) {
     return normalized;
   }
-  const stripped = normalized.slice(BASE_PATH.length);
+  const stripped = normalized.slice(getBasePath().length);
   return stripped.startsWith("/") ? stripped || "/" : `/${stripped}`;
 };
 
 export const prependBasePath = (path) => {
   const normalized = ensureLeadingSlash(path || "/");
-  if (BASE_PATH === "/") {
+  if (getBasePath() === "/") {
     return normalized;
   }
   if (normalized === "/") {
-    return BASE_PATH;
+    return getBasePath();
   }
-  return `${BASE_PATH}${normalized}`;
+  return `${getBasePath()}${normalized}`;
 };
