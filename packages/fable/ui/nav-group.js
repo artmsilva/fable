@@ -12,7 +12,7 @@ class FableNavGroup extends LitElement {
 
   static styles = css`
     :host { display: block; cursor: pointer; }
-    .nav-group { display: flex; flex-direction: column; gap: 4px; }
+    .nav-group { display: flex; flex-direction: column; gap: var(--space-1); }
     .nav-title { font-weight: 500; padding: var(--space-2, 8px) var(--space-3, 12px); border-radius: var(--space-1, 4px); color: var(--text-primary); display: flex; align-items: center; gap: var(--space-2); overflow: visible; transition: background-color 0.15s; }
     .nav-title:hover { background: color-mix(in srgb, var(--primary-color) 8%, transparent); }
     :host(.is-active) .nav-title { background: color-mix(in srgb, var(--primary-color) 14%, transparent); color: var(--primary-color); font-weight: 600; }

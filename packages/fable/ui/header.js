@@ -14,7 +14,7 @@ class FableHeader extends LitElement {
   static argTypes = { align: { control: "select", options: ["start", "center", "end"] } };
 
   static styles = css`
-    :host { display: flex; align-items: center; gap: 12px; padding-left: var(--space-4); border-bottom: 1px solid var(--border-color); }
+    :host { display: flex; align-items: center; gap: var(--space-3); padding-left: var(--space-4); border-bottom: 1px solid var(--border-color); }
     :host([align="start"]) { align-items: flex-start; }
     :host([align="center"]) { align-items: center; }
     :host([align="end"]) { align-items: flex-end; }

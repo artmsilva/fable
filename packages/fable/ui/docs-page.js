@@ -46,7 +46,7 @@ class FableDocsPage extends LitElement {
     }
 
     .eyebrow {
-      font-size: 0.85rem;
+      font-size: var(--font-size-sm);
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--text-secondary);
@@ -112,25 +112,25 @@ class FableDocsPage extends LitElement {
       font-family:
         "Iosevka Term SS08", "JetBrains Mono", ui-monospace, SFMono-Regular,
         Menlo, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 0.9rem;
+      font-size: var(--font-size-sm);
       line-height: 1.5;
       position: relative;
       white-space: pre;
     }
 
     .code-block .token.keyword {
-      color: #7c3aed;
+      color: var(--syntax-keyword);
       font-weight: 600;
     }
     .code-block .token.string {
-      color: #16a34a;
+      color: var(--syntax-string);
     }
     .code-block .token.comment {
-      color: #6b7280;
+      color: var(--syntax-comment);
       font-style: italic;
     }
     .code-block .token.number {
-      color: #d97706;
+      color: var(--syntax-number);
     }
 
     .content fable-docs-story {
@@ -159,12 +159,12 @@ class FableDocsPage extends LitElement {
     }
 
     .content .callout-warning {
-      border-color: #f59e0b;
+      border-color: var(--color-warning-text);
       background: color-mix(in srgb, #f59e0b 10%, var(--bg-secondary));
     }
 
     .content .callout-danger {
-      border-color: #ef4444;
+      border-color: var(--color-error);
       background: color-mix(in srgb, #ef4444 10%, var(--bg-secondary));
     }
 

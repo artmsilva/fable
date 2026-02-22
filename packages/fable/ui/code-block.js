@@ -21,22 +21,20 @@ class FableCodeBlock extends LitElement {
       display: block;
     }
     pre {
-      color: #f1f1f1;
-      background: #0f0f0f;
+      color: var(--text-primary);
+      background: var(--bg-primary);
       padding: var(--space-4);
       border-radius: var(--radius);
       overflow-x: auto;
       margin: 0;
       font-family: inherit;
-      font-size: 0.875rem;
+      font-size: var(--font-size-sm);
       line-height: 1.5;
       border: 1px solid var(--border-color);
       white-space: pre;
     }
     code {
-      font-family:
-        "FontWithASyntaxHighlighter", ui-monospace, SFMono-Regular, Menlo,
-        Consolas, "Liberation Mono", "Courier New", monospace;
+      font-family: var(--font-stack);
     }
   `;
 

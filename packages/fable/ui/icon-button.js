@@ -13,7 +13,7 @@ class FableIconButton extends LitElement {
 
   static styles = css`
     :host { display: inline-block; }
-    button { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 12px; cursor: pointer; font-size: 1.2rem; transition: all 0.2s ease; font-family: var(--font-stack); color: var(--text-primary); display: inline-flex; align-items: center; justify-content: center; }
+    button { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--space-2); padding: var(--space-2) var(--space-3); cursor: pointer; font-size: var(--font-size-lg); transition: all 0.2s ease; font-family: var(--font-stack); color: var(--text-primary); display: inline-flex; align-items: center; justify-content: center; }
     button:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 2px 8px var(--shadow-color); }
     button:active:not(:disabled) { transform: scale(0.98); }
     button:focus-visible { outline: var(--outline-width) solid var(--primary-color); outline-offset: var(--outline-offset); }

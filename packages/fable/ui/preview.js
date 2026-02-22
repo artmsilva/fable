@@ -11,7 +11,7 @@ class FablePreview extends LitElement {
   static args = {};
 
   static styles = css`
-    :host { display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; width: 100%; height: 100%; padding: var(--space-4, 16px); box-sizing: border-box; background-color: var(--bg-primary); position: relative; overflow: auto; border: 1px solid var(--border-color, #d6cdb8); border-radius: var(--radius, 8px); box-shadow: 0 1px 3px rgba(28, 25, 23, 0.04), 0 4px 16px rgba(28, 25, 23, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.5); }
+    :host { display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; width: 100%; height: 100%; padding: var(--space-4, 16px); box-sizing: border-box; background-color: var(--bg-primary); position: relative; overflow: auto; border: 1px solid var(--border-color, #d6cdb8); border-radius: var(--radius, 8px); box-shadow: 0 1px 3px var(--shadow-color), 0 4px 16px rgba(28, 25, 23, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.5); }
   `;
 
   static stories = {

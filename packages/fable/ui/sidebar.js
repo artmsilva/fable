@@ -11,11 +11,11 @@ class FableSidebar extends LitElement {
   static argTypes = { position: { control: "select", options: ["left", "right"] } };
 
   static styles = css`
-    :host { background-color: var(--bg-secondary); border-right: 1px solid var(--border-color); display: block; height: 100vh; overflow-y: auto; padding-inline: var(--space-4); margin-bottom: 16px; }
+    :host { background-color: var(--bg-secondary); border-right: 1px solid var(--border-color); display: block; height: 100vh; overflow-y: auto; padding-inline: var(--space-4); margin-bottom: var(--space-4); }
     :host([position="right"]) { border-right: none; border-left: 1px solid var(--border-color); }
     :host::-webkit-scrollbar { width: 6px; }
     :host::-webkit-scrollbar-track { background: transparent; }
-    :host::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+    :host::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: var(--space-base); }
     :host::-webkit-scrollbar-thumb:hover { background: var(--secondary-color); }
   `;
 

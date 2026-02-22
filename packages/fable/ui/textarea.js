@@ -11,7 +11,7 @@ class FableTextarea extends LitElement {
 
   static styles = css`
     :host { display: contents; }
-    label { display: flex; flex-direction: column; gap: 6px; }
+    label { display: flex; flex-direction: column; gap: var(--space-2); }
     span { font-size: var(--font-label); color: var(--text-primary); font-family: var(--font-stack); }
     textarea { padding: var(--space-2) calc(var(--space-base) * 2.5); font-size: var(--font-body); font-family: var(--font-stack); border-radius: calc(var(--space-base) * 1.5); resize: vertical; }
     textarea:focus { outline: 2px solid var(--primary-color); outline-offset: 1px; }

@@ -20,7 +20,7 @@ class FableSearchInput extends LitElement {
     }
 
     fable-input::part(input) {
-      border-radius: 999px;
+      border-radius: var(--border-radius-full);
       padding-left: var(--space-4, 16px);
       padding-right: var(--space-4, 16px);
       background: var(--bg-primary);

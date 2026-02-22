@@ -111,7 +111,7 @@ class FableDocsStory extends LitElement {
     }
     h4 {
       margin: 0;
-      font-size: 1rem;
+      font-size: var(--font-body);
     }
     .preview {
       padding: var(--space-3, 16px);
@@ -121,7 +121,7 @@ class FableDocsStory extends LitElement {
     }
     .meta {
       color: var(--text-secondary);
-      font-size: 0.9rem;
+      font-size: var(--font-size-sm);
       margin: 0;
     }
   `;

@@ -42,9 +42,9 @@ class FableBadge extends LitElement {
       display: inline-block;
     }
     .badge {
-      padding: 2px 5px;
-      border-radius: 2px;
-      font-size: 0.6rem;
+      padding: var(--space-base) var(--space-1);
+      border-radius: var(--space-base);
+      font-size: var(--font-size-xs);
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -57,12 +57,12 @@ class FableBadge extends LitElement {
       line-height: 1.4;
     }
     :host([size="condensed"]) .badge {
-      padding: 1px 3px;
-      font-size: 0.55rem;
+      padding: var(--space-base) var(--space-1);
+      font-size: var(--font-size-xs);
       letter-spacing: 0.06em;
     }
     :host([variant="alpha"]) .badge {
-      color: #b83232;
+      color: var(--color-error);
     }
     :host([variant="beta"]) .badge {
       color: var(--primary-color, #c4622d);
@@ -82,11 +82,11 @@ class FableBadge extends LitElement {
       position: fixed;
       background: var(--bg-secondary);
       color: var(--text-primary);
-      padding: 6px 10px;
-      border-radius: 4px;
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--space-1);
       border: 1px solid var(--border-color);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      font-size: 0.75rem;
+      box-shadow: 0 2px 8px var(--shadow-color);
+      font-size: var(--font-size-xs);
       font-weight: normal;
       text-transform: none;
       letter-spacing: normal;
@@ -95,7 +95,7 @@ class FableBadge extends LitElement {
       pointer-events: none;
       transition: opacity 0.2s;
       z-index: 10000;
-      margin-left: 8px;
+      margin-left: var(--space-2);
     }
     .badge:hover::after {
       opacity: 1;

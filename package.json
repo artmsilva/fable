@@ -12,7 +12,9 @@
     "preview": "npm -w packages/demo run preview",
     "check:fix": "npx @biomejs/biome check --write .",
     "check": "npm run lint",
-    "lint": "echo 'lint placeholder'"
+    "lint": "echo 'lint placeholder'",
+    "lint:tokens": "node scripts/lint-tokens.js",
+    "lint:tokens:fix": "node scripts/lint-tokens.js --fix"
   },
   "keywords": [
     "web-components",

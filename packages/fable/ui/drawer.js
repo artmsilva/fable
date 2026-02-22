@@ -31,17 +31,17 @@ class FableDrawer extends LitElement {
   };
 
   static styles = css`
-    :host { position: fixed; top: 0; bottom: 0; background: var(--bg-secondary); border-left: 1px solid var(--border-color); box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15); transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; display: flex; flex-direction: column; overflow: hidden; }
+    :host { position: fixed; top: 0; bottom: 0; background: var(--bg-secondary); border-left: 1px solid var(--border-color); box-shadow: -2px 0 8px var(--shadow-color); transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; display: flex; flex-direction: column; overflow: hidden; }
     :host([open]) { transform: translateX(0); }
-    :host([position="left"]) { left: 0; right: auto; border-left: none; border-right: 1px solid var(--border-color); box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15); transform: translateX(-100%); }
+    :host([position="left"]) { left: 0; right: auto; border-left: none; border-right: 1px solid var(--border-color); box-shadow: 2px 0 8px var(--shadow-color); transform: translateX(-100%); }
     :host([position="left"][open]) { transform: translateX(0); }
     :host([position="right"]) { right: 0; left: auto; }
-    :host([position="bottom"]) { top: auto; left: 0; right: 0; bottom: 0; border-left: none; border-top: 1px solid var(--border-color); box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15); transform: translateY(100%); }
+    :host([position="bottom"]) { top: auto; left: 0; right: 0; bottom: 0; border-left: none; border-top: 1px solid var(--border-color); box-shadow: 0 -2px 8px var(--shadow-color); transform: translateY(100%); }
     :host([position="bottom"][open]) { transform: translateY(0); }
     .drawer-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4); border-bottom: 1px solid var(--border-color); background: var(--bg-primary); }
-    .drawer-title { margin: 0; font-size: 1.125rem; font-weight: 600; color: var(--text-primary); }
+    .drawer-title { margin: 0; font-size: var(--font-size-lg); font-weight: 600; color: var(--text-primary); }
     .drawer-content { flex: 1; overflow-y: auto; padding: var(--space-4); }
-    .backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 999; }
+    .backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--shadow-color); opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 999; }
     .backdrop.visible { opacity: 1; pointer-events: auto; }
   `;
 
