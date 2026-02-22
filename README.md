@@ -1,6 +1,6 @@
 # Fable
 
-Design-system workbench built with Lit 3 and Vite. Ships a story explorer with args/recipe controls, URL-synced state, and a three-pane layout.
+Design-system workbench built with Lit 3 and Vite. Ships a story explorer with args/recipe controls and URL-synced state.
 
 Live demo: [artmsilva.github.io/fable](https://artmsilva.github.io/fable/)
 
@@ -122,7 +122,7 @@ npm run build      # Static export to packages/demo/dist/
 ## Architecture
 
 - **Lit 3** web components with vanilla JS (ES modules). No transpiler beyond Vite.
-- **Three-pane layout**: navigator (left) -> preview (center) -> controls (right).
+- **Two-column layout**: sidebar navigator (left) + main content (right).
 - **URLPattern router** in `packages/fable/src/router.js`. Story URLs: `/components/:group?prop=value&recipe=axis.value`.
 - **Singleton store** in `packages/fable/src/store/app-store.js`. Components listen for `"state-changed"` events on `window`.
 - **Vite plugin** (`packages/fable/src/plugin.js`) sets up resolve aliases so consumers import from `fable-workbench`, `fable-workbench/plugin`, and `fable-workbench/style.css`.

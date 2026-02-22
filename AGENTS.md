@@ -12,7 +12,7 @@ Welcome to Fable. This guide orients autonomous/LLM-based assistants so they can
   - `packages/fable/src/plugin.js` -- Vite plugin (`fable()`)
   - `packages/fable/src/index.js` -- app bootstrap (imports UI + app shell, exports `define`)
   - `packages/fable/src/define.js` -- component registration API
-  - `packages/fable/src/app.js` -- Lit orchestration of navigator, preview, controls
+  - `packages/fable/src/app.js` -- Lit orchestration of sidebar + main content
   - `packages/fable/src/store/` -- shared state + selectors
   - `packages/fable/ui/` -- built-in UI primitives
   - `packages/demo/vite.config.js` -- consumer Vite config example
@@ -56,7 +56,7 @@ define("my-component", MyComponent);
 
 ## Architecture Highlights
 
-- **Three-pane layout**: `fable-story-navigator`, `fable-story-preview`, controls panel.
+- **Two-column layout**: `fable-story-navigator` sidebar + `fable-story-preview` main content.
 - **Global store**: module-level state with helper functions; `"state-changed"` events on `window`. No Redux/MobX.
 - **URLPattern router**: base path lazily resolved from `window.__FABLE_BASE_PATH__` (set by `app.js` from Vite's `import.meta.env.BASE_URL`).
 - **Vite plugin**: sets up resolve aliases mapping `fable-workbench` imports to the library source.

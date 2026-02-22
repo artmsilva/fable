@@ -36,7 +36,7 @@ npm run build            # Static export to packages/demo/dist/
 - `./plugin` -> `src/plugin.js` (Vite plugin)
 - `./style.css` -> `src/style.css`
 
-**Three-pane layout** in `packages/fable/src/app.js`: navigator (left) -> preview (center) -> controls (right).
+**Two-column layout** in `packages/fable/src/app.js`: sidebar navigator (left) + main content (right).
 
 **State**: Singleton store in `packages/fable/src/store/app-store.js` with exported helper functions. Components listen for `"state-changed"` custom events on `window`. No Redux/MobX.
 
