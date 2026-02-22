@@ -1,8 +1,15 @@
-# Fable
+<p align="center">
+  <img src="banner.svg" alt="Fable — design-system workbench" width="100%">
+</p>
 
-Design-system workbench built with Lit 3 and Vite. Ships a story explorer with args/recipe controls and URL-synced state.
+<p align="center">
+  <strong>Design-system workbench built with Lit 3 and Vite.</strong><br>
+  Story explorer with args/recipe controls and URL-synced state.
+</p>
 
-Live demo: [artmsilva.github.io/fable](https://artmsilva.github.io/fable/)
+<p align="center">
+  <a href="https://artmsilva.github.io/fable/">Live Demo</a>
+</p>
 
 ## Monorepo Structure
 
